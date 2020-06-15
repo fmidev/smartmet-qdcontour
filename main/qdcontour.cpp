@@ -16,26 +16,34 @@
 #include "MeridianTools.h"
 #include "MetaFunctions.h"
 #include "TimeTools.h"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <gis/CoordinateMatrix.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/OGR.h>
 #include <imagine/NFmiColorTools.h>
-#include <imagine/NFmiGeoShape.h>  // for esri data
-#include <newbase/NFmiCmdLine.h>   // command line options
-#include <newbase/NFmiDataMatrix.h>
-#include <newbase/NFmiDataModifierClasses.h>
-#include <newbase/NFmiEnumConverter.h>  // FmiParameterName<-->string
-#include <newbase/NFmiFileSystem.h>     // FileExists()
-#include <newbase/NFmiGrid.h>
-#include <newbase/NFmiInterpolation.h>  // Interpolation functions
-#include <newbase/NFmiLevel.h>
-#include <newbase/NFmiPreProcessor.h>
-#include <newbase/NFmiSettings.h>  // Configuration
-#include <newbase/NFmiSmoother.h>  // for smoothing data
+
+#include <imagine/NFmiColorTools.h>
+
+#ifdef IMAGINE_WITH_CAIRO
+#include "ImagineXr.h"
+typedef ImagineXr ImagineXr_or_NFmiImage;
+#else
+#include <imagine/NFmiFace.h>
+#include <imagine/NFmiFreeType.h>
+#include <imagine/NFmiImage.h>
+typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
+#endif
+
+#include <newbase/NFmiSettings.h>           // Configuration
+#include <newbase/NFmiSettings.h>           // Configuration
+#include <newbase/NFmiSmoother.h>           // for smoothing data
+#include <newbase/NFmiSmoother.h>           // for smoothing data
+#include <newbase/NFmiStereographicArea.h>  // Stereographic projection
 #include <newbase/NFmiStringTools.h>
+
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <fstream>
 #include <iomanip>
 #include <list>
@@ -190,11 +198,24 @@ void parse_command_line(int argc, const char *argv[])
 
 const string read_script(const string &theName)
 {
+  extern char **environ;
+
   const bool strip_pound = false;
   NFmiPreProcessor processor(strip_pound);
 
   processor.SetDefine("#define");
   processor.SetIncluding("include", "", "");
+
+  int i = 1;
+  char *s = *environ;
+
+  for (; s; i++)
+  {
+    std::string setting = s;
+    auto parts = NFmiStringTools::Split(setting, "=");
+    processor.AddReplaceString("$" + parts[0], parts[1]);
+    s = *(environ + i);
+  }
 
   if (!processor.ReadAndStripFile(theName))
   {
