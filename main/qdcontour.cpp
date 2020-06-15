@@ -5,10 +5,11 @@
  */
 // ======================================================================
 
-#include "Globals.h"
 #include "ColorTools.h"
-#include "ContourSpec.h"
 #include "ContourInterpolation.h"
+#include "ContourSpec.h"
+#include "ExtremaLocator.h"
+#include "Globals.h"
 #include "GramTools.h"
 #include "LazyCoordinates.h"
 #include "LazyQueryData.h"
@@ -16,7 +17,6 @@
 #include "MetaFunctions.h"
 #include "ProjectionFactory.h"
 #include "TimeTools.h"
-#include "ExtremaLocator.h"
 
 #include <imagine/NFmiColorTools.h>
 
@@ -24,9 +24,9 @@
 #include "ImagineXr.h"
 typedef ImagineXr ImagineXr_or_NFmiImage;
 #else
+#include <imagine/NFmiFace.h>
 #include <imagine/NFmiFreeType.h>
 #include <imagine/NFmiImage.h>
-#include <imagine/NFmiFace.h>
 typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
 #endif
 
@@ -42,15 +42,15 @@ typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
 #include <newbase/NFmiInterpolation.h>  // Interpolation functions
 #include <newbase/NFmiLatLonArea.h>     // Geographic projection
 #include <newbase/NFmiLevel.h>
+#include <newbase/NFmiPreProcessor.h>
 #include <newbase/NFmiSettings.h>           // Configuration
 #include <newbase/NFmiSmoother.h>           // for smoothing data
 #include <newbase/NFmiStereographicArea.h>  // Stereographic projection
 #include <newbase/NFmiStringTools.h>
-#include <newbase/NFmiPreProcessor.h>
 
 #include <boost/foreach.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -196,18 +196,31 @@ void parse_command_line(int argc, const char *argv[])
 
 const string read_script(const string &theName)
 {
+  extern char **environ;
+
   const bool strip_pound = false;
   NFmiPreProcessor processor(strip_pound);
 
   processor.SetDefine("#define");
   processor.SetIncluding("include", "", "");
 
+  int i = 1;
+  char *s = *environ;
+
+  for (; s; i++)
+  {
+    std::string setting = s;
+    auto parts = NFmiStringTools::Split(setting, "=");
+    processor.AddReplaceString("$" + parts[0], parts[1]);
+    s = *(environ + i);
+  }
+
   if (!processor.ReadAndStripFile(theName))
   {
     if (!NFmiFileSystem::FileExists(theName))
       throw runtime_error("Script file '" + theName + "' does not exist");
-    throw runtime_error("Preprocessor failed to parse '" + theName + "': " +
-                        processor.GetMessage());
+    throw runtime_error("Preprocessor failed to parse '" + theName +
+                        "': " + processor.GetMessage());
   }
 
   return processor.GetString();
@@ -1343,17 +1356,16 @@ void do_format(istream &theInput)
   check_errors(theInput, "format");
 
   if (globals.format != "png" && globals.format != "pdf" &&  // AKa 15-Aug-2008
-      globals.format != "jpg" &&
-      globals.format != "jpeg" && globals.format != "pnm" && globals.format != "pgm" &&
-      globals.format != "wbmp" && globals.format != "gif")
+      globals.format != "jpg" && globals.format != "jpeg" && globals.format != "pnm" &&
+      globals.format != "pgm" && globals.format != "wbmp" && globals.format != "gif")
   {
     throw runtime_error("Image format +'" + globals.format + "' is not supported");
   }
 }
 
 /*
-* Handle "antialias" and other Cairo-specific commands
-*/
+ * Handle "antialias" and other Cairo-specific commands
+ */
 #if 0  // def IMAGINE_WITH_CAIRO
   void do_antialias( istream &in ) {
     in >> globals.antialias;
@@ -3216,7 +3228,7 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
 
   if (theSpec.labelFormat() == "") return;
 
-// Create the face object to be used
+    // Create the face object to be used
 
 #ifdef IMAGINE_WITH_CAIRO
   img.MakeFace(theSpec.labelFont());
@@ -3280,7 +3292,7 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
 
 #ifdef IMAGINE_WITH_CAIRO
       /* Cairo text (must be in UTF-8!)
-      */
+       */
       img.DrawFace(static_cast<int>(round(x + theSpec.labelOffsetX())),
                    static_cast<int>(round(y + theSpec.labelOffsetY())),
                    strvalue,
@@ -3365,7 +3377,7 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
 
 #ifdef IMAGINE_WITH_CAIRO
       /* Cairo text (must be in UTF-8!)
-      */
+       */
       // Set new text properties
 
       img.DrawFace(static_cast<int>(round(x + theSpec.labelOffsetX())),
@@ -5214,7 +5226,7 @@ void do_draw_contours(istream &theInput)
 
     labeldxdydone = true;
 
-// Save
+    // Save
 
 #ifdef IMAGINE_WITH_CAIRO
     assert(xr->Filename() != "");
