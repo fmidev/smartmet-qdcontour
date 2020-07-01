@@ -16,34 +16,25 @@
 #include "MeridianTools.h"
 #include "MetaFunctions.h"
 #include "TimeTools.h"
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
 #include <gis/CoordinateMatrix.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/OGR.h>
 #include <imagine/NFmiColorTools.h>
-
-#include <imagine/NFmiColorTools.h>
-
-#ifdef IMAGINE_WITH_CAIRO
-#include "ImagineXr.h"
-typedef ImagineXr ImagineXr_or_NFmiImage;
-#else
-#include <imagine/NFmiFace.h>
-#include <imagine/NFmiFreeType.h>
-#include <imagine/NFmiImage.h>
-typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
-#endif
-
-#include <newbase/NFmiSettings.h>           // Configuration
-#include <newbase/NFmiSettings.h>           // Configuration
-#include <newbase/NFmiSmoother.h>           // for smoothing data
-#include <newbase/NFmiSmoother.h>           // for smoothing data
-#include <newbase/NFmiStereographicArea.h>  // Stereographic projection
+#include <imagine/NFmiGeoShape.h>
+#include <newbase/NFmiCmdLine.h>
+#include <newbase/NFmiDataModifierAvg.h>
+#include <newbase/NFmiEnumConverter.h>
+#include <newbase/NFmiFileSystem.h>
+#include <newbase/NFmiGrid.h>
+#include <newbase/NFmiInterpolation.h>
+#include <newbase/NFmiLevel.h>
+#include <newbase/NFmiPreProcessor.h>
+#include <newbase/NFmiSettings.h>  // Configuration
+#include <newbase/NFmiSmoother.h>  // for smoothing data
 #include <newbase/NFmiStringTools.h>
-
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <fstream>
 #include <iomanip>
 #include <list>
