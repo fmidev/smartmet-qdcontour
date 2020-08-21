@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 20.7.1
+Version: 20.8.21
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -17,8 +17,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: smartmet-library-imagine-devel >= 20.7.1
-BuildRequires: smartmet-library-newbase-devel >= 20.6.30
+BuildRequires: smartmet-library-imagine-devel >= 20.8.21
+BuildRequires: smartmet-library-newbase-devel >= 20.8.21
 BuildRequires: smartmet-library-tron >= 20.4.23
 BuildRequires: smartmet-library-gis > 1.0
 BuildRequires: geos38-devel
@@ -26,9 +26,9 @@ BuildRequires: gdal30-devel
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 20.7.1
-Requires: smartmet-library-newbase >= 20.6.30
-Requires: smartmet-library-gis >= 20.6.29
+Requires: smartmet-library-imagine >= 20.8.21
+Requires: smartmet-library-newbase >= 20.8.21
+Requires: smartmet-library-gis >= 20.8.21
 Requires: geos38
 Requires: gdal30
 Requires: freetype
@@ -61,6 +61,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Aug 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.21-1.fmi
+- Upgrade to fmt 6.2
+
 * Wed Jul  1 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.7.1-1.fmi
 - Repackaged due to projection fixes
 
