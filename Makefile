@@ -32,8 +32,6 @@ DIFFICULTFLAGS = \
 	-pedantic \
 	-Wshadow
 
-CC = g++
-
 # Default compiler flags
 
 DEFINES = -DUNIX
@@ -52,12 +50,12 @@ LDFLAGS_PROFILE =
 # Boost 1.69
 
 ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -I/usr/include/boost169
+  INCLUDES += -isystem /usr/include/boost169
   LIBS += -L/usr/lib64/boost169
 endif
 
 
-INCLUDES += -I$(includedir) \
+INCLUDES += \
 	-I$(includedir)/smartmet
 
 LIBS += -L$(libdir) \
@@ -149,7 +147,7 @@ profile: objdir $(MAINPROGS)
 
 .SECONDEXPANSION:
 $(MAINPROGS): % : $(OBJFILES) $(MAINOBJFILES)
-	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
 	rm -f $(MAINPROGS) source/*~ include/*~
@@ -181,6 +179,6 @@ rpm: clean $(SPEC).spec
 .SUFFIXES: $(SUFFIXES) .cpp
 
 obj/%.o : %.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+	$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 -include obj/*.d
