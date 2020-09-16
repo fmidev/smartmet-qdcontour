@@ -64,7 +64,8 @@ LIBS += -L$(libdir) \
 	-lsmartmet-tron \
 	-lgeos \
 	-lboost_iostreams \
-	-lboost_system
+	-lboost_system \
+	-lstdc++ -lm
 
 # Common library compiling template
 
@@ -147,7 +148,7 @@ profile: objdir $(MAINPROGS)
 
 .SECONDEXPANSION:
 $(MAINPROGS): % : $(OBJFILES) $(MAINOBJFILES)
-	$(CXX) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
 	rm -f $(MAINPROGS) source/*~ include/*~
