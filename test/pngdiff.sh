@@ -15,7 +15,7 @@ OK_PNG=$1
 PNG=$2
 DIFF_PNG=$3
 
-if [[ "$CI" == ""]]; then
+if [[ $CI == "" ]]; then
   COL_RED="$(tput setaf 1)"
   COL_GREEN="$(tput setaf 2)"
   COL_YELLOW="$(tput setaf 3)"
