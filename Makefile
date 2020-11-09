@@ -166,7 +166,7 @@ install:
 	done
 
 test:
-	cd test && make test
+	make --quiet -C test test
 
 objdir:
 	@mkdir -p $(objdir)
