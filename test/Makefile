@@ -1,17 +1,10 @@
+ifneq "$(wildcard ../qdcontour)" ""
 PROGRAM=../qdcontour
+else
+PROGRAM=qdcontour
+endif
 
 all: test
-
-#---
-# perltest:
-# 
-# Old test using Perl script and self-made 'imagecompare'
-#
-perltest: $(PROGRAM)
-	./perltest.pl
-
-$(PROGRAM):
-	cd .. && make
 
 clean:
 	rm -f *~ */*~ results/* results_diff/*
@@ -143,13 +136,13 @@ test:
 
 PNG=$(notdir $(wildcard results_ok/$(TEST)_*.png)$(wildcard results_ok/$(TEST).png))
 
-_check: $(PROGRAM)
+_check:
 	@echo -n "$(TEST)..........................................." | sed -e 's/^\(.\{40\}\).*/\1/g'
 	@-mkdir -p results_diff
 	$(PROGRAM) -f conf/$(TEST).conf
 	-./pngdiff.sh results_ok/$(PNG) results/$(PNG) results_diff/$(PNG)
 
-_check_pdf: $(PROGRAM)
+_check_pdf:
 	@echo
 	@echo "*** $(TEST) ***"
 	@echo
