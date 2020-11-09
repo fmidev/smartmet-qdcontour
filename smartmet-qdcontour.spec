@@ -31,6 +31,10 @@ Requires: libpng
 Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
+#TestRequires: ImageMagick
+#TestRequires: bc
+#TestRequires: xorg-x11-fonts-misc
+#TestRequires: coreutils
 
 %description
 qdcontour
