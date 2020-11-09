@@ -35,6 +35,7 @@ Provides: qdcontour
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
 #TestRequires: coreutils
+#TestRequires: liberation-sans-fonts
 
 %description
 qdcontour
