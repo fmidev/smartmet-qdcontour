@@ -7,10 +7,12 @@
 
 #include "ContourCalculator.h"
 #include "ContourCache.h"
-#include "LazyQueryData.h"
 #include "DataMatrixAdapter.h"
+#include "LazyQueryData.h"
 
 #include <newbase/NFmiDataMatrix.h>
+
+#include <geos/version.h>
 
 #include <tron/FmiBuilder.h>
 #include <tron/Tron.h>
@@ -31,10 +33,9 @@ typedef Tron::Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::Lin
 typedef Tron::Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::LogLinearInterpolation>
     MyLogLinearContourer;
 
-typedef Tron::Contourer<DataMatrixAdapter,
-                        Tron::FmiBuilder,
-                        MyTraits,
-                        Tron::NearestNeighbourInterpolation> MyNearestContourer;
+typedef Tron::
+    Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::NearestNeighbourInterpolation>
+        MyNearestContourer;
 
 typedef Tron::Contourer<DataMatrixAdapter, Tron::FmiBuilder, MyTraits, Tron::DiscreteInterpolation>
     MyDiscreteContourer;
@@ -55,7 +56,8 @@ void add_path(Imagine::NFmiPath &path, const Geometry *geom);
 
 void add_linearring(Imagine::NFmiPath &path, const LinearRing *geom)
 {
-  if (geom == nullptr || geom->isEmpty()) return;
+  if (geom == nullptr || geom->isEmpty())
+    return;
 
   for (unsigned long i = 0, n = geom->getNumPoints(); i < n - 1; ++i)
   {
@@ -75,7 +77,8 @@ void add_linearring(Imagine::NFmiPath &path, const LinearRing *geom)
 
 void add_linestring(Imagine::NFmiPath &path, const LineString *geom)
 {
-  if (geom == nullptr || geom->isEmpty()) return;
+  if (geom == nullptr || geom->isEmpty())
+    return;
 
   unsigned long n = geom->getNumPoints();
 
@@ -97,7 +100,8 @@ void add_linestring(Imagine::NFmiPath &path, const LineString *geom)
 
 void add_polygon(Imagine::NFmiPath &path, const Polygon *geom)
 {
-  if (geom == nullptr || geom->isEmpty()) return;
+  if (geom == nullptr || geom->isEmpty())
+    return;
 
   add_linestring(path, geom->getExteriorRing());
 
@@ -113,7 +117,8 @@ void add_polygon(Imagine::NFmiPath &path, const Polygon *geom)
 
 void add_multilinestring(Imagine::NFmiPath &path, const MultiLineString *geom)
 {
-  if (geom == nullptr || geom->isEmpty()) return;
+  if (geom == nullptr || geom->isEmpty())
+    return;
 
   for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
     add_linestring(path, dynamic_cast<const LineString *>(geom->getGeometryN(i)));
@@ -127,7 +132,8 @@ void add_multilinestring(Imagine::NFmiPath &path, const MultiLineString *geom)
 
 void add_multipolygon(Imagine::NFmiPath &path, const MultiPolygon *geom)
 {
-  if (geom == nullptr || geom->isEmpty()) return;
+  if (geom == nullptr || geom->isEmpty())
+    return;
 
   for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
     add_polygon(path, dynamic_cast<const Polygon *>(geom->getGeometryN(i)));
@@ -141,7 +147,8 @@ void add_multipolygon(Imagine::NFmiPath &path, const MultiPolygon *geom)
 
 void add_geometrycollection(Imagine::NFmiPath &path, const GeometryCollection *geom)
 {
-  if (geom == nullptr || geom->isEmpty()) return;
+  if (geom == nullptr || geom->isEmpty())
+    return;
 
   for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
     add_path(path, geom->getGeometryN(i));
@@ -212,7 +219,8 @@ class ContourCalculatorPimple
 
 void ContourCalculatorPimple::require_hints()
 {
-  if (itsHintsOK) return;
+  if (itsHintsOK)
+    return;
 
   itsHints.reset(new MyHints(*itsData));
   itsHintsOK = true;
@@ -231,7 +239,10 @@ ContourCalculator::~ContourCalculator() {}
  */
 // ----------------------------------------------------------------------
 
-ContourCalculator::ContourCalculator() { itsPimple.reset(new ContourCalculatorPimple()); }
+ContourCalculator::ContourCalculator()
+{
+  itsPimple.reset(new ContourCalculatorPimple());
+}
 // ----------------------------------------------------------------------
 /*!
  * \brief Clear the cache
@@ -252,7 +263,10 @@ void ContourCalculator::clearCache()
  */
 // ----------------------------------------------------------------------
 
-void ContourCalculator::cache(bool theFlag) { itsPimple->isCacheOn = theFlag; }
+void ContourCalculator::cache(bool theFlag)
+{
+  itsPimple->isCacheOn = theFlag;
+}
 // ----------------------------------------------------------------------
 /*!
  * \brief Return whether the last contour was cached
@@ -261,7 +275,10 @@ void ContourCalculator::cache(bool theFlag) { itsPimple->isCacheOn = theFlag; }
  */
 // ----------------------------------------------------------------------
 
-bool ContourCalculator::wasCached() const { return itsPimple->itWasCached; }
+bool ContourCalculator::wasCached() const
+{
+  return itsPimple->itWasCached;
+}
 // ----------------------------------------------------------------------
 /*!
  * \brief Set new active data on
@@ -304,9 +321,17 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
 
   // Build the contours
 
+#if GEOS_VERSION_MAJOR == 3
+#if GEOS_VERSION_MINOR < 7
   boost::shared_ptr<GeometryFactory> geomFactory = boost::make_shared<GeometryFactory>();
-
   Tron::FmiBuilder builder(geomFactory);
+#else
+  geos::geom::GeometryFactory::Ptr geomFactory(geos::geom::GeometryFactory::create());
+  Tron::FmiBuilder builder(*geomFactory);
+#endif
+#else
+#pragma message(Cannot handle current GEOS version correctly)
+#endif
 
   switch (theInterpolation)
   {
@@ -394,9 +419,17 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
 
   itsPimple->require_hints();
 
+#if GEOS_VERSION_MAJOR == 3
+#if GEOS_VERSION_MINOR < 7
   boost::shared_ptr<GeometryFactory> geomFactory = boost::make_shared<GeometryFactory>();
-
   Tron::FmiBuilder builder(geomFactory);
+#else
+  geos::geom::GeometryFactory::Ptr geomFactory(geos::geom::GeometryFactory::create());
+  Tron::FmiBuilder builder(*geomFactory);
+#endif
+#else
+#pragma message(Cannot handle current GEOS version correctly)
+#endif
 
   switch (theInterpolation)
   {

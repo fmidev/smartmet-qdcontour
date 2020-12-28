@@ -1,3 +1,7 @@
+#pragma once
+
+#include <newbase/NFmiDataMatrix.h>
+
 class DataMatrixAdapter
 {
  public:
@@ -23,6 +27,7 @@ class DataMatrixAdapter
   coord_type y(size_type i, size_type j) const { return static_cast<float>(j); }
   size_type width() const { return itsWidth; }
   size_type height() const { return itsHeight; }
+
  private:
   DataMatrixAdapter();
   const NFmiDataMatrix<float> &itsMatrix;

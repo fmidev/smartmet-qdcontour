@@ -1,110 +1,25 @@
 MODULE = qdcontour
 SPEC = smartmet-qdcontour
 
-MAINFLAGS = -MD -Wall -W -Wno-unused-parameter
+REQUIRES = geos
+include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
-ifeq (6, $(RHEL_VERSION))
-  MAINFLAGS += -std=c++0x
-else
-  MAINFLAGS += -std=c++11 -fdiagnostics-color=always
-endif
+# Compiler options
 
-EXTRAFLAGS = \
-	-Werror \
-	-Winline \
-	-Wpointer-arith \
-	-Wcast-qual \
-	-Wcast-align \
-	-Wwrite-strings \
-	-Wno-pmf-conversions \
-	-Wsign-promo \
-	-Wchar-subscripts \
-	-Woverloaded-virtual
+DEFINES = -DUNIX -DUSE_UNSTABLE_GEOS_CPP_API
 
-DIFFICULTFLAGS = \
-	-Wunreachable-code \
-	-Wconversion \
-	-Wnon-virtual-dtor \
-	-Wctor-dtor-privacy \
-	-Wredundant-decls \
-	-Weffc++ \
-	-Wold-style-cast \
-	-pedantic \
-	-Wshadow
-
-# Default compiler flags
-
-DEFINES = -DUNIX
-
-CFLAGS = $(DEFINES) -O2 -DNDEBUG $(MAINFLAGS)
-LDFLAGS = 
-
-# Special modes
-
-CFLAGS_DEBUG = $(DEFINES) -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-CFLAGS_PROFILE = $(DEFINES) -O2 -g -pg -DNDEBUG $(MAINFLAGS)
-
-LDFLAGS_DEBUG =
-LDFLAGS_PROFILE =
-
-# Boost 1.69
-
-ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -isystem /usr/include/boost169
-  LIBS += -L/usr/lib64/boost169
-endif
-
-
-INCLUDES += \
-	-I$(includedir)/smartmet
-
-LIBS += -L$(libdir) \
+LIBS += $(REQUIRED_LIBS) \
+	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
 	-lsmartmet-imagine \
 	-lsmartmet-tron \
-	-lgeos \
 	-lboost_iostreams \
 	-lboost_system \
+	-lboost_filesystem \
+	-lboost_thread \
 	-lstdc++ -lm
 
-# Common library compiling template
-
-# Installation directories
-
-processor := $(shell uname -p)
-
-ifeq ($(origin PREFIX), undefined)
-  PREFIX = /usr
-else
-  PREFIX = $(PREFIX)
-endif
-
-ifeq ($(processor), x86_64)
-  libdir = $(PREFIX)/lib64
-else
-  libdir = $(PREFIX)/lib
-endif
-
-objdir = obj
-includedir = $(PREFIX)/include
-
-ifeq ($(origin BINDIR), undefined)
-  bindir = $(PREFIX)/bin
-else
-  bindir = $(BINDIR)
-endif
-
-# Special modes
-
-ifneq (,$(findstring debug,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_DEBUG)
-  LDFLAGS = $(LDFLAGS_DEBUG)
-endif
-
-ifneq (,$(findstring profile,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_PROFILE)
-  LDFLAGS = $(LDFLAGS_PROFILE)
-endif
+LDFLAGS = 
 
 # Compilation directories
 
@@ -112,11 +27,6 @@ vpath %.cpp source main
 vpath %.h include
 vpath %.o $(objdir)
 vpath %.d $(objdir)
-
-# How to install
-
-INSTALL_PROG = install -m 775
-INSTALL_DATA = install -m 664
 
 # The files to be compiled
 
