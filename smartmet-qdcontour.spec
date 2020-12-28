@@ -33,6 +33,7 @@ Requires: libpng
 Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
+#TestRequires: smartmet-library-macgyver-devel >= 20.12.15
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
