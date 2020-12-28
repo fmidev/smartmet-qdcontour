@@ -17,6 +17,7 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
+BuildRequires: geos38-devel
 BuildRequires: smartmet-library-macgyver-devel >= 20.12.15
 BuildRequires: smartmet-library-imagine-devel >= 20.8.21
 BuildRequires: smartmet-library-newbase-devel >= 20.8.21
