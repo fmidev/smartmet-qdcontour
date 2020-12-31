@@ -4,7 +4,7 @@ SPEC = smartmet-qdcontour
 REQUIRES = geos
 
 # Due to GEOS make_unique problems:
-CXX_STD=c++11
+# CXX_STD=c++11
 
 include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
