@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 21.1.5
+Version: 21.1.14
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -21,22 +21,22 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos39-devel
-BuildRequires: smartmet-library-macgyver-devel >= 21.1.4
-BuildRequires: smartmet-library-imagine-devel >= 20.12.15
-BuildRequires: smartmet-library-newbase-devel >= 21.1.4
-BuildRequires: smartmet-library-tron >= 21.1.5
+BuildRequires: smartmet-library-macgyver-devel >= 21.1.14
+BuildRequires: smartmet-library-imagine-devel >= 21.1.14
+BuildRequires: smartmet-library-newbase-devel >= 21.1.14
+BuildRequires: smartmet-library-tron >= 21.1.14
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 20.12.15
-Requires: smartmet-library-newbase >= 21.1.4
+Requires: smartmet-library-imagine >= 21.1.14
+Requires: smartmet-library-newbase >= 21.1.14
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
 Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
-#TestRequires: smartmet-library-macgyver-devel >= 21.1.4
+#TestRequires: smartmet-library-macgyver-devel >= 21.1.14
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
@@ -66,6 +66,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jan 14 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.14-1.fmi
+- Repackaged smartmet to resolve debuginfo issues
+
 * Tue Jan  5 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.5-1.fmi
 - Upgrade to GEOS 3.9
 
