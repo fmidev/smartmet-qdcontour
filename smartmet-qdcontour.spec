@@ -13,6 +13,7 @@ BuildRequires: rpm-build
 BuildRequires: gcc-c++
 %if %{defined el7}
 BuildRequires: devtoolset-7-gcc-c++
+#TestRequires: devtoolset-7-gcc-c++
 %endif
 BuildRequires: make
 BuildRequires: boost169-devel
