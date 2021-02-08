@@ -62,7 +62,7 @@ profile: objdir $(MAINPROGS)
 
 .SECONDEXPANSION:
 $(MAINPROGS): % : $(OBJFILES) $(MAINOBJFILES)
-	$(CXX) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
+	$(CXX) $(LDFLAGS) $(filter -fsanitize=%,$(CFLAGS)) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
 	rm -f $(MAINPROGS) source/*~ include/*~
