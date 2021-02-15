@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 20.8.21
+Version: 21.2.11
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -11,32 +11,38 @@ Source0: %{name}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot-%(%{__id_u} -n)
 BuildRequires: rpm-build
 BuildRequires: gcc-c++
+%if %{defined el7}
+BuildRequires: devtoolset-7-gcc-c++
+%endif
 BuildRequires: make
 BuildRequires: boost169-devel
 BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: smartmet-library-imagine-devel >= 20.8.21
-BuildRequires: smartmet-library-newbase-devel >= 20.8.21
-BuildRequires: smartmet-library-tron >= 20.4.23
-BuildRequires: smartmet-library-gis > 1.0
-BuildRequires: geos38-devel
-BuildRequires: gdal30-devel
+BuildRequires: geos39-devel
+BuildRequires: smartmet-library-macgyver-devel >= 21.1.25
+BuildRequires: smartmet-library-imagine-devel >= 21.1.14
+BuildRequires: smartmet-library-newbase-devel >= 21.2.10
+BuildRequires: smartmet-library-tron >= 21.2.10
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 20.8.21
-Requires: smartmet-library-newbase >= 20.8.21
-Requires: smartmet-library-gis >= 20.8.21
-Requires: geos38
-Requires: gdal30
+Requires: smartmet-library-imagine >= 21.1.14
+Requires: smartmet-library-newbase >= 21.2.10
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
 Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
+#TestRequires: gcc-c++
+#TestRequires: smartmet-library-macgyver-devel >= 21.1.25
+#TestRequires: ImageMagick
+#TestRequires: bc
+#TestRequires: xorg-x11-fonts-misc
+#TestRequires: coreutils
+#TestRequires: liberation-sans-fonts
 
 %description
 qdcontour
@@ -61,6 +67,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 11 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.2.11-1.fmi
+- Merged master and WGS84 branches
+
+* Thu Jan 14 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.14-1.fmi
+- Repackaged smartmet to resolve debuginfo issues
+
+* Tue Jan  5 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.5-1.fmi
+- Upgrade to GEOS 3.9
+
 * Fri Aug 21 2020 Mika Heiskanen <mika.heiskanen@fmi.fi> - 20.8.21-1.fmi
 - Upgrade to fmt 6.2
 

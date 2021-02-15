@@ -15,16 +15,14 @@ OK_PNG=$1
 PNG=$2
 DIFF_PNG=$3
 
-COL_BOLD="$(tput bold)"
-COL_OFF="$(tput sgr0)"
-
-COL_RED="$(tput setaf 1)"
-COL_GREEN="$(tput setaf 2)"
-COL_YELLOW="$(tput setaf 3)"
-
-# This next line will not work in dark themes where colour 0 is black - the text will disappear
-# COL_NORM="$(tput setaf 0)"
-COL_NORM="$(tput sgr0)"
+if [[ $CI == "" ]]; then
+  COL_RED="$(tput setaf 1)"
+  COL_GREEN="$(tput setaf 2)"
+  COL_YELLOW="$(tput setaf 3)"
+  COL_NORM="$(tput setaf 0)"
+  COL_BOLD="$(tput bold)"
+  COL_OFF="$(tput sgr0)"
+fi
 
 if [ \! -f $PNG ]; then
     echo "${COL_RED}*** FAILED:${COL_NORM} '${PNG}' not created"

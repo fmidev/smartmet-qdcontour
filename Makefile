@@ -1,129 +1,29 @@
 MODULE = qdcontour
 SPEC = smartmet-qdcontour
 
-MAINFLAGS = -MD -Wall -W -Wno-unused-parameter
+REQUIRES = geos
 
-ifeq (6, $(RHEL_VERSION))
-  MAINFLAGS += -std=c++0x
-else
-  MAINFLAGS += -std=c++11 -fdiagnostics-color=always
-endif
+# Due to GEOS make_unique problems:
+# CXX_STD=c++11
 
-EXTRAFLAGS = \
-	-Werror \
-	-Winline \
-	-Wpointer-arith \
-	-Wcast-qual \
-	-Wcast-align \
-	-Wwrite-strings \
-	-Wno-pmf-conversions \
-	-Wsign-promo \
-	-Wchar-subscripts \
-	-Woverloaded-virtual
+include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
-DIFFICULTFLAGS = \
-	-Wunreachable-code \
-	-Wconversion \
-	-Wnon-virtual-dtor \
-	-Wctor-dtor-privacy \
-	-Wredundant-decls \
-	-Weffc++ \
-	-Wold-style-cast \
-	-pedantic \
-	-Wshadow
-
-CC = g++
-
-# Default compiler flags
+# Compiler options
 
 DEFINES = -DUNIX -DUSE_UNSTABLE_GEOS_CPP_API
 
-CFLAGS = $(DEFINES) -O2 -DNDEBUG $(MAINFLAGS)
-LDFLAGS = 
-
-# Special modes
-
-CFLAGS_DEBUG = $(DEFINES) -O0 -g $(MAINFLAGS) $(EXTRAFLAGS) -Werror
-CFLAGS_PROFILE = $(DEFINES) -O2 -g -pg -DNDEBUG $(MAINFLAGS)
-
-LDFLAGS_DEBUG =
-LDFLAGS_PROFILE =
-
-# Boost 1.69
-
-ifneq "$(wildcard /usr/include/boost169)" ""
-  INCLUDES += -I/usr/include/boost169
-  LIBS += -L/usr/lib64/boost169
-endif
-
-ifneq "$(wildcard /usr/gdal30/include)" ""
-  INCLUDES += -I/usr/gdal30/include
-  LIBS += -L$(PREFIX)/gdal30/lib
-else
-  INCLUDES += -I/usr/include/gdal
-endif
-
-ifneq "$(wildcard /usr/geos38/include)" ""
-  INCLUDES += -I/usr/geos38/include
-  LIBS += -L/usr/geos38/lib64
-else
-  INCLUDES += -I/usr/include/geos
-endif
-
-
-INCLUDES += \
-	-I$(includedir) \
-	-I$(includedir)/smartmet
-
-LIBS += \
-	-L$(libdir) \
+LIBS += $(REQUIRED_LIBS) \
+	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
 	-lsmartmet-imagine \
 	-lsmartmet-tron \
-	-lsmartmet-gis \
-	-lgdal \
-	-lgeos \
 	-lboost_iostreams \
-	-lboost_system
+	-lboost_system \
+	-lboost_filesystem \
+	-lboost_thread \
+	-lstdc++ -lm
 
-# Common library compiling template
-
-# Installation directories
-
-processor := $(shell uname -p)
-
-ifeq ($(origin PREFIX), undefined)
-  PREFIX = /usr
-else
-  PREFIX = $(PREFIX)
-endif
-
-ifeq ($(processor), x86_64)
-  libdir = $(PREFIX)/lib64
-else
-  libdir = $(PREFIX)/lib
-endif
-
-objdir = obj
-includedir = $(PREFIX)/include
-
-ifeq ($(origin BINDIR), undefined)
-  bindir = $(PREFIX)/bin
-else
-  bindir = $(BINDIR)
-endif
-
-# Special modes
-
-ifneq (,$(findstring debug,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_DEBUG)
-  LDFLAGS = $(LDFLAGS_DEBUG)
-endif
-
-ifneq (,$(findstring profile,$(MAKECMDGOALS)))
-  CFLAGS = $(CFLAGS_PROFILE)
-  LDFLAGS = $(LDFLAGS_PROFILE)
-endif
+LDFLAGS = 
 
 # Compilation directories
 
@@ -131,11 +31,6 @@ vpath %.cpp source main
 vpath %.h include
 vpath %.o $(objdir)
 vpath %.d $(objdir)
-
-# How to install
-
-INSTALL_PROG = install -m 775
-INSTALL_DATA = install -m 664
 
 # The files to be compiled
 
@@ -167,7 +62,7 @@ profile: objdir $(MAINPROGS)
 
 .SECONDEXPANSION:
 $(MAINPROGS): % : $(OBJFILES) $(MAINOBJFILES)
-	$(CC) $(LDFLAGS) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
+	$(CXX) $(LDFLAGS) $(filter -fsanitize=%,$(CFLAGS)) -o $@ obj/$@.o $(OBJFILES) $(LIBS)
 
 clean:
 	rm -f $(MAINPROGS) source/*~ include/*~
@@ -185,7 +80,7 @@ install:
 	done
 
 test:
-	cd test && make test
+	make --quiet -C test test
 
 objdir:
 	@mkdir -p $(objdir)
@@ -193,12 +88,12 @@ objdir:
 rpm: clean $(SPEC).spec
 	rm -f $(SPEC).tar.gz # Clean a possible leftover from previous attempt
 	tar -czvf $(SPEC).tar.gz --exclude test --exclude-vcs --transform "s,^,$(SPEC)/," *
-	rpmbuild -ta $(SPEC).tar.gz
+	rpmbuild -tb $(SPEC).tar.gz
 	rm -f $(SPEC).tar.gz
 
 .SUFFIXES: $(SUFFIXES) .cpp
 
 obj/%.o : %.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+	$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 -include obj/*.d
