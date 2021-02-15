@@ -8,6 +8,7 @@
 #include "LazyQueryData.h"
 #include <gis/CoordinateMatrix.h>
 #include <gis/CoordinateTransformation.h>
+#include <gis/SpatialReference.h>
 #include <newbase/NFmiFastQueryInfo.h>
 #include <newbase/NFmiFileSystem.h>
 #include <newbase/NFmiGrid.h>
@@ -54,7 +55,10 @@ std::string LazyQueryData::GetParamName() const
  */
 // ----------------------------------------------------------------------
 
-unsigned long LazyQueryData::GetParamIdent() const { return (itsInfo->Param().GetParamIdent()); }
+unsigned long LazyQueryData::GetParamIdent() const
+{
+  return (itsInfo->Param().GetParamIdent());
+}
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the level number
@@ -63,7 +67,10 @@ unsigned long LazyQueryData::GetParamIdent() const { return (itsInfo->Param().Ge
  */
 // ----------------------------------------------------------------------
 
-float LazyQueryData::GetLevelNumber() const { return (itsInfo->Level()->LevelValue()); }
+float LazyQueryData::GetLevelNumber() const
+{
+  return (itsInfo->Level()->LevelValue());
+}
 // ----------------------------------------------------------------------
 /*!
  * \brief Lazy-read the given query data file
@@ -89,91 +96,130 @@ void LazyQueryData::Read(const std::string &theDataFile)
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::ResetTime() { itsInfo->ResetTime(); }
+void LazyQueryData::ResetTime()
+{
+  itsInfo->ResetTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-void LazyQueryData::ResetLevel() { itsInfo->ResetLevel(); }
+void LazyQueryData::ResetLevel()
+{
+  itsInfo->ResetLevel();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::FirstLevel() { return itsInfo->FirstLevel(); }
+bool LazyQueryData::FirstLevel()
+{
+  return itsInfo->FirstLevel();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::FirstTime() { return itsInfo->FirstTime(); }
+bool LazyQueryData::FirstTime()
+{
+  return itsInfo->FirstTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::LastTime() { return itsInfo->LastTime(); }
+bool LazyQueryData::LastTime()
+{
+  return itsInfo->LastTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::NextLevel() { return itsInfo->NextLevel(); }
+bool LazyQueryData::NextLevel()
+{
+  return itsInfo->NextLevel();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiLevel *LazyQueryData::Level() const { return itsInfo->Level(); }
+const NFmiLevel *LazyQueryData::Level() const
+{
+  return itsInfo->Level();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::NextTime() { return itsInfo->NextTime(); }
+bool LazyQueryData::NextTime()
+{
+  return itsInfo->NextTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::PreviousTime() { return itsInfo->PreviousTime(); }
+bool LazyQueryData::PreviousTime()
+{
+  return itsInfo->PreviousTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::Param(FmiParameterName theParam) { return itsInfo->Param(theParam); }
+bool LazyQueryData::Param(FmiParameterName theParam)
+{
+  return itsInfo->Param(theParam);
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiMetTime &LazyQueryData::ValidTime() const { return itsInfo->ValidTime(); }
+const NFmiMetTime &LazyQueryData::ValidTime() const
+{
+  return itsInfo->ValidTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiMetTime &LazyQueryData::OriginTime() const { return itsInfo->OriginTime(); }
+const NFmiMetTime &LazyQueryData::OriginTime() const
+{
+  return itsInfo->OriginTime();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-bool LazyQueryData::IsParamUsable() const { return itsInfo->IsParamUsable(); }
+bool LazyQueryData::IsParamUsable() const
+{
+  return itsInfo->IsParamUsable();
+}
 // ----------------------------------------------------------------------
 /*!
  *
@@ -185,7 +231,11 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::Locations() const
   if (itsLocations.get() == 0)
   {
     itsLocations.reset(new Fmi::CoordinateMatrix(itsInfo->CoordinateMatrix()));
+#ifdef NEW_NFMIAREA
     Fmi::CoordinateTransformation transformation(itsInfo->SpatialReference(), "WGS84");
+#else
+    Fmi::CoordinateTransformation transformation(itsInfo->Area()->WKT(), "WGS84");
+#endif
     itsLocations->transform(transformation);
   }
 
@@ -267,14 +317,20 @@ NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint &theLatLonPoint)
  */
 // ----------------------------------------------------------------------
 
-const NFmiGrid *LazyQueryData::Grid(void) const { return itsInfo->Grid(); }
+const NFmiGrid *LazyQueryData::Grid(void) const
+{
+  return itsInfo->Grid();
+}
 // ----------------------------------------------------------------------
 /*!
  *
  */
 // ----------------------------------------------------------------------
 
-const NFmiArea *LazyQueryData::Area(void) const { return itsInfo->Area(); }
+const NFmiArea *LazyQueryData::Area(void) const
+{
+  return itsInfo->Area();
+}
 // ----------------------------------------------------------------------
 /*!
  *
@@ -292,7 +348,10 @@ float LazyQueryData::InterpolatedValue(const NFmiPoint &theLatLonPoint)
  */
 // ----------------------------------------------------------------------
 
-NFmiDataMatrix<float> LazyQueryData::Values() { return itsInfo->Values(); }
+NFmiDataMatrix<float> LazyQueryData::Values()
+{
+  return itsInfo->Values();
+}
 // ----------------------------------------------------------------------
 /*!
  *
@@ -309,9 +368,11 @@ Fmi::CoordinateMatrix LazyQueryData::CoordinateMatrix() const
   return itsInfo->CoordinateMatrix();
 }
 
+#ifdef NEW_NFMIAREA
 const Fmi::SpatialReference &LazyQueryData::SpatialReference() const
 {
   return itsInfo->SpatialReference();
 }
+#endif
 
 // ======================================================================

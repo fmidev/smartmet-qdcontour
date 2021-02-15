@@ -1,7 +1,7 @@
 MODULE = qdcontour
 SPEC = smartmet-qdcontour
 
-REQUIRES = geos
+REQUIRES = geos gdal
 
 # Due to GEOS make_unique problems:
 # CXX_STD=c++11
@@ -16,6 +16,7 @@ LIBS += $(REQUIRED_LIBS) \
 	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
 	-lsmartmet-imagine \
+	-lsmartmet-gis \
 	-lsmartmet-tron \
 	-lboost_iostreams \
 	-lboost_system \

@@ -61,7 +61,7 @@ class LazyCoordinates
 inline LazyCoordinates::element_type LazyCoordinates::operator()(size_type i, size_type j) const
 {
   init();
-  return itsData(i, j);
+  return {itsData.x(i, j), itsData.y(i, j)};
 }
 
 // ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ inline LazyCoordinates::element_type LazyCoordinates::operator()(
   if (i >= 0 && j >= 0 && static_cast<size_type>(i) < itsData.width() &&
       static_cast<size_type>(j) < itsData.height())
   {
-    return itsData(i, j);
+    return {itsData.x(i, j), itsData.y(i, j)};
   }
   static element_type dummy = theDefault;
   return dummy;
@@ -139,7 +139,8 @@ inline LazyCoordinates::size_type LazyCoordinates::NY() const
 
 inline void LazyCoordinates::init() const
 {
-  if (itsInitialized) return;
+  if (itsInitialized)
+    return;
 
   itsData = *globals.queryinfo->LocationsWorldXY(itsArea);
   itsInitialized = true;

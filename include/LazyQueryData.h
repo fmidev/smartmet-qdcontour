@@ -79,7 +79,9 @@ class LazyQueryData
   std::shared_ptr<Fmi::CoordinateMatrix> LocationsXY(const NFmiArea &theArea) const;
 
   Fmi::CoordinateMatrix CoordinateMatrix() const;
+#ifdef NEW_NFMIAREA
   const Fmi::SpatialReference &SpatialReference() const;
+#endif
 
   bool BiLinearInterpolation(double x,
                              double y,
