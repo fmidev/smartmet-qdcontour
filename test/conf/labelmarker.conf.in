@@ -4,11 +4,13 @@ savepath results
 querydata data/kepa.fqd
 timesteps 1
 
-prefix labels_with_ttf_
+prefix labelmarker_
 param Temperature
-labelfont liberation/LiberationSans-Regular.ttf:14x0
+labelfont @TTF_FONT_FILE@:14x0
 labelcolor black
 labels 3 4
+labelformat %.0f
+labelmarker data/dot.png Copy 1.0
 
 projection stereographic,25,90,60:19,58,40,71:300,300
 

@@ -4,6 +4,17 @@ else
 PROGRAM=qdcontour
 endif
 
+GENERATED_CONF_FILES := \
+	conf/labelmarker.conf \
+	conf/labels_with_ttf.conf \
+	conf/roundarrow_grid_labels_ttf.conf
+
+# FIXME: find better way to determine font location
+TTF_FONT_FILE := $(shell rpm -ql liberation-sans-fonts | grep LiberationSans-Regular.ttf | perl -pe 's:.*?/fonts/::')
+ifeq ($(TTF_FONT_FILE),)
+TTF_FONT_FILE=liberation/LiberationSans-Regular.ttf
+endif
+
 all: test
 
 clean:
@@ -54,7 +65,7 @@ meta_wind_chill_pdf \
 test_pdf:
 	-@$(MAKE) test _CHECK=_check_pdf
 
-test:
+test:	$(GENERATED_CONF_FILES)
 #	-@$(MAKE) --quiet $(_CHECK) TEST=timestampformat
 	-@$(MAKE) --quiet $(_CHECK) TEST=meteorological_arrows_world
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_markers_pixelgrid_normal
@@ -150,3 +161,5 @@ _check_pdf:
 
 echo:
 	@echo $(PNG)
+
+conf/%.conf : conf/%.conf.in ; sed -e "s:@TTF_FONT_FILE@:$(TTF_FONT_FILE):" $< >$@
