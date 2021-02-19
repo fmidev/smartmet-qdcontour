@@ -22,21 +22,25 @@
 #ifndef LAZYCOORDINATES_H
 #define LAZYCOORDINATES_H
 
-#include <newbase/NFmiDataMatrix.h>
-#include <newbase/NFmiPoint.h>
 #include "Globals.h"
 #include "LazyQueryData.h"
+#include <gis/CoordinateMatrix.h>
+#include <newbase/NFmiPoint.h>
+
+namespace
+{
+NFmiPoint dummy;
+}
 
 class LazyCoordinates
 {
  public:
-  typedef NFmiPoint element_type;
-  typedef NFmiDataMatrix<element_type> data_type;
-  typedef data_type::size_type size_type;
+  typedef Fmi::CoordinateMatrix data_type;
+  typedef std::size_t size_type;
 
   LazyCoordinates(const NFmiArea &theArea);
-  const element_type &operator()(size_type i, size_type j) const;
-  const element_type &operator()(int i, int j, const element_type &theDefault) const;
+  NFmiPoint operator()(size_type i, size_type j) const;
+  NFmiPoint operator()(int i, int j, const NFmiPoint &theDefault) const;
   const data_type &operator*() const;
   data_type &operator*();
 
@@ -58,11 +62,10 @@ class LazyCoordinates
  */
 // ----------------------------------------------------------------------
 
-inline const LazyCoordinates::element_type &LazyCoordinates::operator()(size_type i,
-                                                                        size_type j) const
+inline NFmiPoint LazyCoordinates::operator()(size_type i, size_type j) const
 {
   init();
-  return itsData[i][j];
+  return {itsData.x(i, j), itsData.y(i, j)};
 }
 
 // ----------------------------------------------------------------------
@@ -71,16 +74,14 @@ inline const LazyCoordinates::element_type &LazyCoordinates::operator()(size_typ
  */
 // ----------------------------------------------------------------------
 
-inline const LazyCoordinates::element_type &LazyCoordinates::operator()(
-    int i, int j, const element_type &theDefault) const
+inline NFmiPoint LazyCoordinates::operator()(int i, int j, const NFmiPoint &theDefault) const
 {
   init();
-  if (i >= 0 && j >= 0 && static_cast<size_type>(i) < itsData.NX() &&
-      static_cast<size_type>(j) < itsData.NY())
+  if (i >= 0 && j >= 0 && static_cast<size_type>(i) < itsData.width() &&
+      static_cast<size_type>(j) < itsData.height())
   {
-    return itsData[i][j];
+    return {itsData.x(i, j), itsData.y(i, j)};
   }
-  static element_type dummy = theDefault;
   return dummy;
 }
 
@@ -117,7 +118,7 @@ inline LazyCoordinates::data_type &LazyCoordinates::operator*()
 inline LazyCoordinates::size_type LazyCoordinates::NX() const
 {
   init();
-  return itsData.NX();
+  return itsData.width();
 }
 
 // ----------------------------------------------------------------------
@@ -129,7 +130,7 @@ inline LazyCoordinates::size_type LazyCoordinates::NX() const
 inline LazyCoordinates::size_type LazyCoordinates::NY() const
 {
   init();
-  return itsData.NY();
+  return itsData.height();
 }
 
 // ----------------------------------------------------------------------
@@ -140,7 +141,8 @@ inline LazyCoordinates::size_type LazyCoordinates::NY() const
 
 inline void LazyCoordinates::init() const
 {
-  if (itsInitialized) return;
+  if (itsInitialized)
+    return;
 
   itsData = *globals.queryinfo->LocationsWorldXY(itsArea);
   itsInitialized = true;

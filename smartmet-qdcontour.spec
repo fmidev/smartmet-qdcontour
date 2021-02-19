@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 21.1.14
+Version: 21.2.19
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -21,15 +21,15 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos39-devel
-BuildRequires: smartmet-library-macgyver-devel >= 21.1.14
-BuildRequires: smartmet-library-imagine-devel >= 21.1.14
-BuildRequires: smartmet-library-newbase-devel >= 21.1.14
-BuildRequires: smartmet-library-tron >= 21.1.14
+BuildRequires: smartmet-library-macgyver-devel >= 21.1.25
+BuildRequires: smartmet-library-imagine-devel >= 21.2.18
+BuildRequires: smartmet-library-newbase-devel >= 21.2.18
+BuildRequires: smartmet-library-tron >= 21.2.10
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 21.1.14
-Requires: smartmet-library-newbase >= 21.1.14
+Requires: smartmet-library-imagine >= 21.2.18
+Requires: smartmet-library-newbase >= 21.2.18
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -37,7 +37,7 @@ Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
-#TestRequires: smartmet-library-macgyver-devel >= 21.1.14
+#TestRequires: smartmet-library-macgyver-devel >= 21.1.25
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
@@ -67,6 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 19 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.2.19-1.fmi
+- Updated to use new SpatialReference/CoordinateMatrix APIs
+
 * Thu Jan 14 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.1.14-1.fmi
 - Repackaged smartmet to resolve debuginfo issues
 

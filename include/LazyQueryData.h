@@ -21,9 +21,10 @@
 #ifndef LAZYQUERYDATA_H
 #define LAZYQUERYDATA_H
 
-#include <newbase/NFmiDataMatrix.h>
-#include <newbase/NFmiParameterName.h>
 #include <boost/shared_ptr.hpp>
+#include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiMetTime.h>
+#include <newbase/NFmiParameterName.h>
 #include <memory>
 #include <string>
 
@@ -35,7 +36,11 @@ class NFmiLevel;
 class NFmiPoint;
 class NFmiQueryData;
 
-#include <newbase/NFmiMetTime.h>
+namespace Fmi
+{
+class CoordinateMatrix;
+class SpatialReference;
+}  // namespace Fmi
 
 class LazyQueryData
 {
@@ -70,11 +75,12 @@ class LazyQueryData
 
   bool IsParamUsable() const;
 
-  typedef NFmiDataMatrix<NFmiPoint> Coordinates;
+  std::shared_ptr<Fmi::CoordinateMatrix> Locations() const;
+  std::shared_ptr<Fmi::CoordinateMatrix> LocationsWorldXY(const NFmiArea &theArea) const;
+  std::shared_ptr<Fmi::CoordinateMatrix> LocationsXY(const NFmiArea &theArea) const;
 
-  boost::shared_ptr<Coordinates> Locations() const;
-  boost::shared_ptr<Coordinates> LocationsWorldXY(const NFmiArea &theArea) const;
-  boost::shared_ptr<Coordinates> LocationsXY(const NFmiArea &theArea) const;
+  Fmi::CoordinateMatrix CoordinateMatrix() const;
+  const Fmi::SpatialReference &SpatialReference() const;
 
   bool BiLinearInterpolation(double x,
                              double y,
@@ -94,10 +100,8 @@ class LazyQueryData
 
   float InterpolatedValue(const NFmiPoint &theLatLonPoint);
 
-  void Values(NFmiDataMatrix<float> &theValues);
-  void Values(NFmiDataMatrix<float> &theValues, const NFmiMetTime &theTime);
-
-  bool IsWorldData() const;
+  NFmiDataMatrix<float> Values();
+  NFmiDataMatrix<float> Values(const NFmiMetTime &theTime);
 
  private:
   LazyQueryData(const LazyQueryData &theQD);
@@ -108,9 +112,9 @@ class LazyQueryData
   boost::shared_ptr<NFmiFastQueryInfo> itsInfo;
   boost::shared_ptr<NFmiQueryData> itsData;
 
-  mutable boost::shared_ptr<Coordinates> itsLocations;
-  mutable boost::shared_ptr<Coordinates> itsLocationsWorldXY;
-  mutable boost::shared_ptr<Coordinates> itsLocationsXY;
+  mutable std::shared_ptr<Fmi::CoordinateMatrix> itsLocations;
+  mutable std::shared_ptr<Fmi::CoordinateMatrix> itsLocationsWorldXY;
+  mutable std::shared_ptr<Fmi::CoordinateMatrix> itsLocationsXY;
   mutable std::string itsLocationsArea;
 
 };  // class LazyQueryData
