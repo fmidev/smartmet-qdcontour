@@ -21,6 +21,7 @@ BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos39-devel
+BuildRequires: gdal32-devel
 BuildRequires: smartmet-library-macgyver-devel >= 21.1.25
 BuildRequires: smartmet-library-imagine-devel >= 21.2.18
 BuildRequires: smartmet-library-newbase-devel >= 21.2.18
