@@ -25,7 +25,7 @@ if [[ $CI == "" ]]; then
 fi
 
 if [ \! -f $PNG ]; then
-    echo "${COL_RED}*** FAILED:${COL_NORM} '${PNG}' not created"
+    echo "${COL_RED}*** FAILED:${COL_OFF} '${PNG}' not created"
     exit -1
 fi
 
@@ -68,25 +68,25 @@ V=$((compare 2>&1 -metric PSNR ${OK_PNG} ${PNG} /dev/null | head -1 | sed "-es/ 
 #echo "<<$V>>" | sed -es/[1-9.]//g
 #
 #if [ -n $(echo "$V" | sed -es/[1-9.]//g) ]; then
-#    echo "${COL_RED}FAIL:${COL_NORM} $V"
+#    echo "${COL_RED}FAIL:${COL_OFF} $V"
 #    exit 100
 
 # HACK: A real hack. Did not get the above code to work.
 #
 if [ $(echo "$V" | grep compare | wc -l) = 1 ]; then
-    echo "${COL_RED}FAIL:${COL_NORM} $V"
+    echo "${COL_RED}FAIL:${COL_OFF} $V"
     if [ $(echo "$V" | grep "opacity differs" | wc -l) = 1 ]; then
         echo "${COL_BOLD}ImageMagick >= 6.4.x is needed for this test${COL_OFF}"
     fi
     exit 100
 elif [ $(echo "$V >= 50" | bc) = 1 -o "$V" = inf ]; then
-    echo "${COL_GREEN}OK:${COL_NORM} PSNR >= 50dB ($V dB)"
+    echo "${COL_GREEN}OK:${COL_OFF} PSNR >= 50dB ($V dB)"
     exit 0
 elif [ $(echo "$V >= 20" | bc) = 1 ]; then
-    echo "${COL_YELLOW}WARNING:${COL_NORM} 20dB <= PSNR < 50dB ($V dB)"
+    echo "${COL_YELLOW}WARNING:${COL_OFF} 20dB <= PSNR < 50dB ($V dB)"
     exit 0
 elif [ $(echo "$V >= 0" | bc) = 1 ]; then
-    echo "${COL_RED}FAIL:${COL_NORM} PSNR < 20dB ($V dB)"
+    echo "${COL_RED}FAIL:${COL_OFF} PSNR < 20dB ($V dB)"
     exit 100
 fi
 
