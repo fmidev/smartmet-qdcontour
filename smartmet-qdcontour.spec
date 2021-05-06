@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 21.4.9
+Version: 21.5.6
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -23,15 +23,15 @@ BuildRequires: libpng-devel
 BuildRequires: geos39-devel
 BuildRequires: gdal32-devel
 BuildRequires: smartmet-library-macgyver-devel >= 21.2.25
-BuildRequires: smartmet-library-imagine-devel >= 21.2.18
-BuildRequires: smartmet-library-newbase-devel >= 21.3.20
-BuildRequires: smartmet-library-gis-devel >= 21.4.13
+BuildRequires: smartmet-library-imagine-devel >= 21.5.6
+BuildRequires: smartmet-library-newbase-devel >= 21.5.6
+BuildRequires: smartmet-library-gis-devel >= 21.5.5
 BuildRequires: smartmet-library-tron-devel >= 21.4.15
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 21.2.18
-Requires: smartmet-library-newbase >= 21.3.20
+Requires: smartmet-library-imagine >= 21.5.6
+Requires: smartmet-library-newbase >= 21.5.6
 Requires: smartmet-library-tron >= 21.4.15
 Requires: freetype
 Requires: libjpeg
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu May  6 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.5.6-1.fmi
+- Repackaged due to ABI changes in NFmiAzimuthalArea
+
 * Fri Apr  9 2021 Mika Heiskanen <mika.heiskanen@fmi.fi> - 21.4.9-1.fmi
 - Repackaged with the latest Tron library for faster contouring
 
