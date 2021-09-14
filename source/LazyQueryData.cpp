@@ -231,9 +231,14 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::Locations() const
   if (itsLocations.get() == 0)
   {
     itsLocations.reset(new Fmi::CoordinateMatrix(itsInfo->CoordinateMatrix()));
+#ifdef WGS84
     Fmi::CoordinateTransformation transformation(itsInfo->SpatialReference(), "WGS84");
+#else
+    Fmi::CoordinateTransformation transformation(itsInfo->Area()->WKT(), "WGS84");
+#endif
     itsLocations->transform(transformation);
   }
+
   return itsLocations;
 }
 
@@ -363,9 +368,11 @@ Fmi::CoordinateMatrix LazyQueryData::CoordinateMatrix() const
   return itsInfo->CoordinateMatrix();
 }
 
+#ifdef WGS84
 const Fmi::SpatialReference &LazyQueryData::SpatialReference() const
 {
   return itsInfo->SpatialReference();
 }
+#endif
 
 // ======================================================================

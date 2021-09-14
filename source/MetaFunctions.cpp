@@ -216,14 +216,10 @@ void matrix_nabla(const NFmiDataMatrix<float> &theF,
     for (unsigned int i = 0; i < theF.NX(); i++)
     {
       bool allok = theF[i][j] != kFloatMissing;
-      if (i > 0)
-        allok &= theF[i - 1][j] != kFloatMissing;
-      if (i < theF.NX() - 1)
-        allok &= theF[i + 1][j] != kFloatMissing;
-      if (j > 0)
-        allok &= theF[i][j - 1] != kFloatMissing;
-      if (j < theF.NY() - 1)
-        allok &= theF[i][j + 1] != kFloatMissing;
+      if (i > 0) allok &= theF[i - 1][j] != kFloatMissing;
+      if (i < theF.NX() - 1) allok &= theF[i + 1][j] != kFloatMissing;
+      if (j > 0) allok &= theF[i][j - 1] != kFloatMissing;
+      if (j < theF.NY() - 1) allok &= theF[i][j + 1] != kFloatMissing;
 
       if (allok)
       {
@@ -318,14 +314,10 @@ NFmiDataMatrix<float> t2m_advection(LazyQueryData &theQI)
       if (ff != kFloatMissing && fd != kFloatMissing)
       {
         bool allok = t2m[i][j] != kFloatMissing;
-        if (i > 0)
-          allok &= t2m[i - 1][j] != kFloatMissing;
-        if (i < t2m.NX() - 1)
-          allok &= t2m[i + 1][j] != kFloatMissing;
-        if (j > 0)
-          allok &= t2m[i][j - 1] != kFloatMissing;
-        if (j < t2m.NY() - 1)
-          allok &= t2m[i][j + 1] != kFloatMissing;
+        if (i > 0) allok &= t2m[i - 1][j] != kFloatMissing;
+        if (i < t2m.NX() - 1) allok &= t2m[i + 1][j] != kFloatMissing;
+        if (j > 0) allok &= t2m[i][j - 1] != kFloatMissing;
+        if (j < t2m.NY() - 1) allok &= t2m[i][j + 1] != kFloatMissing;
 
         if (allok)
         {
@@ -496,10 +488,7 @@ namespace MetaFunctions
  */
 // ----------------------------------------------------------------------
 
-bool isMeta(const std::string &theFunction)
-{
-  return (id(theFunction) != 0);
-}
+bool isMeta(const std::string &theFunction) { return (id(theFunction) != 0); }
 // ----------------------------------------------------------------------
 /*!
  * \brief Assign ID for meta functions
@@ -511,26 +500,16 @@ bool isMeta(const std::string &theFunction)
 
 int id(const std::string &theFunction)
 {
-  if (theFunction == "MetaElevationAngle")
-    return 10000;
-  if (theFunction == "MetaWindChill")
-    return 10001;
-  if (theFunction == "MetaDewDifference")
-    return 10002;
-  if (theFunction == "MetaN")
-    return 10003;
-  if (theFunction == "MetaNN")
-    return 10004;
-  if (theFunction == "MetaT2mAdvection")
-    return 10005;
-  if (theFunction == "MetaThermalFront")
-    return 10006;
-  if (theFunction == "MetaDewDifferenceAir")
-    return 10007;
-  if (theFunction == "MetaSnowProb")
-    return 10008;
-  if (theFunction == "MetaThetaE")
-    return 10009;
+  if (theFunction == "MetaElevationAngle") return 10000;
+  if (theFunction == "MetaWindChill") return 10001;
+  if (theFunction == "MetaDewDifference") return 10002;
+  if (theFunction == "MetaN") return 10003;
+  if (theFunction == "MetaNN") return 10004;
+  if (theFunction == "MetaT2mAdvection") return 10005;
+  if (theFunction == "MetaThermalFront") return 10006;
+  if (theFunction == "MetaDewDifferenceAir") return 10007;
+  if (theFunction == "MetaSnowProb") return 10008;
+  if (theFunction == "MetaThetaE") return 10009;
   return 0;
 }
 
@@ -549,26 +528,16 @@ int id(const std::string &theFunction)
 
 NFmiDataMatrix<float> values(const std::string &theFunction, LazyQueryData &theQI)
 {
-  if (theFunction == "MetaElevationAngle")
-    return elevation_angle_values(theQI);
-  if (theFunction == "MetaWindChill")
-    return wind_chill_values(theQI);
-  if (theFunction == "MetaDewDifference")
-    return dew_difference_values(theQI);
-  if (theFunction == "MetaN")
-    return n_cloudiness(theQI);
-  if (theFunction == "MetaNN")
-    return nn_cloudiness(theQI);
-  if (theFunction == "MetaT2mAdvection")
-    return t2m_advection(theQI);
-  if (theFunction == "MetaThermalFront")
-    return thermal_front(theQI);
-  if (theFunction == "MetaDewDifferenceAir")
-    return air_dew_difference_values(theQI);
-  if (theFunction == "MetaSnowProb")
-    return snowprob(theQI);
-  if (theFunction == "MetaThetaE")
-    return thetae(theQI);
+  if (theFunction == "MetaElevationAngle") return elevation_angle_values(theQI);
+  if (theFunction == "MetaWindChill") return wind_chill_values(theQI);
+  if (theFunction == "MetaDewDifference") return dew_difference_values(theQI);
+  if (theFunction == "MetaN") return n_cloudiness(theQI);
+  if (theFunction == "MetaNN") return nn_cloudiness(theQI);
+  if (theFunction == "MetaT2mAdvection") return t2m_advection(theQI);
+  if (theFunction == "MetaThermalFront") return thermal_front(theQI);
+  if (theFunction == "MetaDewDifferenceAir") return air_dew_difference_values(theQI);
+  if (theFunction == "MetaSnowProb") return snowprob(theQI);
+  if (theFunction == "MetaThetaE") return thetae(theQI);
 
   throw runtime_error("Unrecognized meta function " + theFunction);
 }

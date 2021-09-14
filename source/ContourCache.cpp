@@ -42,7 +42,7 @@ std::string cache_key(float theLoLimit,
 
   return os.str();
 }
-}
+}  // namespace
 
 // ----------------------------------------------------------------------
 /*!

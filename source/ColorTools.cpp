@@ -155,7 +155,7 @@ Imagine::NFmiColorTools::Color parse_named_color(const string &theColor)
   return Imagine::NFmiColorTools::ReplaceAlpha(tmp, value);
 }
 
-}  // namespace anonymous
+}  // namespace
 
 namespace ColorTools
 {

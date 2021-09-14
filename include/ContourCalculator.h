@@ -59,7 +59,7 @@ class ContourCalculator
   ContourCalculator(const ContourCalculator &theCalc);
   ContourCalculator &operator=(const ContourCalculator &theCalc);
 
-  boost::shared_ptr<ContourCalculatorPimple> itsPimple;
+  std::shared_ptr<ContourCalculatorPimple> itsPimple;
 
 };  // class ContourCalculator
 

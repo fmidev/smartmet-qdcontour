@@ -5,8 +5,8 @@
  */
 // ======================================================================
 
-#include "ColorTools.h"
 #include "Globals.h"
+#include "ColorTools.h"
 #include "LazyQueryData.h"
 #include "TimeTools.h"
 

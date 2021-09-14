@@ -9,21 +9,15 @@
 #include "ContourCache.h"
 #include "DataMatrixAdapter.h"
 #include "LazyQueryData.h"
-
-#include <newbase/NFmiDataMatrix.h>
-
 #include <geos/version.h>
+#include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiGrid.h>
+#include <newbase/NFmiMetTime.h>
+#include <memory>
+#include <stdexcept>
 
 #include <tron/FmiBuilder.h>
 #include <tron/Tron.h>
-
-#include <newbase/NFmiGrid.h>
-#include <newbase/NFmiMetTime.h>
-
-#include <boost/make_shared.hpp>
-
-#include <memory>
-#include <stdexcept>
 
 typedef Tron::Traits<double, double, Tron::FmiMissing> MyTraits;
 
@@ -189,15 +183,23 @@ void add_path(Imagine::NFmiPath &path, const Geometry *geom)
 class ContourCalculatorPimple
 {
  public:
-  ContourCalculatorPimple() {}
+  ContourCalculatorPimple()
+      : itsAreaCache(),
+        itsLineCache(),
+        isCacheOn(false),
+        itWasCached(false),
+        itsData(),
+        itsHintsOK(false)
+  {
+  }
 
   ContourCache itsAreaCache;
   ContourCache itsLineCache;
+  bool isCacheOn;
+  bool itWasCached;
   std::shared_ptr<DataMatrixAdapter> itsData;  // does not own!
+  bool itsHintsOK;
   std::shared_ptr<MyHints> itsHints;
-  bool itsHintsOK = false;
-  bool isCacheOn = false;
-  bool itWasCached = false;
 
   void require_hints();
 
@@ -352,7 +354,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
   }
 
-  boost::shared_ptr<Geometry> geom = builder.result();
+  auto geom = builder.result();
 
   Imagine::NFmiPath path;
   add_path(path, geom.get());
@@ -427,7 +429,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
     }
   }
 
-  boost::shared_ptr<Geometry> geom = builder.result();
+  std::shared_ptr<Geometry> geom = builder.result();
 
   Imagine::NFmiPath path;
   add_path(path, geom.get());

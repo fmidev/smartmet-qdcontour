@@ -107,6 +107,6 @@ void Relocate(NFmiPath &thePath, const NFmiArea &theArea)
   thePath.Add(path);
 }
 
-}  // MeridianTools
+}  // namespace MeridianTools
 
 // ======================================================================

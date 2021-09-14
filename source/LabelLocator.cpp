@@ -51,9 +51,9 @@
 
 #include "LabelLocator.h"
 
-#include <stdexcept>
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -95,7 +95,7 @@ double mindistance(double theX, double theY, const T &theCoords)
   return best;
 }
 
-}  // namespace anonymous
+}  // namespace
 
 // ----------------------------------------------------------------------
 /*!

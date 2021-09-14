@@ -15,7 +15,6 @@
 #include "LazyQueryData.h"
 #include "MeridianTools.h"
 #include "MetaFunctions.h"
-#include "ProjectionFactory.h"
 #include "TimeTools.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -25,20 +24,17 @@
 #include <gis/OGR.h>
 #include <gis/SpatialReference.h>
 #include <imagine/NFmiColorTools.h>
-#include <imagine/NFmiGeoShape.h>  // for esri data
-#include <newbase/NFmiCmdLine.h>   // command line options
-#include <newbase/NFmiDataMatrix.h>
-#include <newbase/NFmiDataModifierClasses.h>
-#include <newbase/NFmiEnumConverter.h>  // FmiParameterName<-->string
-#include <newbase/NFmiFileSystem.h>     // FileExists()
+#include <imagine/NFmiGeoShape.h>
+#include <newbase/NFmiCmdLine.h>
+#include <newbase/NFmiDataModifierAvg.h>
+#include <newbase/NFmiEnumConverter.h>
+#include <newbase/NFmiFileSystem.h>
 #include <newbase/NFmiGrid.h>
-#include <newbase/NFmiInterpolation.h>  // Interpolation functions
-#include <newbase/NFmiLatLonArea.h>     // Geographic projection
+#include <newbase/NFmiInterpolation.h>
 #include <newbase/NFmiLevel.h>
 #include <newbase/NFmiPreProcessor.h>
-#include <newbase/NFmiSettings.h>           // Configuration
-#include <newbase/NFmiSmoother.h>           // for smoothing data
-#include <newbase/NFmiStereographicArea.h>  // Stereographic projection
+#include <newbase/NFmiSettings.h>  // Configuration
+#include <newbase/NFmiSmoother.h>  // for smoothing data
 #include <newbase/NFmiStringTools.h>
 #include <fstream>
 #include <iomanip>
@@ -57,8 +53,6 @@ typedef ImagineXr ImagineXr_or_NFmiImage;
 #include <imagine/NFmiImage.h>
 typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
 #endif
-
-#include <iomanip>
 
 using namespace std;
 using namespace boost;
@@ -528,7 +522,7 @@ void do_querydata(istream &theInput)
       vector<string>::const_iterator iter;
       for (iter = qnames.begin(); iter != qnames.end(); ++iter)
       {
-        boost::shared_ptr<LazyQueryData> tmp(new LazyQueryData());
+        std::shared_ptr<LazyQueryData> tmp(new LazyQueryData());
         string filename = NFmiFileSystem::FileComplete(*iter, globals.datapath);
         globals.queryfilenames.push_back(filename);
         tmp->Read(filename);
@@ -2752,7 +2746,7 @@ void do_draw_shapes(istream &theInput)
 
   check_errors(theInput, "draw shapes");
 
-  boost::shared_ptr<NFmiArea> area = globals.createArea();
+  auto area = globals.createArea();
 
   if (globals.verbose)
     report_area(*area);
@@ -2819,7 +2813,7 @@ void do_draw_imagemap(istream &theInput)
 
   check_errors(theInput, "draw imagemap");
 
-  boost::shared_ptr<NFmiArea> area = globals.createArea();
+  auto area = globals.createArea();
 
   // Generate map from all shapes in the list
 
@@ -3639,7 +3633,7 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
             {
               auto north = Fmi::OGR::gridNorth(transformation, latlon->x(i, j), latlon->y(i, j));
               if (north)
-                direction[i][j] = fmod(180 - *north + FmiDeg(atan2(dx[i][j], dy[i][j])), 360.0);
+                direction[i][j] = fmod(180 + *north + FmiDeg(atan2(dx[i][j], dy[i][j])), 360.0);
               else
                 direction[i][j] = kFloatMissing;
             }
@@ -3706,7 +3700,7 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
       {
         auto north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
         if (north)
-          direction = fmod(180 - *north + FmiDeg(atan2f(dx, dy)), 360.0);
+          direction = fmod(180 + *north + FmiDeg(atan2f(dx, dy)), 360.0);
         else
           direction = kFloatMissing;
       }
@@ -3732,7 +3726,11 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
 
   list<NFmiPoint>::const_iterator iter;
 
+#ifdef WGS84
   Fmi::CoordinateTransformation transformation("WGS84", theArea.SpatialReference());
+#else
+  Fmi::CoordinateTransformation transformation("WGS84", theArea.WKT());
+#endif
 
   for (iter = globals.arrowpoints.begin(); iter != globals.arrowpoints.end(); ++iter)
   {
@@ -3766,7 +3764,7 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
 
     if (globals.arrowfile == "roundarrow")
     {
-      draw_roundarrow(img, xy0, speed, -dir - *north + 180);
+      draw_roundarrow(img, xy0, speed, -dir + *north + 180);
     }
     else
     {
@@ -3787,11 +3785,11 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
         }
 
         strokes.Scale(globals.arrowscale);
-        strokes.Rotate(-dir - *north + 180);
+        strokes.Rotate(-dir + *north + 180);
         strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
         flags.Scale(globals.arrowscale);
-        flags.Rotate(-dir - *north + 180);
+        flags.Rotate(-dir + *north + 180);
         flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
         ArrowStyle style = globals.getArrowStroke(speed);
@@ -3807,7 +3805,7 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
           arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
                           globals.windarrowscaleC);
         arrowpath.Scale(globals.arrowscale);
-        arrowpath.Rotate(-dir - *north + 180);
+        arrowpath.Rotate(-dir + *north + 180);
         arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
         // And render it
@@ -3843,7 +3841,11 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
 
   NFmiDataMatrix<float> speedvalues, dirvalues;
 
+#ifdef WGS84
   Fmi::CoordinateTransformation wgs84transformation("WGS84", theArea.SpatialReference());
+#else
+  Fmi::CoordinateTransformation wgs84transformation("WGS84", theArea.WKT());
+#endif
 
   get_speed_direction(wgs84transformation,
                       speed_src,
@@ -3854,7 +3856,9 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
                       dirvalues);
 
   if (dirvalues.NX() == 0 || dirvalues.NY() == 0)
+  {
     return;
+  }
 
   bool speedok = (speedvalues.NX() != 0 && speedvalues.NY() != 0);
 
@@ -3862,10 +3866,12 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
 
   auto coordinates = globals.queryinfo->CoordinateMatrix();
 
+#ifdef WGS84
   Fmi::CoordinateTransformation transformation(globals.queryinfo->SpatialReference(),
                                                theArea.SpatialReference());
-
-  auto ocoordinates = coordinates;
+#else
+  Fmi::CoordinateTransformation transformation(globals.queryinfo->Area()->WKT(), theArea.WKT());
+#endif
 
   if (!coordinates.transform(transformation))
     return;
@@ -3873,8 +3879,8 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
   // Needed for grid to latlon conversions
   const auto *grid = globals.queryinfo->Grid();
 
-  for (float y = 0; y <= coordinates.height() - 1; y += globals.windarrowdy)
-    for (float x = 0; x <= coordinates.width() - 1; x += globals.windarrowdx)
+  for (float y = 0; y < coordinates.height() - 1; y += globals.windarrowdy)
+    for (float x = 0; x < coordinates.width() - 1; x += globals.windarrowdx)
     {
       // The start point
 
@@ -3894,13 +3900,6 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
       if (IsMasked(xy0, globals.mask))
         continue;
 
-      // Skip rendering if the start point is way outside the image
-
-      const int safetymargin = 50;
-      if (xy0.X() < -safetymargin || xy0.Y() < -safetymargin ||
-          xy0.X() > img.Width() + safetymargin || xy0.Y() > img.Height() + safetymargin)
-        continue;
-
       // Render the arrow
 
       double dir = NFmiInterpolation::ModBiLinear(x - i,
@@ -3910,6 +3909,13 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
                                                   dirvalues.At(i, j, kFloatMissing),
                                                   dirvalues.At(i + 1, j, kFloatMissing),
                                                   360);
+
+      // Skip rendering if the start point is way outside the image
+
+      const int safetymargin = 50;
+      if (xy0.X() < -safetymargin || xy0.Y() < -safetymargin ||
+          xy0.X() > img.Width() + safetymargin || xy0.Y() > img.Height() + safetymargin)
+        continue;
 
       if (dir == kFloatMissing)  // ignore missing
         continue;
@@ -3937,7 +3943,7 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
 
       if (globals.arrowfile == "roundarrow")
       {
-        draw_roundarrow(img, xy0, speed, -dir - *north + 180);
+        draw_roundarrow(img, xy0, speed, -dir + *north + 180);
       }
       else
       {
@@ -3958,11 +3964,11 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
           }
 
           strokes.Scale(globals.arrowscale);
-          strokes.Rotate(-dir - *north + 180);
+          strokes.Rotate(-dir + *north + 180);
           strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
           flags.Scale(globals.arrowscale);
-          flags.Rotate(-dir - *north + 180);
+          flags.Rotate(-dir + *north + 180);
           flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
           ArrowStyle style = globals.getArrowStroke(speed);
@@ -3978,7 +3984,7 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
             arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
                             globals.windarrowscaleC);
           arrowpath.Scale(globals.arrowscale);
-          arrowpath.Rotate(-dir - *north + 180);
+          arrowpath.Rotate(-dir + *north + 180);
           arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
           // And render it
@@ -4012,7 +4018,11 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
   if (globals.windarrowsxydx <= 0 || globals.windarrowsxydy <= 0)
     return;
 
+#ifdef WGS84
   Fmi::CoordinateTransformation transformation("WGS84", theArea.SpatialReference());
+#else
+  Fmi::CoordinateTransformation transformation("WGS84", theArea.WKT());
+#endif
 
   for (float y = globals.windarrowsxyy0; y <= img.Height(); y += globals.windarrowsxydy)
     for (float x = globals.windarrowsxyx0; x <= img.Width(); x += globals.windarrowsxydx)
@@ -4050,7 +4060,7 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
 
       if (globals.arrowfile == "roundarrow")
       {
-        draw_roundarrow(img, xy0, speed, -dir - *north + 180);
+        draw_roundarrow(img, xy0, speed, -dir + *north + 180);
       }
       else
       {
@@ -4071,11 +4081,11 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
           }
 
           strokes.Scale(globals.arrowscale);
-          strokes.Rotate(-dir - *north + 180);
+          strokes.Rotate(-dir + *north + 180);
           strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
           flags.Scale(globals.arrowscale);
-          flags.Rotate(-dir - *north + 180);
+          flags.Rotate(-dir + *north + 180);
           flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
           ArrowStyle style = globals.getArrowStroke(speed);
@@ -4091,7 +4101,7 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
             arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
                             globals.windarrowscaleC);
           arrowpath.Scale(globals.arrowscale);
-          arrowpath.Rotate(-dir - *north + 180);
+          arrowpath.Rotate(-dir + *north + 180);
           arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
 
           // And render it
@@ -4953,7 +4963,7 @@ void do_draw_contours(istream &theInput)
   if (globals.querystreams.empty())
     throw runtime_error("No query data has been read!");
 
-  boost::shared_ptr<NFmiArea> area = globals.createArea();
+  auto area = globals.createArea();
 
   // This message intentionally ignores globals.verbose
 
@@ -5171,7 +5181,7 @@ void do_draw_contours(istream &theInput)
       xr->Composite(xr2);
     }
 #else
-    boost::shared_ptr<Imagine::NFmiImage> image;
+    std::shared_ptr<Imagine::NFmiImage> image;
     if (globals.background.empty())
     {
       image.reset(new Imagine::NFmiImage(imgwidth, imgheight, erasecolor));

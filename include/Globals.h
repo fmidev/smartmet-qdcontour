@@ -26,8 +26,8 @@
 #include <imagine/NFmiColorTools.h>
 #endif
 
-#include <newbase/NFmiArea.h>
 #include <imagine/NFmiImage.h>
+#include <newbase/NFmiArea.h>
 #include <newbase/NFmiPoint.h>
 
 #include <boost/shared_ptr.hpp>
@@ -204,16 +204,16 @@ struct Globals
   std::string queryfilelist;                // querydata files in use
   std::vector<std::string> queryfilenames;  // querydata files in use
 
-  boost::shared_ptr<LazyQueryData> queryinfo;  // active data, does not own pointer
-  int querydatalevel;                          // level value (-1 for first)
-  int timesteps;                               // how many images to draw?
-  int timestep;                                // timestep, 0 = all valid
-  int timeinterval;                            // inclusive time interval
-  int timestepskip;                            // initial time to skip in minutes
-  int timesteprounding;                        // rounding flag
-  int timestampflag;                           // put timestamp into image name?
-  std::string timestampzone;                   // timezone for the timestamp
-  std::string timestampimage;                  // image timestamping mode
+  std::shared_ptr<LazyQueryData> queryinfo;  // active data, does not own pointer
+  int querydatalevel;                        // level value (-1 for first)
+  int timesteps;                             // how many images to draw?
+  int timestep;                              // timestep, 0 = all valid
+  int timeinterval;                          // inclusive time interval
+  int timestepskip;                          // initial time to skip in minutes
+  int timesteprounding;                      // rounding flag
+  int timestampflag;                         // put timestamp into image name?
+  std::string timestampzone;                 // timezone for the timestamp
+  std::string timestampimage;                // image timestamping mode
   int timestampimagex;
   int timestampimagey;
   std::string timestampimageformat;  // hour or hourdate
@@ -243,10 +243,10 @@ struct Globals
   LabelLocator symbollocator;      // symbol coordinate calculator
   LabelLocator imagelocator;       // contour symbol coordinate calculator
 
-  ContourCalculator calculator;                    // data contourer
-  ContourCalculator maskcalculator;                // mask contourer
-  boost::shared_ptr<LazyQueryData> maskqueryinfo;  // active mask data, does not own pointer
-  std::vector<boost::shared_ptr<LazyQueryData>> querystreams;
+  ContourCalculator calculator;                  // data contourer
+  ContourCalculator maskcalculator;              // mask contourer
+  std::shared_ptr<LazyQueryData> maskqueryinfo;  // active mask data, does not own pointer
+  std::vector<std::shared_ptr<LazyQueryData>> querystreams;
 
   std::list<ShapeSpec> shapespecs;
   std::list<ContourSpec> specs;
