@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 21.5.6
+Version: 21.12.2
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -22,17 +22,17 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos39-devel
 BuildRequires: gdal33-devel
-BuildRequires: smartmet-library-macgyver-devel >= 21.2.25
-BuildRequires: smartmet-library-imagine-devel >= 21.5.6
-BuildRequires: smartmet-library-newbase-devel >= 21.5.6
-BuildRequires: smartmet-library-gis-devel >= 21.5.5
-BuildRequires: smartmet-library-tron-devel >= 21.4.15
+BuildRequires: smartmet-library-macgyver-devel >= 21.12.1
+BuildRequires: smartmet-library-imagine-devel >= 21.12.2
+BuildRequires: smartmet-library-newbase-devel >= 21.12.1
+BuildRequires: smartmet-library-gis-devel >= 21.12.1
+BuildRequires: smartmet-library-tron-devel >= 21.6.21
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 21.5.6
-Requires: smartmet-library-newbase >= 21.5.6
-Requires: smartmet-library-tron >= 21.4.15
+Requires: smartmet-library-imagine >= 21.12.2
+Requires: smartmet-library-newbase >= 21.12.1
+Requires: smartmet-library-tron >= 21.6.21
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -40,8 +40,8 @@ Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
-#TestRequires: smartmet-library-macgyver-devel >= 21.2.25
-#TestRequires: smartmet-library-tron >= 21.4.15
+#TestRequires: smartmet-library-macgyver-devel >= 21.12.1
+#TestRequires: smartmet-library-tron >= 21.6.21
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
