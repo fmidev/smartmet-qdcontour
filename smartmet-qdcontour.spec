@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 22.1.21
+Version: 22.5.18
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -22,17 +22,17 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos310-devel
 BuildRequires: gdal34-devel
-BuildRequires: smartmet-library-macgyver-devel >= 21.1.21
-BuildRequires: smartmet-library-imagine-devel >= 21.1.21
-BuildRequires: smartmet-library-newbase-devel >= 21.1.21
-BuildRequires: smartmet-library-gis-devel >= 21.1.21
-BuildRequires: smartmet-library-tron-devel >= 21.1.21
+BuildRequires: smartmet-library-macgyver-devel >= 22.3.28
+BuildRequires: smartmet-library-imagine-devel >= 22.1.21
+BuildRequires: smartmet-library-newbase-devel >= 22.5.18
+BuildRequires: smartmet-library-gis-devel >= 22.5.4
+BuildRequires: smartmet-library-tron-devel >= 22.1.21
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 21.1.21
-Requires: smartmet-library-newbase >= 21.1.21
-Requires: smartmet-library-tron >= 21.1.21
+Requires: smartmet-library-imagine >= 22.1.21
+Requires: smartmet-library-newbase >= 22.5.18
+Requires: smartmet-library-tron >= 22.1.21
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -40,8 +40,8 @@ Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
-#TestRequires: smartmet-library-macgyver-devel >= 21.1.21
-#TestRequires: smartmet-library-tron >= 21.1.21
+#TestRequires: smartmet-library-macgyver-devel >= 22.3.28
+#TestRequires: smartmet-library-tron >= 22.1.21
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed May 18 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.5.18-1.fmi
+- Remove obsolete #ifdef WGS84 segments
+
 * Fri Jan 21 2022 Andris Pavēnis <andris.pavenis@fmi.fi> 22.1.21-1.fmi
 - Repackage due to upgrade of packages from PGDG repo: gdal-3.4, geos-3.10, proj-8.2
 

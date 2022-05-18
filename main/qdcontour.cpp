@@ -3726,11 +3726,7 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
 
   list<NFmiPoint>::const_iterator iter;
 
-#ifdef WGS84
   Fmi::CoordinateTransformation transformation("WGS84", theArea.SpatialReference());
-#else
-  Fmi::CoordinateTransformation transformation("WGS84", theArea.WKT());
-#endif
 
   for (iter = globals.arrowpoints.begin(); iter != globals.arrowpoints.end(); ++iter)
   {
@@ -3841,11 +3837,7 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
 
   NFmiDataMatrix<float> speedvalues, dirvalues;
 
-#ifdef WGS84
   Fmi::CoordinateTransformation wgs84transformation("WGS84", theArea.SpatialReference());
-#else
-  Fmi::CoordinateTransformation wgs84transformation("WGS84", theArea.WKT());
-#endif
 
   get_speed_direction(wgs84transformation,
                       speed_src,
@@ -3866,12 +3858,8 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
 
   auto coordinates = globals.queryinfo->CoordinateMatrix();
 
-#ifdef WGS84
   Fmi::CoordinateTransformation transformation(globals.queryinfo->SpatialReference(),
                                                theArea.SpatialReference());
-#else
-  Fmi::CoordinateTransformation transformation(globals.queryinfo->Area()->WKT(), theArea.WKT());
-#endif
 
   if (!coordinates.transform(transformation))
     return;
@@ -4018,11 +4006,7 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
   if (globals.windarrowsxydx <= 0 || globals.windarrowsxydy <= 0)
     return;
 
-#ifdef WGS84
   Fmi::CoordinateTransformation transformation("WGS84", theArea.SpatialReference());
-#else
-  Fmi::CoordinateTransformation transformation("WGS84", theArea.WKT());
-#endif
 
   for (float y = globals.windarrowsxyy0; y <= img.Height(); y += globals.windarrowsxydy)
     for (float x = globals.windarrowsxyx0; x <= img.Width(); x += globals.windarrowsxydx)
