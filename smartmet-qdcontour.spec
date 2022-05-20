@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 22.5.18
+Version: 22.5.20
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -23,15 +23,15 @@ BuildRequires: libpng-devel
 BuildRequires: geos310-devel
 BuildRequires: gdal34-devel
 BuildRequires: smartmet-library-macgyver-devel >= 22.3.28
-BuildRequires: smartmet-library-imagine-devel >= 22.1.21
-BuildRequires: smartmet-library-newbase-devel >= 22.5.18
+BuildRequires: smartmet-library-imagine-devel >= 22.5.20
+BuildRequires: smartmet-library-newbase-devel >= 22.5.20
 BuildRequires: smartmet-library-gis-devel >= 22.5.4
 BuildRequires: smartmet-library-tron-devel >= 22.1.21
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 22.1.21
-Requires: smartmet-library-newbase >= 22.5.18
+Requires: smartmet-library-imagine >= 22.5.20
+Requires: smartmet-library-newbase >= 22.5.20
 Requires: smartmet-library-tron >= 22.1.21
 Requires: freetype
 Requires: libjpeg
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri May 20 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.5.20-1.fmi
+- Repackaged due to ABI changes to newbase LatLon methods
+
 * Wed May 18 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.5.18-1.fmi
 - Remove obsolete #ifdef WGS84 segments
 
