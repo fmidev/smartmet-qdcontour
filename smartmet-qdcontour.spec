@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 22.5.24
+Version: 22.8.19
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -22,17 +22,17 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos310-devel
 BuildRequires: gdal34-devel
-BuildRequires: smartmet-library-macgyver-devel >= 22.3.28
-BuildRequires: smartmet-library-imagine-devel >= 22.5.24
-BuildRequires: smartmet-library-newbase-devel >= 22.5.24
-BuildRequires: smartmet-library-gis-devel >= 22.5.4
-BuildRequires: smartmet-library-tron-devel >= 22.5.23
+BuildRequires: smartmet-library-macgyver-devel >= 22.8.9
+BuildRequires: smartmet-library-imagine-devel >= 22.6.17
+BuildRequires: smartmet-library-newbase-devel >= 22.6.16
+BuildRequires: smartmet-library-gis-devel >= 22.7.27
+BuildRequires: smartmet-library-tron-devel >= 22.6.17
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 22.5.24
-Requires: smartmet-library-newbase >= 22.5.24
-Requires: smartmet-library-tron >= 22.5.23
+Requires: smartmet-library-imagine >= 22.6.17
+Requires: smartmet-library-newbase >= 22.6.16
+Requires: smartmet-library-tron >= 22.6.17
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -40,8 +40,9 @@ Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
-#TestRequires: smartmet-library-macgyver-devel >= 22.3.28
-#TestRequires: smartmet-library-tron >= 22.5.23
+#TestRequires: smartmet-library-macgyver-devel >= 22.8.9
+#TestRequires: smartmet-library-tron >= 22.6.17
+#TestRequires: smartmet-fonts
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
@@ -71,6 +72,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Aug 19 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.19-1.fmi
+- Test now require smartmet-fonts for the synoptic symbols
+
 * Tue May 24 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.5.24-1.fmi
 - Repackaged due to NFmiArea ABI changes
 
