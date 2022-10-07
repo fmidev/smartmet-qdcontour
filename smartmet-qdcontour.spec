@@ -50,6 +50,7 @@ Provides: qdcontour
 #TestRequires: smartmet-library-macgyver-devel >= 22.8.23
 #TestRequires: smartmet-library-tron >= 22.6.17
 #TestRequires: smartmet-fonts
+#TestRequires: smartmet-utils-devel >= 22.10.7
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
