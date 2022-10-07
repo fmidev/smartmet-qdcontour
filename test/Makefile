@@ -114,8 +114,6 @@ test:	$(GENERATED_CONF_FILES)
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabels
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabeltexts
 	-@$(MAKE) --quiet $(_CHECK) TEST=contourlabelcolors
-	-@$(MAKE) --quiet $(_CHECK) TEST=directionparam
-	-@$(MAKE) --quiet $(_CHECK) TEST=speedparam
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_points
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_grid_normal
 	-@$(MAKE) --quiet $(_CHECK) TEST=labels_grid_masked
