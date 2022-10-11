@@ -178,6 +178,7 @@ struct Globals
 
   std::string speedxcomponent;  // X-component for speed
   std::string speedycomponent;  // Y-component for speed
+  int uvorientation = 1;        // U/V components are grid oriented?
 
   float arrowscale;  // scale factor for arrows
 

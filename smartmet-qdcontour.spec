@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 22.8.24
+Version: 22.10.10
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -80,6 +80,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 10 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.10.10-1.fmi
+- Added "uvorientation" setting, default value is 1 (WindUMS and WindVMS are oriented by the grid, not to north/east)
+
 * Wed Aug 24 2022 Mika Heiskanen <mika.heiskanen@fmi.fi> - 22.8.24-1.fmi
 - Fixed resolution calculations for temperature advection
 
