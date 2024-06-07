@@ -27,8 +27,8 @@ BuildRequires: freetype-devel
 BuildRequires: glibc-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
-BuildRequires: geos311-devel
-BuildRequires: gdal35-devel
+BuildRequires: geos312-devel
+BuildRequires: gdal38-devel
 BuildRequires: smartmet-library-macgyver-devel >= 24.1.17
 BuildRequires: smartmet-library-imagine-devel >= 24.2.23
 BuildRequires: smartmet-library-newbase-devel >= 24.2.23
