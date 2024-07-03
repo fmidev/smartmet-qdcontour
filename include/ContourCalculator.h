@@ -18,7 +18,7 @@
 #pragma once
 
 #include "ContourInterpolation.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <memory>
 
 template <typename T>
