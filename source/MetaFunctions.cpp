@@ -6,7 +6,7 @@
 // ======================================================================
 
 #include "MetaFunctions.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <gis/CoordinateMatrix.h>
 #include <newbase/NFmiArea.h>
 #include <newbase/NFmiGrid.h>

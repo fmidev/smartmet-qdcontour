@@ -30,7 +30,7 @@
 #include <newbase/NFmiArea.h>
 #include <newbase/NFmiPoint.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <list>
 #include <memory>
@@ -95,7 +95,7 @@ struct Globals
   Globals();
 
   void setImageModes(Imagine::NFmiImage &) const;
-  boost::shared_ptr<NFmiArea> createArea() const;
+  std::shared_ptr<NFmiArea> createArea() const;
   const std::string getImageStampText(const NFmiTime &theTime) const;
 
   void drawImageStampText(ImagineXr_or_NFmiImage &d, const std::string &text) const;
