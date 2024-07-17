@@ -20,7 +20,6 @@ LIBS += $(REQUIRED_LIBS) \
 	-lsmartmet-tron \
 	-lboost_iostreams \
 	-lboost_system \
-	-lboost_filesystem \
 	-lboost_thread \
 	-lstdc++ -lm
 
