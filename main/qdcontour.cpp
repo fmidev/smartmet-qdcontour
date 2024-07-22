@@ -16,7 +16,6 @@
 #include "MeridianTools.h"
 #include "MetaFunctions.h"
 #include "TimeTools.h"
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <memory>
 #include <gis/CoordinateMatrix.h>
@@ -1279,7 +1278,7 @@ void do_overlay(istream &theInput)
 
   check_errors(theInput, "overlay");
 
-  BOOST_FOREACH (ContourSpec &spec, globals.specs)
+  for (ContourSpec &spec : globals.specs)
   {
     if (spec.param() == paramname)
     {
