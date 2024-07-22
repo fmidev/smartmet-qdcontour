@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 24.7.17
+Version: 24.7.22
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -80,6 +80,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jul 22 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.7.22-1.fmi
+- Replace BOOST_FOREACH and boost::array
+
 * Wed Jul 17 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.7.17-1.fmi
 - Do not link with libboost_filesystem
 
