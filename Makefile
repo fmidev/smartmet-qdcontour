@@ -12,7 +12,9 @@ include $(shell echo $${PREFIX-/usr})/share/smartmet/devel/makefile.inc
 
 DEFINES = -DUNIX -DUSE_UNSTABLE_GEOS_CPP_API
 
-LIBS += $(REQUIRED_LIBS) \
+LIBS += \
+	$(PREFIX_LDFLAGS) \
+	$(REQUIRED_LIBS) \
 	-lsmartmet-macgyver \
 	-lsmartmet-newbase \
 	-lsmartmet-imagine \
@@ -67,6 +69,7 @@ $(MAINPROGS): % : $(OBJFILES) $(MAINOBJFILES)
 clean:
 	rm -f $(MAINPROGS) source/*~ include/*~
 	rm -rf obj
+	$(MAKE) -C test $@
 
 format:
 	clang-format -i -style=file include/*.h source/*.cpp main/*.cpp
