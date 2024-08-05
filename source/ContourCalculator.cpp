@@ -315,7 +315,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
 
 #if GEOS_VERSION_MAJOR == 3
 #if GEOS_VERSION_MINOR < 7
-  boost::shared_ptr<GeometryFactory> geomFactory = boost::make_shared<GeometryFactory>();
+  std::shared_ptr<GeometryFactory> geomFactory = std::make_shared<GeometryFactory>();
   Tron::FmiBuilder builder(geomFactory);
 #else
   geos::geom::GeometryFactory::Ptr geomFactory(geos::geom::GeometryFactory::create());
@@ -395,7 +395,7 @@ Imagine::NFmiPath ContourCalculator::contour(const LazyQueryData &theData,
 
 #if GEOS_VERSION_MAJOR == 3
 #if GEOS_VERSION_MINOR < 7
-  boost::shared_ptr<GeometryFactory> geomFactory = boost::make_shared<GeometryFactory>();
+  std::shared_ptr<GeometryFactory> geomFactory = std::make_shared<GeometryFactory>();
   Tron::FmiBuilder builder(geomFactory);
 #else
   geos::geom::GeometryFactory::Ptr geomFactory(geos::geom::GeometryFactory::create());

@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 24.2.23
+Version: 24.7.22
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -29,17 +29,17 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos312-devel
 BuildRequires: gdal38-devel
-BuildRequires: smartmet-library-macgyver-devel >= 24.1.17
-BuildRequires: smartmet-library-imagine-devel >= 24.2.23
-BuildRequires: smartmet-library-newbase-devel >= 24.2.23
-BuildRequires: smartmet-library-gis-devel >= 24.1.3
-BuildRequires: smartmet-library-tron-devel >= 23.7.28
+BuildRequires: smartmet-library-macgyver-devel >= 24.7.12
+BuildRequires: smartmet-library-imagine-devel >= 24.7.12
+BuildRequires: smartmet-library-newbase-devel >= 24.7.12
+BuildRequires: smartmet-library-gis-devel >= 24.7.12
+BuildRequires: smartmet-library-tron-devel >= 24.7.12
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 24.2.23
-Requires: smartmet-library-newbase >= 24.2.23
-Requires: smartmet-library-tron >= 23.7.28
+Requires: smartmet-library-imagine >= 24.7.12
+Requires: smartmet-library-newbase >= 24.7.12
+Requires: smartmet-library-tron >= 24.7.12
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -47,9 +47,9 @@ Requires: zlib
 Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
-#TestRequires: smartmet-library-macgyver-devel >= 24.1.17
 #TestRequires: smartmet-library-newbase-devel
-#TestRequires: smartmet-library-tron >= 23.7.28
+#TestRequires: smartmet-library-macgyver-devel >= 24.7.12
+#TestRequires: smartmet-library-tron >= 24.7.12
 #TestRequires: smartmet-fonts
 #TestRequires: smartmet-utils-devel >= 23.9.6
 #TestRequires: ImageMagick
@@ -81,6 +81,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jul 22 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.7.22-1.fmi
+- Replace BOOST_FOREACH and boost::array
+
+* Wed Jul 17 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.7.17-1.fmi
+- Do not link with libboost_filesystem
+
+* Fri Jul 12 2024 Andris Pavēnis <andris.pavenis@fmi.fi> 24.7.12-1.fmi
+- Replace many boost library types with C++ standard library ones
+
 * Fri Feb 23 2024 Mika Heiskanen <mika.heiskanen@fmi.fi> 24.2.23-1.fmi
 - Full repackaging
 

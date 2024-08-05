@@ -16,9 +16,8 @@
 #include "MeridianTools.h"
 #include "MetaFunctions.h"
 #include "TimeTools.h"
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <gis/CoordinateMatrix.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/OGR.h>
@@ -1279,7 +1278,7 @@ void do_overlay(istream &theInput)
 
   check_errors(theInput, "overlay");
 
-  BOOST_FOREACH (ContourSpec &spec, globals.specs)
+  for (ContourSpec &spec : globals.specs)
   {
     if (spec.param() == paramname)
     {
@@ -3773,7 +3772,7 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
 
     // Direction calculations
 
-    boost::optional<double> north;
+    std::optional<double> north;
     if (globals.uvorientation)
       north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
     else
@@ -3948,7 +3947,7 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
 
       const auto latlon = grid->GridToLatLon(x, y);
 
-      boost::optional<double> north;
+      std::optional<double> north;
       if (globals.uvorientation)
         north = Fmi::OGR::gridNorth(wgs84transformation, latlon.X(), latlon.Y());
       else
@@ -4065,7 +4064,7 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
 
       // Direction calculations
 
-      boost::optional<double> north;
+      std::optional<double> north;
       if (globals.uvorientation)
         north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
       else
