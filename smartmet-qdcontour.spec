@@ -29,17 +29,17 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos313-devel
 BuildRequires: gdal310-devel
-BuildRequires: smartmet-library-macgyver-devel >= 24.8.7
-BuildRequires: smartmet-library-imagine-devel >= 24.8.7
-BuildRequires: smartmet-library-newbase-devel >= 24.8.7
-BuildRequires: smartmet-library-gis-devel >= 24.8.7
-BuildRequires: smartmet-library-tron-devel >= 24.8.7
+BuildRequires: smartmet-library-macgyver-devel >= 25.2.18
+BuildRequires: smartmet-library-imagine-devel >= 25.2.18
+BuildRequires: smartmet-library-newbase-devel >= 25.2.18
+BuildRequires: smartmet-library-gis-devel >= 25.2.18
+BuildRequires: smartmet-library-tron-devel >= 25.2.18
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 24.8.7
-Requires: smartmet-library-newbase >= 24.8.7
-Requires: smartmet-library-tron >= 24.8.7
+Requires: smartmet-library-imagine >= 25.2.18
+Requires: smartmet-library-newbase >= 25.2.18
+Requires: smartmet-library-tron >= 25.2.18
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -48,10 +48,10 @@ Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-newbase-devel
-#TestRequires: smartmet-library-macgyver-devel >= 24.8.7
-#TestRequires: smartmet-library-tron >= 24.8.7
+#TestRequires: smartmet-library-macgyver-devel >= 25.2.18
+#TestRequires: smartmet-library-tron >= 25.2.18
 #TestRequires: smartmet-fonts
-#TestRequires: smartmet-utils-devel >= 24.8.7
+#TestRequires: smartmet-utils-devel >= 25.2.18
 #TestRequires: ImageMagick
 #TestRequires: bc
 #TestRequires: xorg-x11-fonts-misc
