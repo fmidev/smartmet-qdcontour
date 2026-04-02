@@ -1,4 +1,7 @@
 # smartmet-qdcontour
+
+Part of [SmartMet Server](https://github.com/fmidev/smartmet-library-spine). See the [SmartMet Server documentation](https://github.com/fmidev/smartmet-library-spine) for an overview of the ecosystem.
+
 Legacy querydata rendering program mostly replaced by the [SmartMet Server WMS plugin](https://github.com/fmidev/smartmet-plugin-wms).
 
 The qdcontour program takes as input a control file, and depending on
