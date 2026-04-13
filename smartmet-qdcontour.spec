@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.2.4
+Version: 26.4.13
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -32,15 +32,15 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos313-devel
 BuildRequires: gdal312-devel
-BuildRequires: smartmet-library-macgyver-devel >= 26.2.4
-BuildRequires: smartmet-library-imagine-devel >= 26.2.4
+BuildRequires: smartmet-library-macgyver-devel >= 26.4.13
+BuildRequires: smartmet-library-imagine-devel >= 26.4.13
 BuildRequires: smartmet-library-newbase-devel >= 26.2.4
-BuildRequires: smartmet-library-gis-devel >= 26.2.4
+BuildRequires: smartmet-library-gis-devel >= 26.4.13
 BuildRequires: smartmet-library-tron-devel >= 26.2.4
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 26.2.4
+Requires: smartmet-library-imagine >= 26.4.13
 Requires: smartmet-library-newbase >= 26.2.4
 Requires: smartmet-library-tron >= 26.2.4
 Requires: freetype
@@ -51,7 +51,7 @@ Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-newbase-devel
-#TestRequires: smartmet-library-macgyver-devel >= 26.2.4
+#TestRequires: smartmet-library-macgyver-devel >= 26.4.13
 #TestRequires: smartmet-library-tron >= 26.2.4
 #TestRequires: smartmet-fonts
 #TestRequires: smartmet-utils-devel >= 26.2.4
@@ -84,6 +84,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 12 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> 26.4.13-1.fmi
+- Repackaged due to API changes
+
 * Wed Feb  4 2026 Andris Pavēnis <andris.pavenis@fmi.fi> 26.2.4-1.fmi
 - Update to proj-9.7, gdal-3.12, fmt-12
 
