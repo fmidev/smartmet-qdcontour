@@ -81,6 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,0775)
 %{_bindir}/qdcontour
+%{_mandir}/man1/qdcontour.1.gz
 
 
 %changelog
