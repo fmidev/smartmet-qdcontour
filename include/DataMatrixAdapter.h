@@ -1,14 +1,21 @@
 #pragma once
 
 #include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiGlobals.h>
+#include <trax/Grid.h>
+#include <cstddef>
+#include <limits>
+#include <stdexcept>
 
-class DataMatrixAdapter
+// Adapts a newbase data matrix to the Trax grid API. The coordinates are plain
+// grid indices, the caller projects the resulting path afterwards. Trax marks
+// missing values with NaN and newbase with kFloatMissing, hence the conversion
+// on read. The matrix is referenced and not owned, so the grid is read only.
+
+class DataMatrixAdapter : public Trax::Grid
 {
  public:
-  using value_type = float;
-  using coord_type = float;
-
-  using size_type = NFmiDataMatrix<float>::size_type;
+  DataMatrixAdapter() = delete;
 
   DataMatrixAdapter(const NFmiDataMatrix<float> &theMatrix)
       : itsMatrix(theMatrix), itsWidth(theMatrix.NX()), itsHeight(theMatrix.NY())
@@ -16,23 +23,29 @@ class DataMatrixAdapter
   }
 
   // Provide wrap-around capability for world data
-  const value_type &operator()(size_type i, size_type j) const
+  float operator()(long i, long j) const override
   {
-    return itsMatrix[i % itsWidth][j];
+    const auto value = itsMatrix[static_cast<std::size_t>(i) % itsWidth][j];
+    return (value == kFloatMissing ? std::numeric_limits<float>::quiet_NaN() : value);
+  }
+
+  void set(long i, long j, float z) override
+  {
+    throw std::runtime_error("DataMatrixAdapter does not own the data and cannot modify it");
   }
 
   // Now wrap-around for coordinates, we need both left and right
   // edge coordinates for world data
-  coord_type x(size_type i, size_type j) const { return static_cast<float>(i); }
-  coord_type y(size_type i, size_type j) const { return static_cast<float>(j); }
-  bool valid(size_type i, size_type j) const { return true; }
-  size_type width() const { return itsWidth; }
-  size_type height() const { return itsHeight; }
+  double x(long i, long j) const override { return i; }
+  double y(long i, long j) const override { return j; }
+
+  bool valid(long i, long j) const override { return true; }
+  std::size_t width() const override { return itsWidth; }
+  std::size_t height() const override { return itsHeight; }
 
  private:
-  DataMatrixAdapter();
   const NFmiDataMatrix<float> &itsMatrix;
-  const size_type itsWidth;
-  const size_type itsHeight;
+  const std::size_t itsWidth;
+  const std::size_t itsHeight;
 
 };  // class DataMatrixAdapter

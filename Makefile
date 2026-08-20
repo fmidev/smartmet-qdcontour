@@ -19,7 +19,7 @@ LIBS += \
 	-lsmartmet-newbase \
 	-lsmartmet-imagine \
 	-lsmartmet-gis \
-	-lsmartmet-tron \
+	-lsmartmet-trax \
 	-lboost_iostreams \
 	-lboost_thread \
 	-lstdc++ -lm

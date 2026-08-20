@@ -16,7 +16,7 @@ make clean          # Clean build artifacts
 make rpm            # Build RPM package
 ```
 
-Build uses the shared SmartMet build config (`makefile.inc` from `smartbuildcfg`). Requires pkg-config packages: `geos`, `gdal`. Links against: `smartmet-macgyver`, `smartmet-newbase`, `smartmet-imagine`, `smartmet-gis`, `smartmet-tron`.
+Build uses the shared SmartMet build config (`makefile.inc` from `smartbuildcfg`). Requires pkg-config packages: `geos`, `gdal`. Links against: `smartmet-macgyver`, `smartmet-newbase`, `smartmet-imagine`, `smartmet-gis`, `smartmet-trax`.
 
 ## Running a single test
 

@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.4.13
+Version: 26.8.20
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -36,13 +36,13 @@ BuildRequires: smartmet-library-macgyver-devel >= 26.4.13
 BuildRequires: smartmet-library-imagine-devel >= 26.4.13
 BuildRequires: smartmet-library-newbase-devel >= 26.2.4
 BuildRequires: smartmet-library-gis-devel >= 26.4.13
-BuildRequires: smartmet-library-tron-devel >= 26.2.4
+BuildRequires: smartmet-library-trax-devel >= 26.6.26
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
 Requires: smartmet-library-imagine >= 26.4.13
 Requires: smartmet-library-newbase >= 26.2.4
-Requires: smartmet-library-tron >= 26.2.4
+Requires: smartmet-library-trax >= 26.6.26
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -52,7 +52,7 @@ Provides: qdcontour
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-newbase-devel
 #TestRequires: smartmet-library-macgyver-devel >= 26.4.13
-#TestRequires: smartmet-library-tron >= 26.2.4
+#TestRequires: smartmet-library-trax >= 26.6.26
 #TestRequires: smartmet-library-regression >= 26.5.22
 #TestRequires: smartmet-fonts
 #TestRequires: smartmet-utils-devel >= 26.5.22
@@ -86,6 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 20 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> 26.8.20-1.fmi
+- Use the Trax library for contouring instead of the deprecated Tron library
+
 * Mon Apr 12 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> 26.4.13-1.fmi
 - Repackaged due to API changes
 
