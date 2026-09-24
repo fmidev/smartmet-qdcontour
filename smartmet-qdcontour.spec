@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.8.20
+Version: 26.9.24
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -86,6 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 24 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> 26.9.24-1.fmi
+- Fixed a boost include for numeric_cast
+
 * Thu Aug 20 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> 26.8.20-1.fmi
 - Use the Trax library for contouring instead of the deprecated Tron library
 
