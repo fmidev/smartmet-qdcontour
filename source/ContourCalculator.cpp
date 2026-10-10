@@ -213,7 +213,7 @@ ContourCalculator::~ContourCalculator() = default;
 
 ContourCalculator::ContourCalculator()
 {
-  itsPimple.reset(new ContourCalculatorPimple());
+  itsPimple = std::make_shared<ContourCalculatorPimple>();
 }
 // ----------------------------------------------------------------------
 /*!
@@ -259,7 +259,7 @@ bool ContourCalculator::wasCached() const
 
 void ContourCalculator::data(const NFmiDataMatrix<float>& theData)
 {
-  itsPimple->itsData.reset(new DataMatrixAdapter(theData));
+  itsPimple->itsData = std::make_shared<DataMatrixAdapter>(theData);
 }
 
 // ----------------------------------------------------------------------

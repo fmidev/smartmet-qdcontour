@@ -5185,11 +5185,11 @@ void do_draw_contours(istream &theInput)
     std::shared_ptr<Imagine::NFmiImage> image;
     if (globals.background.empty())
     {
-      image.reset(new Imagine::NFmiImage(imgwidth, imgheight, erasecolor));
+      image = std::make_shared<Imagine::NFmiImage>(imgwidth, imgheight, erasecolor);
     }
     else
     {
-      image.reset(new Imagine::NFmiImage(globals.getImage(globals.background)));
+      image = std::make_shared<Imagine::NFmiImage>(globals.getImage(globals.background));
       if (imgwidth != image->Width() || imgheight != image->Height())
       {
         throw runtime_error("Background image size does not match area size");

@@ -15,6 +15,7 @@
 #include <newbase/NFmiInterpolation.h>
 #include <newbase/NFmiQueryData.h>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -86,8 +87,8 @@ void LazyQueryData::Read(const std::string &theDataFile)
   itsInputName = theDataFile;
   itsDataFile = theDataFile;
 
-  itsData.reset(new NFmiQueryData(theDataFile));
-  itsInfo.reset(new NFmiFastQueryInfo(itsData.get()));
+  itsData = std::make_shared<NFmiQueryData>(theDataFile);
+  itsInfo = std::make_shared<NFmiFastQueryInfo>(itsData.get());
 }
 
 // ----------------------------------------------------------------------
@@ -230,7 +231,7 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::Locations() const
 {
   if (itsLocations.get() == nullptr)
   {
-    itsLocations.reset(new Fmi::CoordinateMatrix(itsInfo->CoordinateMatrix()));
+    itsLocations = std::make_shared<Fmi::CoordinateMatrix>(itsInfo->CoordinateMatrix());
     Fmi::CoordinateTransformation transformation(itsInfo->SpatialReference(), "WGS84");
     itsLocations->transform(transformation);
   }
@@ -253,7 +254,8 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::LocationsWorldXY(
   if (itsLocationsWorldXY.get() == nullptr || os.str() != itsLocationsArea)
   {
     itsLocationsArea = os.str();
-    itsLocationsWorldXY.reset(new Fmi::CoordinateMatrix(itsInfo->LocationsWorldXY(theArea)));
+    itsLocationsWorldXY =
+        std::make_shared<Fmi::CoordinateMatrix>(itsInfo->LocationsWorldXY(theArea));
   }
   return itsLocationsWorldXY;
 }
@@ -272,7 +274,7 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::LocationsXY(const NFmiArea
   if (itsLocationsXY.get() == nullptr || os.str() != itsLocationsArea)
   {
     itsLocationsArea = os.str();
-    itsLocationsXY.reset(new Fmi::CoordinateMatrix(itsInfo->LocationsXY(theArea)));
+    itsLocationsXY = std::make_shared<Fmi::CoordinateMatrix>(itsInfo->LocationsXY(theArea));
   }
   return itsLocationsXY;
 }
