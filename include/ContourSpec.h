@@ -36,25 +36,25 @@ class ContourSpec
               int theSmootherFactor = 1,
               float theHiLimit = kFloatMissing);
 
-  const std::list<ContourRange> &contourFills(void) const;
-  const std::list<ContourPattern> &contourPatterns(void) const;
-  const std::list<ContourValue> &contourValues(void) const;
-  const std::list<ContourSymbol> &contourSymbols(void) const;
-  const std::list<ContourLabel> &contourLabels(void) const;
-  const std::list<ContourFont> &contourFonts(void) const;
+  const std::list<ContourRange>& contourFills() const;
+  const std::list<ContourPattern>& contourPatterns() const;
+  const std::list<ContourValue>& contourValues() const;
+  const std::list<ContourSymbol>& contourSymbols() const;
+  const std::list<ContourLabel>& contourLabels() const;
+  const std::list<ContourFont>& contourFonts() const;
   const std::map<float, std::string> &contourLabelTexts() const;
 
-  const std::string &param(void) const;
+  const std::string& param() const;
   int level() const;
-  const std::string &contourInterpolation(void) const;
-  const std::string &smoother(void) const;
-  float smootherRadius(void) const;
-  int smootherFactor(void) const;
-  float exactHiLimit(void) const;
-  float dataHiLimit(void) const;
-  float dataLoLimit(void) const;
+  const std::string& contourInterpolation() const;
+  const std::string& smoother() const;
+  float smootherRadius() const;
+  int smootherFactor() const;
+  float exactHiLimit() const;
+  float dataHiLimit() const;
+  float dataLoLimit() const;
 
-  const std::string &overlay(void) const;
+  const std::string& overlay() const;
 
   void level(int theValue);
   void contourInterpolation(const std::string &theValue);
@@ -76,9 +76,9 @@ class ContourSpec
 
   // This was done to replace 32700 with -1 in PrecipitationForm
 
-  bool replace(void) const;
-  float replaceSourceValue(void) const;
-  float replaceTargetValue(void) const;
+  bool replace() const;
+  float replaceSourceValue() const;
+  float replaceTargetValue() const;
 
   void replace(float theSrcValue, float theDstValue);
 
@@ -91,46 +91,46 @@ class ContourSpec
 
   // Label specific methods
 
-  const std::list<std::pair<NFmiPoint, NFmiPoint>> &labelPoints(void) const;
+  const std::list<std::pair<NFmiPoint, NFmiPoint>>& labelPoints() const;
 
   void add(const NFmiPoint &thePoint,
            const NFmiPoint theXY = NFmiPoint(kFloatMissing, kFloatMissing));
 
-  const std::vector<float> &labelValues(void) const;
+  const std::vector<float>& labelValues() const;
 
   // labelsxy command methods
-  const std::list<std::pair<NFmiPoint, float>> &pixelLabels(void) const;
+  const std::list<std::pair<NFmiPoint, float>>& pixelLabels() const;
   void addPixelLabel(const NFmiPoint &thePoint, float value);
-  void clearPixelLabels(void);
+  void clearPixelLabels();
 
   void addLabelValue(float theValue);
-  void clearLabelValues(void);
-  void clearLabels(void);
+  void clearLabelValues();
+  void clearLabels();
 
-  const std::string &labelMarker(void) const;
-  const std::string &labelMarkerRule(void) const;
-  float labelMarkerAlphaFactor(void) const;
-  const std::string &labelFont(void) const;
-  int labelColor(void) const;
-  const std::string &labelRule(void) const;
+  const std::string& labelMarker() const;
+  const std::string& labelMarkerRule() const;
+  float labelMarkerAlphaFactor() const;
+  const std::string& labelFont() const;
+  int labelColor() const;
+  const std::string& labelRule() const;
 
-  const std::string &labelAlignment(void) const;
-  const std::string &labelFormat(void) const;
-  const std::string &labelMissing(void) const;
-  float labelOffsetX(void) const;
-  float labelOffsetY(void) const;
-  float labelDX(void) const;
-  float labelDY(void) const;
+  const std::string& labelAlignment() const;
+  const std::string& labelFormat() const;
+  const std::string& labelMissing() const;
+  float labelOffsetX() const;
+  float labelOffsetY() const;
+  float labelDX() const;
+  float labelDY() const;
 
-  float labelXyX0(void) const;
-  float labelXyY0(void) const;
-  float labelXyDX(void) const;
-  float labelXyDY(void) const;
+  float labelXyX0() const;
+  float labelXyY0() const;
+  float labelXyDX() const;
+  float labelXyDY() const;
 
-  std::string labelCaption(void) const;
-  float labelCaptionDX(void) const;
-  float labelCaptionDY(void) const;
-  std::string labelCaptionAlignment(void) const;
+  std::string labelCaption() const;
+  float labelCaptionDX() const;
+  float labelCaptionDY() const;
+  std::string labelCaptionAlignment() const;
 
   void labelMarker(const std::string &theValue);
   void labelMarkerRule(const std::string &theValue);
@@ -171,7 +171,7 @@ class ContourSpec
   void addContourLabelText(float theValue, const std::string &theText);
 
  private:
-  ContourSpec(void);
+  ContourSpec();
 
   std::string itsParam;
   int itsLevel;

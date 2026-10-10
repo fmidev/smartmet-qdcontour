@@ -37,11 +37,11 @@ class ShapeSpec
 
   // Data-access
 
-  const std::string &filename(void) const;
-  const std::string &fillrule(void) const;
-  const std::string &strokerule(void) const;
-  Imagine::NFmiColorTools::Color fillcolor(void) const;
-  Imagine::NFmiColorTools::Color strokecolor(void) const;
+  const std::string& filename() const;
+  const std::string& fillrule() const;
+  const std::string& strokerule() const;
+  Imagine::NFmiColorTools::Color fillcolor() const;
+  Imagine::NFmiColorTools::Color strokecolor() const;
 
   void fillrule(const std::string &theRule);
   void strokerule(const std::string &theRule);
@@ -50,12 +50,12 @@ class ShapeSpec
 
   void marker(const std::string &theMarker, const std::string &theRule, float theAlpha);
 
-  const std::string &marker(void) const;
-  const std::string &markerrule(void) const;
-  float markeralpha(void) const;
+  const std::string& marker() const;
+  const std::string& markerrule() const;
+  float markeralpha() const;
 
  private:
-  ShapeSpec(void);
+  ShapeSpec();
 
   std::string itsShapeFileName;
   std::string itsFillRule;

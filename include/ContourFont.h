@@ -33,7 +33,7 @@ class ContourFont
   const std::string &font() const;
 
  private:
-  ContourFont(void);
+  ContourFont();
 
   float itsValue;
   int itsColor;

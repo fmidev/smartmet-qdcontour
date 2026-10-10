@@ -313,7 +313,7 @@ NFmiPoint LazyQueryData::LatLonToGrid(const NFmiPoint &theLatLonPoint)
  */
 // ----------------------------------------------------------------------
 
-const NFmiGrid *LazyQueryData::Grid(void) const
+const NFmiGrid* LazyQueryData::Grid() const
 {
   return itsInfo->Grid();
 }
@@ -323,7 +323,7 @@ const NFmiGrid *LazyQueryData::Grid(void) const
  */
 // ----------------------------------------------------------------------
 
-const NFmiArea *LazyQueryData::Area(void) const
+const NFmiArea* LazyQueryData::Area() const
 {
   return itsInfo->Area();
 }

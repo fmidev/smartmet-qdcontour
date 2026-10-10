@@ -36,7 +36,7 @@ class ContourValue
   const std::string &rule() const;
 
  private:
-  ContourValue(void);
+  ContourValue();
 
   float itsValue;
   float itsLineWidth;

@@ -31,14 +31,14 @@ class ContourPattern
                  const std::string &theRule,
                  float theFactor = 1.0);
 
-  float lolimit(void) const;
-  float hilimit(void) const;
-  const std::string &pattern(void) const;
-  const std::string &rule(void) const;
-  float factor(void) const;
+  float lolimit() const;
+  float hilimit() const;
+  const std::string& pattern() const;
+  const std::string& rule() const;
+  float factor() const;
 
  private:
-  ContourPattern(void);
+  ContourPattern();
 
   float itsLoLimit;
   float itsHiLimit;

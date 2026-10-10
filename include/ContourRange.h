@@ -30,13 +30,13 @@ class ContourRange
                int theColor,
                const std::string &theRule = "Atop");
 
-  float lolimit(void) const;
-  float hilimit(void) const;
-  int color(void) const;
-  const std::string &rule(void) const;
+  float lolimit() const;
+  float hilimit() const;
+  int color() const;
+  const std::string& rule() const;
 
  private:
-  ContourRange(void);
+  ContourRange();
 
   float itsLoLimit;
   float itsHiLimit;

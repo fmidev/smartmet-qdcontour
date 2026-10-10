@@ -81,7 +81,7 @@ FmiParameterName toparam(const string &name)
 // Usage
 // ----------------------------------------------------------------------
 
-void Usage(void)
+void Usage()
 {
   cout << "Usage: qdcontour [options] [conffiles]" << endl
        << endl

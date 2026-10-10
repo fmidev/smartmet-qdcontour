@@ -92,8 +92,8 @@ class LazyQueryData
   // Grid()
 
   NFmiPoint LatLonToGrid(const NFmiPoint &theLatLonPoint);
-  const NFmiGrid *Grid(void) const;
-  const NFmiArea *Area(void) const;
+  const NFmiGrid* Grid() const;
+  const NFmiArea* Area() const;
 
   // These require the data values
 
