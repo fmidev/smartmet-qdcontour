@@ -27,7 +27,7 @@ class UnitsConverter
   void convert(FmiParameterName theParam, NFmiDataMatrix<float> &theValue) const;
 
  private:
-  typedef std::vector<int> storage_type;
+  using storage_type = std::vector<int>;
   storage_type itsConversions;
 
 };  // class UnitsConverter

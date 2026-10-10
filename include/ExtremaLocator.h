@@ -33,9 +33,9 @@ class ExtremaLocator
 
   void add(Extremum theType, double theX, double theY);
 
-  typedef std::pair<double, double> XY;
-  typedef std::list<XY> Coordinates;
-  typedef std::map<Extremum, Coordinates> ExtremaCoordinates;
+  using XY = std::pair<double, double>;
+  using Coordinates = std::list<XY>;
+  using ExtremaCoordinates = std::map<Extremum, Coordinates>;
 
   const ExtremaCoordinates &chooseCoordinates();
 

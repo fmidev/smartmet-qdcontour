@@ -19,7 +19,7 @@ class ArrowCache
   void clear();
 
  private:
-  typedef std::map<std::string, std::string> cache_type;
+  using cache_type = std::map<std::string, std::string>;
   cache_type itsCache;
 
 };  // class ArrowCache

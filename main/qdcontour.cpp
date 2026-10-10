@@ -50,7 +50,7 @@ typedef ImagineXr ImagineXr_or_NFmiImage;
 #include <imagine/NFmiFace.h>
 #include <imagine/NFmiFreeType.h>
 #include <imagine/NFmiImage.h>
-typedef Imagine::NFmiImage ImagineXr_or_NFmiImage;
+using ImagineXr_or_NFmiImage = Imagine::NFmiImage;
 #endif
 
 using namespace std;

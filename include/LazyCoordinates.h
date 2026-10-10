@@ -30,9 +30,9 @@
 class LazyCoordinates
 {
  public:
-  typedef Fmi::CoordinateMatrix data_type;
-  typedef NFmiPoint element_type;
-  typedef std::size_t size_type;
+  using data_type = Fmi::CoordinateMatrix;
+  using element_type = NFmiPoint;
+  using size_type = std::size_t;
 
   LazyCoordinates(const NFmiArea &theArea);
   NFmiPoint operator()(size_type i, size_type j) const;

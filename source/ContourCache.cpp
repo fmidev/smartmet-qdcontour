@@ -137,7 +137,7 @@ void ContourCache::insert(const Imagine::NFmiPath &thePath,
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
 
-  typedef pair<storage_type::const_iterator, bool> restype;
+  using restype = pair<storage_type::const_iterator, bool>;
 
   restype result = itsData.insert(storage_type::value_type(key, thePath));
 

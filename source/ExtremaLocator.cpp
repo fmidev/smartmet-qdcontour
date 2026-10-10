@@ -96,7 +96,7 @@ double mindistance(double theX, double theY, const T &theCoords)
  */
 // ----------------------------------------------------------------------
 
-ExtremaLocator::~ExtremaLocator() {}
+ExtremaLocator::~ExtremaLocator() = default;
 // ----------------------------------------------------------------------
 /*!
  * \brief Default constructor

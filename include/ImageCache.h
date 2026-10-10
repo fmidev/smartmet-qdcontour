@@ -24,7 +24,7 @@ class ImageCache
   void clear() const;
 
  private:
-  typedef std::map<std::string, ImagineXr_or_NFmiImage> storage_type;
+  using storage_type = std::map<std::string, ImagineXr_or_NFmiImage>;
   mutable storage_type itsCache;
 };
 

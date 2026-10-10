@@ -26,7 +26,7 @@ using namespace std;
  */
 // ----------------------------------------------------------------------
 
-LazyQueryData::~LazyQueryData() {}
+LazyQueryData::~LazyQueryData() = default;
 // ----------------------------------------------------------------------
 /*!
  * \brief Constructor

@@ -204,7 +204,7 @@ class ContourCalculatorPimple
  */
 // ----------------------------------------------------------------------
 
-ContourCalculator::~ContourCalculator() {}
+ContourCalculator::~ContourCalculator() = default;
 // ----------------------------------------------------------------------
 /*!
  * \brief Constructor

@@ -53,11 +53,11 @@ class NFmiTime;
 class ContourCache
 {
  private:
-  typedef std::map<std::string, Imagine::NFmiPath> storage_type;
+  using storage_type = std::map<std::string, Imagine::NFmiPath>;
   storage_type itsData;
 
  public:
-  typedef storage_type::size_type size_type;
+  using size_type = storage_type::size_type;
 
 #ifdef NO_COMPILER_GENERATED
   ~ContourCache();

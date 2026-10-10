@@ -103,7 +103,7 @@ double mindistance(double theX, double theY, const T &theCoords)
  */
 // ----------------------------------------------------------------------
 
-LabelLocator::~LabelLocator() {}
+LabelLocator::~LabelLocator() = default;
 // ----------------------------------------------------------------------
 /*!
  * \brief Default constructor

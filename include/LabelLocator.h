@@ -30,10 +30,10 @@ class LabelLocator
 
   void add(float theContour, int theX, int theY);
 
-  typedef std::pair<int, int> XY;
-  typedef std::multimap<float, XY> Coordinates;
-  typedef std::map<float, Coordinates> ContourCoordinates;
-  typedef std::map<int, ContourCoordinates> ParamCoordinates;
+  using XY = std::pair<int, int>;
+  using Coordinates = std::multimap<float, XY>;
+  using ContourCoordinates = std::map<float, Coordinates>;
+  using ParamCoordinates = std::map<int, ContourCoordinates>;
 
   const ParamCoordinates &chooseLabels();
 
