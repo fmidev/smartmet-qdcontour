@@ -5196,7 +5196,7 @@ void do_draw_contours(istream &theInput)
         throw runtime_error("Background image size does not match area size");
       }
     }
-    if (image.get() == 0)
+    if (image.get() == nullptr)
       throw runtime_error("Failed to allocate a new image for rendering");
 
     globals.setImageModes(*image);
