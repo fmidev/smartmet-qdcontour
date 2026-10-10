@@ -181,7 +181,7 @@ void parse_command_line(int argc, const char *argv[])
     throw runtime_error("Atleast one command line parameter is required");
 
   for (int i = 1; i <= cmdline.NumberofParameters(); i++)
-    globals.cmdline_files.push_back(cmdline.Parameter(i));
+    globals.cmdline_files.emplace_back(cmdline.Parameter(i));
 }
 
 // ----------------------------------------------------------------------
@@ -1168,7 +1168,7 @@ void do_windarrow(istream &theInput)
 
   check_errors(theInput, "windarrow");
 
-  globals.arrowpoints.push_back(NFmiPoint(lon, lat));
+  globals.arrowpoints.emplace_back(lon, lat);
 }
 
 // ----------------------------------------------------------------------
@@ -1784,8 +1784,7 @@ void do_shape(istream &theInput)
     NFmiColorTools::Color fill = ColorTools::checkcolor(fillcolor);
     NFmiColorTools::Color stroke = ColorTools::checkcolor(strokecolor);
 
-    globals.shapespecs.push_back(
-        ShapeSpec(shapename, fill, stroke, globals.fillrule, globals.strokerule));
+    globals.shapespecs.emplace_back(shapename, fill, stroke, globals.fillrule, globals.strokerule);
   }
 
   check_errors(theInput, "shape");

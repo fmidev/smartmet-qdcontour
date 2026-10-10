@@ -498,7 +498,7 @@ const std::list<std::pair<NFmiPoint, float>>& ContourSpec::pixelLabels() const
 
 void ContourSpec::add(const NFmiPoint &thePoint, const NFmiPoint theXY)
 {
-  itsLabelPoints.push_back(std::make_pair(thePoint, theXY));
+  itsLabelPoints.emplace_back(thePoint, theXY);
 }
 
 // ----------------------------------------------------------------------
@@ -512,7 +512,7 @@ void ContourSpec::add(const NFmiPoint &thePoint, const NFmiPoint theXY)
 
 void ContourSpec::addPixelLabel(const NFmiPoint &thePoint, float theValue)
 {
-  itsPixelLabels.push_back(std::make_pair(thePoint, theValue));
+  itsPixelLabels.emplace_back(thePoint, theValue);
 }
 
 // ----------------------------------------------------------------------

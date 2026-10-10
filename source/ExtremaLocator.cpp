@@ -206,7 +206,7 @@ void ExtremaLocator::add(Extremum theType, double theX, double theY)
 
   Coordinates &c = itsCurrentCoordinates[theType];
 
-  c.push_back(Coordinates::value_type(theX, theY));
+  c.emplace_back(theX, theY);
 }
 
 // ----------------------------------------------------------------------
