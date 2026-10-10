@@ -161,17 +161,17 @@ void add_geometrycollection(Imagine::NFmiPath& path, const GeometryCollection* g
 
 void add_path(Imagine::NFmiPath& path, const Geometry* geom)
 {
-  if (const LinearRing* lr = dynamic_cast<const LinearRing*>(geom))
+  if (const auto* lr = dynamic_cast<const LinearRing*>(geom))
     add_linearring(path, lr);
-  else if (const LineString* ls = dynamic_cast<const LineString*>(geom))
+  else if (const auto* ls = dynamic_cast<const LineString*>(geom))
     add_linestring(path, ls);
-  else if (const Polygon* p = dynamic_cast<const Polygon*>(geom))
+  else if (const auto* p = dynamic_cast<const Polygon*>(geom))
     add_polygon(path, p);
-  else if (const MultiLineString* ml = dynamic_cast<const MultiLineString*>(geom))
+  else if (const auto* ml = dynamic_cast<const MultiLineString*>(geom))
     add_multilinestring(path, ml);
-  else if (const MultiPolygon* mpg = dynamic_cast<const MultiPolygon*>(geom))
+  else if (const auto* mpg = dynamic_cast<const MultiPolygon*>(geom))
     add_multipolygon(path, mpg);
-  else if (const GeometryCollection* g = dynamic_cast<const GeometryCollection*>(geom))
+  else if (const auto* g = dynamic_cast<const GeometryCollection*>(geom))
     add_geometrycollection(path, g);
   else
     throw std::runtime_error("Bad shit");

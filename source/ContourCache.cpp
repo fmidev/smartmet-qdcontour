@@ -86,7 +86,7 @@ bool ContourCache::contains(float theLoLimit,
                             const LazyQueryData &theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
-  storage_type::const_iterator it = itsData.find(key);
+  auto it = itsData.find(key);
   return (it != itsData.end());
 }
 
@@ -110,7 +110,7 @@ const Imagine::NFmiPath &ContourCache::find(float theLoLimit,
                                             const LazyQueryData &theData) const
 {
   string key = cache_key(theLoLimit, theHiLimit, theTime, theData);
-  storage_type::const_iterator it = itsData.find(key);
+  auto it = itsData.find(key);
   if (it != itsData.end()) return it->second;
   throw runtime_error("Contour was not in the cache - use contains first!");
 }

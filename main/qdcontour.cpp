@@ -2778,8 +2778,8 @@ void do_draw_shapes(istream &theInput)
   // Draw all the shapes
 
   list<ShapeSpec>::const_iterator iter;
-  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
-  list<ShapeSpec>::const_iterator end = globals.shapespecs.end();
+  auto begin = globals.shapespecs.begin();
+  auto end = globals.shapespecs.end();
 
   for (iter = begin; iter != end; ++iter)
   {
@@ -2838,8 +2838,8 @@ void do_draw_imagemap(istream &theInput)
     cout << "Writing " << outfile << endl;
 
   list<ShapeSpec>::const_iterator iter;
-  list<ShapeSpec>::const_iterator begin = globals.shapespecs.begin();
-  list<ShapeSpec>::const_iterator end = globals.shapespecs.end();
+  auto begin = globals.shapespecs.begin();
+  auto end = globals.shapespecs.end();
 
   for (iter = begin; iter != end; ++iter)
   {
@@ -3149,7 +3149,7 @@ void add_label_pixelgrid_values(ContourSpec &theSpec,
 
         int i = static_cast<int>(ij.X());  // rounds down
         int j = static_cast<int>(ij.Y());
-        float value = static_cast<float>(
+        auto value = static_cast<float>(
             NFmiInterpolation::BiLinear(ij.X() - floor(ij.X()),
                                         ij.Y() - floor(ij.Y()),
                                         theValues.At(i, j + 1, kFloatMissing),
@@ -3184,7 +3184,7 @@ void add_label_point_values(ContourSpec &theSpec,
 
       int i = static_cast<int>(ij.X());  // rounds down
       int j = static_cast<int>(ij.Y());
-      float value =
+      auto value =
           static_cast<float>(NFmiInterpolation::BiLinear(ij.X() - floor(ij.X()),
                                                          ij.Y() - floor(ij.Y()),
                                                          theValues.At(i, j + 1, kFloatMissing),
@@ -4188,8 +4188,8 @@ void draw_wind_arrows(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
     // Establish data replacement values
 
     list<ContourSpec>::iterator piter;
-    list<ContourSpec>::iterator pbegin = globals.specs.begin();
-    list<ContourSpec>::iterator pend = globals.specs.end();
+    auto pbegin = globals.specs.begin();
+    auto pend = globals.specs.end();
 
     float direction_src = kFloatMissing;
     float direction_dst = kFloatMissing;
@@ -4376,8 +4376,7 @@ void save_contour_labels(ImagineXr_or_NFmiImage &img,
     // MeridianTools::Relocate(path,theArea);
     path.Project(&theArea);
 
-    for (NFmiPathData::const_iterator pit = path.Elements().begin(); pit != path.Elements().end();
-         ++pit)
+    for (auto pit = path.Elements().begin(); pit != path.Elements().end(); ++pit)
     {
       if (pit->op == kFmiLineTo)
       {
@@ -4404,8 +4403,8 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
   // Iterate through all parameters
 
   list<ContourSpec>::iterator piter;
-  list<ContourSpec>::iterator pbegin = globals.specs.begin();
-  list<ContourSpec>::iterator pend = globals.specs.end();
+  auto pbegin = globals.specs.begin();
+  auto pend = globals.specs.end();
 
   for (piter = pbegin; piter != pend; ++piter)
   {
@@ -4413,7 +4412,7 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
 
     const int id = paramid(piter->param());
 
-    LabelLocator::ParamCoordinates::const_iterator pit = coords.find(id);
+    auto pit = coords.find(id);
     if (pit == coords.end())
       continue;
 
@@ -4434,21 +4433,17 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
     face.BackgroundMargin(xmargin, ymargin);
 #endif
 
-    for (LabelLocator::ContourCoordinates::const_iterator cit = pit->second.begin();
-         cit != pit->second.end();
-         ++cit)
+    for (auto cit = pit->second.begin(); cit != pit->second.end(); ++cit)
     {
       const float value = cit->first;
       string text = NFmiStringTools::Convert(value);
 
       // Handle possible contourlabeltext override
-      std::map<float, std::string>::const_iterator it = piter->contourLabelTexts().find(value);
+      auto it = piter->contourLabelTexts().find(value);
       if (it != piter->contourLabelTexts().end())
         text = it->second;
 
-      for (LabelLocator::Coordinates::const_iterator it = cit->second.begin();
-           it != cit->second.end();
-           ++it)
+      for (auto it = cit->second.begin(); it != cit->second.end(); ++it)
       {
 #ifdef IMAGINE_WITH_CAIRO
         // 'text' must be in UTF-8!
@@ -4538,8 +4533,8 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
   // Iterate through all parameters
 
   list<ContourSpec>::iterator piter;
-  list<ContourSpec>::iterator pbegin = globals.specs.begin();
-  list<ContourSpec>::iterator pend = globals.specs.end();
+  auto pbegin = globals.specs.begin();
+  auto pend = globals.specs.end();
 
   for (piter = pbegin; piter != pend; ++piter)
   {
@@ -4547,7 +4542,7 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
 
     const int id = paramid(piter->param());
 
-    LabelLocator::ParamCoordinates::const_iterator pit = paramcoords.find(id);
+    auto pit = paramcoords.find(id);
     if (pit == paramcoords.end())
       continue;
 
@@ -4555,8 +4550,7 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
 
     // Loop through all the values
 
-    for (LabelLocator::ContourCoordinates::const_iterator cit = coords.begin(); cit != coords.end();
-         ++cit)
+    for (auto cit = coords.begin(); cit != coords.end(); ++cit)
     {
       const float z = cit->first;
 
@@ -4592,9 +4586,7 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
       const ImagineXr_or_NFmiImage &symbol = globals.getImage(fit->pattern());
       const float factor = fit->factor();
 
-      for (LabelLocator::Coordinates::const_iterator it = cit->second.begin();
-           it != cit->second.end();
-           ++it)
+      for (auto it = cit->second.begin(); it != cit->second.end(); ++it)
       {
         img.Composite(symbol, rule, kFmiAlignCenter, it->second.first, it->second.second, factor);
       }
@@ -4618,8 +4610,8 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
   // Iterate through all parameters
 
   list<ContourSpec>::iterator piter;
-  list<ContourSpec>::iterator pbegin = globals.specs.begin();
-  list<ContourSpec>::iterator pend = globals.specs.end();
+  auto pbegin = globals.specs.begin();
+  auto pend = globals.specs.end();
 
   for (piter = pbegin; piter != pend; ++piter)
   {
@@ -4627,7 +4619,7 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
 
     const int id = paramid(piter->param());
 
-    LabelLocator::ParamCoordinates::const_iterator pit = paramcoords.find(id);
+    auto pit = paramcoords.find(id);
     if (pit == paramcoords.end())
       continue;
 
@@ -4635,8 +4627,7 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
 
     // Loop through all the values
 
-    for (LabelLocator::ContourCoordinates::const_iterator cit = coords.begin(); cit != coords.end();
-         ++cit)
+    for (auto cit = coords.begin(); cit != coords.end(); ++cit)
     {
       const float value = cit->first;
 
@@ -4669,9 +4660,7 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
       Imagine::NFmiFace face = make_face(fontspec);
       face.Background(false);
 #endif
-      for (LabelLocator::Coordinates::const_iterator it = cit->second.begin();
-           it != cit->second.end();
-           ++it)
+      for (auto it = cit->second.begin(); it != cit->second.end(); ++it)
       {
 #ifdef IMAGINE_WITH_CAIRO
         // 'text' must be in UTF-8!
@@ -4898,13 +4887,9 @@ void draw_pressure_markers(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
   NFmiColorTools::NFmiBlendRule lowrule = ColorTools::checkrule(globals.lowpressurerule);
   NFmiColorTools::NFmiBlendRule highrule = ColorTools::checkrule(globals.highpressurerule);
 
-  for (ExtremaLocator::ExtremaCoordinates::const_iterator eit = extrema.begin();
-       eit != extrema.end();
-       ++eit)
+  for (auto eit = extrema.begin(); eit != extrema.end(); ++eit)
   {
-    for (ExtremaLocator::Coordinates::const_iterator it = eit->second.begin();
-         it != eit->second.end();
-         ++it)
+    for (auto it = eit->second.begin(); it != eit->second.end(); ++it)
     {
       NFmiPoint wxy(it->first * 1000, it->second * 1000);
       NFmiPoint latlon = theArea.WorldXYToLatLon(wxy);
@@ -5236,8 +5221,8 @@ void do_draw_contours(istream &theInput)
     // does not render it yet
 
     list<ContourSpec>::iterator piter;
-    list<ContourSpec>::iterator pbegin = globals.specs.begin();
-    list<ContourSpec>::iterator pend = globals.specs.end();
+    auto pbegin = globals.specs.begin();
+    auto pend = globals.specs.end();
 
     for (piter = pbegin; piter != pend; ++piter)
     {
@@ -5714,7 +5699,7 @@ int domain(int argc, const char *argv[])
   // Process all command files
   // ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  list<string>::const_iterator fileiter = globals.cmdline_files.begin();
+  auto fileiter = globals.cmdline_files.begin();
   for (; fileiter != globals.cmdline_files.end(); ++fileiter)
   {
     // Get the script to be executed

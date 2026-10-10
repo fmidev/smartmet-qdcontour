@@ -84,7 +84,7 @@ template <typename T>
 double mindistance(double theX, double theY, const T &theCoords)
 {
   double best = -1;
-  for (typename T::const_iterator it = theCoords.begin(); it != theCoords.end(); ++it)
+  for (auto it = theCoords.begin(); it != theCoords.end(); ++it)
   {
     double dist = distance(theX, theY, it->second.first, it->second.second);
     if (best < 0)
@@ -329,14 +329,14 @@ void LabelLocator::add(float theContour, int theX, int theY)
 
   // Now calculate the distance value used for sorting
 
-  ParamCoordinates::const_iterator it = itsPreviousCoordinates.find(itsActiveParameter);
+  auto it = itsPreviousCoordinates.find(itsActiveParameter);
 
   float dist;
   if (it == itsPreviousCoordinates.end())
     dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
   else
   {
-    ContourCoordinates::const_iterator jt = it->second.find(theContour);
+    auto jt = it->second.find(theContour);
     if (jt == it->second.end())
       dist = distanceToBorder(static_cast<float>(theX), static_cast<float>(theY));
     else
@@ -386,7 +386,7 @@ const LabelLocator::ParamCoordinates &LabelLocator::chooseLabels()
     const int param = candidates.begin()->first;
     ContourCoordinates &contours = candidates.begin()->second;
 
-    for (ContourCoordinates::iterator cit = contours.begin(); cit != contours.end(); ++cit)
+    for (auto cit = contours.begin(); cit != contours.end(); ++cit)
     {
       // removeCandidates may have cleared some contour from
       // possible coordinates
@@ -450,13 +450,13 @@ void LabelLocator::removeCandidates(ParamCoordinates &theCandidates,
                                     int theParam,
                                     float theContour)
 {
-  for (ParamCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  for (auto pit = theCandidates.begin(); pit != theCandidates.end();)
   {
     const int param = pit->first;
-    for (ContourCoordinates::iterator cit = pit->second.begin(); cit != pit->second.end();)
+    for (auto cit = pit->second.begin(); cit != pit->second.end();)
     {
       const float contour = cit->first;
-      for (Coordinates::iterator it = cit->second.begin(); it != cit->second.end();)
+      for (auto it = cit->second.begin(); it != cit->second.end();)
       {
         const double dist =
             distance(thePoint.first, thePoint.second, it->second.first, it->second.second);
@@ -493,9 +493,9 @@ void LabelLocator::removeCandidates(ParamCoordinates &theCandidates,
 
 void LabelLocator::removeEmpties(ParamCoordinates &theCandidates)
 {
-  for (ParamCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  for (auto pit = theCandidates.begin(); pit != theCandidates.end();)
   {
-    for (ContourCoordinates::iterator cit = pit->second.begin(); cit != pit->second.end();)
+    for (auto cit = pit->second.begin(); cit != pit->second.end();)
     {
       if (cit->second.empty())
         pit->second.erase(cit++);

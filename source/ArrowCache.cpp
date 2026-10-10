@@ -38,7 +38,7 @@ void ArrowCache::clear() { itsCache.clear(); }
 
 const string &ArrowCache::find(const string &theName)
 {
-  cache_type::const_iterator it = itsCache.find(theName);
+  auto it = itsCache.find(theName);
   if (it != itsCache.end()) return it->second;
 
   ifstream arrow(theName.c_str());

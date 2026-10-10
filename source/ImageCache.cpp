@@ -26,7 +26,7 @@ void ImageCache::clear() const { itsCache.clear(); }
 
 const ImagineXr_or_NFmiImage &ImageCache::getImage(const string &theFile) const
 {
-  storage_type::const_iterator it = itsCache.find(theFile);
+  auto it = itsCache.find(theFile);
   if (it != itsCache.end()) return it->second;
 
   pair<storage_type::const_iterator, bool> ret =

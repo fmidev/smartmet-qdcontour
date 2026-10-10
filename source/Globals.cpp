@@ -436,7 +436,7 @@ RoundArrowSize Globals::getRoundArrowSize(float speed) const
   {
     if (rangefits(speed, sz.lolimit, sz.hilimit)) return sz;
   }
-  return RoundArrowSize();
+  return {};
 }
 
 // ======================================================================

@@ -86,8 +86,7 @@ void Relocate(NFmiPath &thePath, const NFmiArea &theArea)
   NFmiPath path;
   const float shift = (meridian < 0 ? -360 : 360);
 
-  for (NFmiPathData::const_iterator it = thePath.Elements().begin(); it != thePath.Elements().end();
-       ++it)
+  for (auto it = thePath.Elements().begin(); it != thePath.Elements().end(); ++it)
   {
     switch (it->op)
     {

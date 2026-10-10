@@ -77,7 +77,7 @@ template <typename T>
 double mindistance(double theX, double theY, const T &theCoords)
 {
   double best = -1;
-  for (typename T::const_iterator it = theCoords.begin(); it != theCoords.end(); ++it)
+  for (auto it = theCoords.begin(); it != theCoords.end(); ++it)
   {
     double dist = distance(theX, theY, it->first, it->second);
     if (best < 0)
@@ -225,7 +225,7 @@ const ExtremaLocator::ExtremaCoordinates &ExtremaLocator::chooseCoordinates()
 
   while (!candidates.empty())
   {
-    for (ExtremaCoordinates::iterator cit = candidates.begin(); cit != candidates.end(); ++cit)
+    for (auto cit = candidates.begin(); cit != candidates.end(); ++cit)
     {
       // removeCandidates may have cleared some contour from
       // possible coordinates
@@ -236,7 +236,7 @@ const ExtremaLocator::ExtremaCoordinates &ExtremaLocator::chooseCoordinates()
 
       const Extremum value = cit->first;
 
-      Coordinates::const_iterator best = chooseOne(cit->second, value);
+      auto best = chooseOne(cit->second, value);
       if (best == cit->second.end())
         throw runtime_error("Internal error in ExtremaLocator::chooseLabels()");
 
@@ -272,7 +272,7 @@ const ExtremaLocator::ExtremaCoordinates &ExtremaLocator::chooseCoordinates()
 ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseOne(
     const Coordinates &theCandidates, Extremum theType)
 {
-  ExtremaCoordinates::const_iterator pit = itsPreviousCoordinates.find(theType);
+  auto pit = itsPreviousCoordinates.find(theType);
   if (pit == itsPreviousCoordinates.end()) return chooseClosestToBorder(theCandidates, theType);
 
   return chooseClosestToPrevious(theCandidates, pit->second, theType);
@@ -292,9 +292,9 @@ ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToPrevi
     const Coordinates &theCandidates, const Coordinates &thePreviousChoises, Extremum theType)
 {
   double bestdist = -1;
-  Coordinates::const_iterator best = theCandidates.end();
+  auto best = theCandidates.end();
 
-  for (Coordinates::const_iterator it = theCandidates.begin(); it != theCandidates.end(); ++it)
+  for (auto it = theCandidates.begin(); it != theCandidates.end(); ++it)
   {
     double mindist = mindistance(it->first, it->second, thePreviousChoises);
     if (bestdist < 0 || mindist < bestdist)
@@ -342,11 +342,11 @@ void ExtremaLocator::removeCandidates(ExtremaCoordinates &theCandidates,
                                       const XY &thePoint,
                                       Extremum theType)
 {
-  for (ExtremaCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  for (auto pit = theCandidates.begin(); pit != theCandidates.end();)
   {
     const Extremum etype = pit->first;
 
-    for (Coordinates::iterator it = pit->second.begin(); it != pit->second.end();)
+    for (auto it = pit->second.begin(); it != pit->second.end();)
     {
       const double dist = distance(thePoint.first, thePoint.second, it->first, it->second);
 
@@ -378,7 +378,7 @@ void ExtremaLocator::removeCandidates(ExtremaCoordinates &theCandidates,
 
 void ExtremaLocator::removeEmpties(ExtremaCoordinates &theCandidates)
 {
-  for (ExtremaCoordinates::iterator pit = theCandidates.begin(); pit != theCandidates.end();)
+  for (auto pit = theCandidates.begin(); pit != theCandidates.end();)
   {
     if (pit->second.empty())
       theCandidates.erase(pit++);
