@@ -386,20 +386,21 @@ const LabelLocator::ParamCoordinates &LabelLocator::chooseLabels()
     const int param = candidates.begin()->first;
     ContourCoordinates &contours = candidates.begin()->second;
 
-    for (auto cit = contours.begin(); cit != contours.end(); ++cit)
+    for (auto& contour : contours)
     {
       // removeCandidates may have cleared some contour from
       // possible coordinates
 
-      if (cit->second.empty()) continue;
+      if (contour.second.empty())
+        continue;
 
       // the candidate is the first label coordinate, since we've
       // sorted them so
 
-      if (cit->second.empty())
+      if (contour.second.empty())
         throw runtime_error("Internal error in LabelLocator::chooseLabels()");
-      const float value = cit->first;
-      const Coordinates::value_type best = *(cit->second.begin());
+      const float value = contour.first;
+      const Coordinates::value_type best = *(contour.second.begin());
 
 #if 0
 		  cout << "Chose: " << best.first << " at "

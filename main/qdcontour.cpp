@@ -4375,12 +4375,12 @@ void save_contour_labels(ImagineXr_or_NFmiImage &img,
     // MeridianTools::Relocate(path,theArea);
     path.Project(&theArea);
 
-    for (auto pit = path.Elements().begin(); pit != path.Elements().end(); ++pit)
+    for (const auto& pit : path.Elements())
     {
-      if (pit->op == kFmiLineTo)
+      if (pit.op == kFmiLineTo)
       {
         globals.labellocator.add(
-            it->value(), static_cast<int>(round(pit->x)), static_cast<int>(round(pit->y)));
+            it->value(), static_cast<int>(round(pit.x)), static_cast<int>(round(pit.y)));
       }
     }
   }
@@ -4432,9 +4432,9 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
     face.BackgroundMargin(xmargin, ymargin);
 #endif
 
-    for (auto cit = pit->second.begin(); cit != pit->second.end(); ++cit)
+    for (const auto& cit : pit->second)
     {
-      const float value = cit->first;
+      const float value = cit.first;
       string text = NFmiStringTools::Convert(value);
 
       // Handle possible contourlabeltext override
@@ -4442,7 +4442,7 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
       if (it != piter->contourLabelTexts().end())
         text = it->second;
 
-      for (auto it = cit->second.begin(); it != cit->second.end(); ++it)
+      for (auto it = cit.second.begin(); it != cit.second.end(); ++it)
       {
 #ifdef IMAGINE_WITH_CAIRO
         // 'text' must be in UTF-8!
@@ -4549,9 +4549,9 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
 
     // Loop through all the values
 
-    for (auto cit = coords.begin(); cit != coords.end(); ++cit)
+    for (const auto& coord : coords)
     {
-      const float z = cit->first;
+      const float z = coord.first;
 
       // Find the specs for the font value
 
@@ -4585,7 +4585,7 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
       const ImagineXr_or_NFmiImage &symbol = globals.getImage(fit->pattern());
       const float factor = fit->factor();
 
-      for (auto it = cit->second.begin(); it != cit->second.end(); ++it)
+      for (auto it = coord.second.begin(); it != coord.second.end(); ++it)
       {
         img.Composite(symbol, rule, kFmiAlignCenter, it->second.first, it->second.second, factor);
       }
@@ -4626,9 +4626,9 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
 
     // Loop through all the values
 
-    for (auto cit = coords.begin(); cit != coords.end(); ++cit)
+    for (const auto& coord : coords)
     {
-      const float value = cit->first;
+      const float value = coord.first;
 
       // Find the specs for the font value
 
@@ -4659,7 +4659,7 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
       Imagine::NFmiFace face = make_face(fontspec);
       face.Background(false);
 #endif
-      for (auto it = cit->second.begin(); it != cit->second.end(); ++it)
+      for (auto it = coord.second.begin(); it != coord.second.end(); ++it)
       {
 #ifdef IMAGINE_WITH_CAIRO
         // 'text' must be in UTF-8!
@@ -4886,16 +4886,16 @@ void draw_pressure_markers(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
   NFmiColorTools::NFmiBlendRule lowrule = ColorTools::checkrule(globals.lowpressurerule);
   NFmiColorTools::NFmiBlendRule highrule = ColorTools::checkrule(globals.highpressurerule);
 
-  for (auto eit = extrema.begin(); eit != extrema.end(); ++eit)
+  for (const auto& eit : extrema)
   {
-    for (auto it = eit->second.begin(); it != eit->second.end(); ++it)
+    for (auto it = eit.second.begin(); it != eit.second.end(); ++it)
     {
       NFmiPoint wxy(it->first * 1000, it->second * 1000);
       NFmiPoint latlon = theArea.WorldXYToLatLon(wxy);
       /// latlon = MeridianTools::Relocate(latlon,theArea);
       NFmiPoint xy = theArea.ToXY(latlon);
 
-      switch (eit->first)
+      switch (eit.first)
       {
         case ExtremaLocator::Minimum:
           img.Composite(globals.lowpressureimage,

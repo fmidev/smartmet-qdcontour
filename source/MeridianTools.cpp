@@ -86,18 +86,18 @@ void Relocate(NFmiPath &thePath, const NFmiArea &theArea)
   NFmiPath path;
   const float shift = (meridian < 0 ? -360 : 360);
 
-  for (auto it = thePath.Elements().begin(); it != thePath.Elements().end(); ++it)
+  for (const auto& it : thePath.Elements())
   {
-    switch (it->op)
+    switch (it.op)
     {
       case kFmiMoveTo:
-        path.MoveTo(it->x + shift, it->y);
+        path.MoveTo(it.x + shift, it.y);
         break;
       case kFmiLineTo:
-        path.LineTo(it->x + shift, it->y);
+        path.LineTo(it.x + shift, it.y);
         break;
       case kFmiGhostLineTo:
-        path.GhostLineTo(it->x + shift, it->y);
+        path.GhostLineTo(it.x + shift, it.y);
         break;
       default:
         break;

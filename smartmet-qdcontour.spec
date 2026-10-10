@@ -93,6 +93,7 @@ rm -rf $RPM_BUILD_ROOT
 - Remove redundant void parameter lists and use bool literals, no functional changes
 - Use emplace and C++ standard library headers where clang-tidy suggests it, no functional changes
 - Use raw string literals and std::make_shared where clang-tidy suggests it, no functional changes
+- Use range-based for loops where clang-tidy suggests it, no functional changes
 
 * Thu Sep 24 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> 26.9.24-1.fmi
 - Fixed a boost include for numeric_cast
