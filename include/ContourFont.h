@@ -24,7 +24,7 @@ class ContourFont
   ContourFont &operator=(const ContourFont &theValue);
 #endif
 
-  virtual ~ContourFont() {}
+  virtual ~ContourFont() = default;
   ContourFont(float theValue, int theColor, int theSymbol, const std::string &theFont);
 
   float value() const;

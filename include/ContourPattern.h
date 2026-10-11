@@ -24,7 +24,7 @@ class ContourPattern
   ContourPattern &operator=(const ContourPattern &theValue);
 #endif
 
-  virtual ~ContourPattern() {}
+  virtual ~ContourPattern() = default;
   ContourPattern(float theLoLimit,
                  float theHiLimit,
                  const std::string &thePattern,
