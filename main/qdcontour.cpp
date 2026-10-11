@@ -2862,20 +2862,24 @@ void draw_graticule(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
 
   NFmiPath path;
 
-  for (double lon = globals.graticulelon1; lon <= globals.graticulelon2; lon += globals.graticuledx)
+  for (int nlon = 0; globals.graticulelon1 + nlon * globals.graticuledx <= globals.graticulelon2;
+       nlon++)
   {
+    const double lon = globals.graticulelon1 + nlon * globals.graticuledx;
     path.MoveTo(lon, globals.graticulelat1);
-    for (double lat = globals.graticulelat1 + globals.graticuledy; lat <= globals.graticulelat2;
-         lat += 1.0)
-      path.LineTo(lon, lat);
+    for (int nlat = 0; globals.graticulelat1 + globals.graticuledy + nlat <= globals.graticulelat2;
+         nlat++)
+      path.LineTo(lon, globals.graticulelat1 + globals.graticuledy + nlat);
   }
 
-  for (double lat = globals.graticulelat1; lat <= globals.graticulelat2; lat += globals.graticuledy)
+  for (int nlat = 0; globals.graticulelat1 + nlat * globals.graticuledy <= globals.graticulelat2;
+       nlat++)
   {
+    const double lat = globals.graticulelat1 + nlat * globals.graticuledy;
     path.MoveTo(globals.graticulelon1, lat);
-    for (double lon = globals.graticulelon1 + globals.graticuledx; lon <= globals.graticulelon2;
-         lon += 1.0)
-      path.LineTo(lon, lat);
+    for (int nlon = 0; globals.graticulelon1 + globals.graticuledx + nlon <= globals.graticulelon2;
+         nlon++)
+      path.LineTo(globals.graticulelon1 + globals.graticuledx + nlon, lat);
   }
 
   // MeridianTools::Relocate(path,theArea);
@@ -3098,12 +3102,14 @@ void add_label_grid_values(ContourSpec &theSpec,
     }
     else
     {
-      for (float y = 0; y <= thePoints.NY() - 1; y += dy)
+      for (int ny = 0; ny * dy <= thePoints.NY() - 1; ny++)
       {
+        const float y = ny * dy;
         const int j = static_cast<int>(floor(y));
         const float dj = y - j;
-        for (float x = 0; x <= thePoints.NX() - 1; x += dx)
+        for (int nx = 0; nx * dx <= thePoints.NX() - 1; nx++)
         {
+          const float x = nx * dx;
           const int i = static_cast<int>(floor(x));
           const float di = x - i;
           const NFmiPoint bad(kFloatMissing, kFloatMissing);
@@ -3140,9 +3146,12 @@ void add_label_pixelgrid_values(ContourSpec &theSpec,
 
   if (dx > 0 && dy > 0)
   {
-    for (float y = y0; y <= img.Height(); y += dy)
-      for (float x = x0; x <= img.Width(); x += dx)
+    for (int ny = 0; y0 + ny * dy <= img.Height(); ny++)
+    {
+      const float y = y0 + ny * dy;
+      for (int nx = 0; x0 + nx * dx <= img.Width(); nx++)
       {
+        const float x = x0 + nx * dx;
         NFmiPoint latlon = theArea.ToLatLon(NFmiPoint(x, y));
         NFmiPoint ij = globals.queryinfo->LatLonToGrid(latlon);
 
@@ -3158,6 +3167,7 @@ void add_label_pixelgrid_values(ContourSpec &theSpec,
                                         theValues.At(i + 1, j, kFloatMissing)));
         theSpec.addPixelLabel(NFmiPoint(x, y), value);
       }
+    }
   }
 }
 
@@ -3891,9 +3901,12 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
   // Needed for grid to latlon conversions
   const auto *grid = globals.queryinfo->Grid();
 
-  for (float y = 0; y < coordinates.height() - 1; y += globals.windarrowdy)
-    for (float x = 0; x < coordinates.width() - 1; x += globals.windarrowdx)
+  for (int ny = 0; ny * globals.windarrowdy < coordinates.height() - 1; ny++)
+  {
+    const float y = ny * globals.windarrowdy;
+    for (int nx = 0; nx * globals.windarrowdx < coordinates.width() - 1; nx++)
     {
+      const float x = nx * globals.windarrowdx;
       // The start point
 
       const int i = static_cast<int>(floor(x));
@@ -4013,6 +4026,7 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
         }
       }
     }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -4036,9 +4050,12 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
 
   Fmi::CoordinateTransformation transformation("WGS84", theArea.SpatialReference());
 
-  for (float y = globals.windarrowsxyy0; y <= img.Height(); y += globals.windarrowsxydy)
-    for (float x = globals.windarrowsxyx0; x <= img.Width(); x += globals.windarrowsxydx)
+  for (int ny = 0; globals.windarrowsxyy0 + ny * globals.windarrowsxydy <= img.Height(); ny++)
+  {
+    const float y = globals.windarrowsxyy0 + ny * globals.windarrowsxydy;
+    for (int nx = 0; globals.windarrowsxyx0 + nx * globals.windarrowsxydx <= img.Width(); nx++)
     {
+      const float x = globals.windarrowsxyx0 + nx * globals.windarrowsxydx;
       NFmiPoint xy0(x, y);
 
       // Skip the point if it is masked
@@ -4130,6 +4147,7 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
         }
       }
     }
+  }
 }
 
 // ----------------------------------------------------------------------
