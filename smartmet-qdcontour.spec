@@ -32,16 +32,16 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos313-devel
 BuildRequires: gdal312-devel
-BuildRequires: smartmet-library-macgyver-devel >= 26.4.13
-BuildRequires: smartmet-library-imagine-devel >= 26.4.13
-BuildRequires: smartmet-library-newbase-devel >= 26.2.4
-BuildRequires: smartmet-library-gis-devel >= 26.4.13
+BuildRequires: smartmet-library-macgyver-devel >= 26.10.11
+BuildRequires: smartmet-library-imagine-devel >= 26.10.11
+BuildRequires: smartmet-library-newbase-devel >= 26.10.11
+BuildRequires: smartmet-library-gis-devel >= 26.10.11
 BuildRequires: smartmet-library-trax-devel >= 26.6.26
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 26.4.13
-Requires: smartmet-library-newbase >= 26.2.4
+Requires: smartmet-library-imagine >= 26.10.11
+Requires: smartmet-library-newbase >= 26.10.11
 Requires: smartmet-library-trax >= 26.6.26
 Requires: freetype
 Requires: libjpeg
@@ -51,7 +51,7 @@ Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-newbase-devel
-#TestRequires: smartmet-library-macgyver-devel >= 26.4.13
+#TestRequires: smartmet-library-macgyver-devel >= 26.10.11
 #TestRequires: smartmet-library-trax >= 26.6.26
 #TestRequires: smartmet-library-regression >= 26.5.22
 #TestRequires: smartmet-fonts
@@ -88,8 +88,6 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sun Oct 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.11-1.fmi
 - Floating point loops use integer counters, so rounding no longer drops or adds iterations
-
-* Sat Oct 10 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.10-1.fmi
 - Use auto and return {} where clang-tidy suggests it, no functional changes
 - Mark overriding methods override and use nullptr, no functional changes
 - Use = default and using declarations where clang-tidy suggests it, no functional changes
