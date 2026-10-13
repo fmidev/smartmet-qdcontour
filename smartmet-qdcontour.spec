@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.10.11
+Version: 26.10.13
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -33,15 +33,15 @@ BuildRequires: libpng-devel
 BuildRequires: geos313-devel
 BuildRequires: gdal312-devel
 BuildRequires: smartmet-library-macgyver-devel >= 26.10.11
-BuildRequires: smartmet-library-imagine-devel >= 26.10.11
-BuildRequires: smartmet-library-newbase-devel >= 26.10.11
+BuildRequires: smartmet-library-imagine-devel >= 26.10.13
+BuildRequires: smartmet-library-newbase-devel >= 26.10.13
 BuildRequires: smartmet-library-gis-devel >= 26.10.11
 BuildRequires: smartmet-library-trax-devel >= 26.6.26
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 26.10.11
-Requires: smartmet-library-newbase >= 26.10.11
+Requires: smartmet-library-imagine >= 26.10.13
+Requires: smartmet-library-newbase >= 26.10.13
 Requires: smartmet-library-trax >= 26.6.26
 Requires: freetype
 Requires: libjpeg
@@ -86,6 +86,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 13 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.13-1.fmi
+- Declare member functions and parameters const where nothing is modified (const correctness), no functional changes
+- Requires 26.10.13 versions of newbase, imagine due to their ABI changes
+
 * Sun Oct 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.11-1.fmi
 - Floating point loops use integer counters, so rounding no longer drops or adds iterations
 - Use auto and return {} where clang-tidy suggests it, no functional changes

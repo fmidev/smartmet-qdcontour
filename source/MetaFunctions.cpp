@@ -44,7 +44,7 @@ inline float eights(float theCloudiness)
  */
 // ----------------------------------------------------------------------
 
-NFmiDataMatrix<float> elevation_angle_values(LazyQueryData &theQI)
+NFmiDataMatrix<float> elevation_angle_values(const LazyQueryData& theQI)
 {
   NFmiDataMatrix<float> values;
 

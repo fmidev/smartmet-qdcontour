@@ -449,7 +449,7 @@ const LabelLocator::ParamCoordinates &LabelLocator::chooseLabels()
 void LabelLocator::removeCandidates(ParamCoordinates &theCandidates,
                                     const XY &thePoint,
                                     int theParam,
-                                    float theContour)
+                                    float theContour) const
 {
   for (auto pit = theCandidates.begin(); pit != theCandidates.end();)
   {

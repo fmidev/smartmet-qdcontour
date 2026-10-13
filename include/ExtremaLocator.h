@@ -62,7 +62,9 @@ class ExtremaLocator
   Coordinates::const_iterator chooseClosestToBorder(const Coordinates &theCandidates,
                                                     Extremum theType);
 
-  void removeCandidates(ExtremaCoordinates &theCandidates, const XY &thePoint, Extremum theType);
+  void removeCandidates(ExtremaCoordinates& theCandidates,
+                        const XY& thePoint,
+                        Extremum theType) const;
 
   void removeEmpties(ExtremaCoordinates &theCandidates);
 

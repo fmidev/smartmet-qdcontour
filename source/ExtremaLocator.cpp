@@ -340,7 +340,7 @@ ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToBorde
 
 void ExtremaLocator::removeCandidates(ExtremaCoordinates &theCandidates,
                                       const XY &thePoint,
-                                      Extremum theType)
+                                      Extremum theType) const
 {
   for (auto pit = theCandidates.begin(); pit != theCandidates.end();)
   {

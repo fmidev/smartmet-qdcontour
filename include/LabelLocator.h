@@ -66,7 +66,7 @@ class LabelLocator
   void removeCandidates(ParamCoordinates &theCandidates,
                         const XY &thePoint,
                         int theParam,
-                        float theContour);
+                        float theContour) const;
 
   void removeEmpties(ParamCoordinates &theCandidates);
 
