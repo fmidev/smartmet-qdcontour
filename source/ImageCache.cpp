@@ -24,13 +24,13 @@ void ImageCache::clear() const { itsCache.clear(); }
  */
 // ----------------------------------------------------------------------
 
-const ImagineXr_or_NFmiImage &ImageCache::getImage(const string &theFile) const
+const Imagine::NFmiImage& ImageCache::getImage(const string& theFile) const
 {
   auto it = itsCache.find(theFile);
   if (it != itsCache.end()) return it->second;
 
   pair<storage_type::const_iterator, bool> ret =
-      itsCache.insert(storage_type::value_type(theFile, ImagineXr_or_NFmiImage(theFile)));
+      itsCache.insert(storage_type::value_type(theFile, Imagine::NFmiImage(theFile)));
 
   if (ret.second) return ret.first->second;
 

@@ -44,15 +44,9 @@
 #include <stdexcept>
 #include <string>
 
-#ifdef IMAGINE_WITH_CAIRO
-#include "ImagineXr.h"
-typedef ImagineXr ImagineXr_or_NFmiImage;
-#else
 #include <imagine/NFmiFace.h>
 #include <imagine/NFmiFreeType.h>
 #include <imagine/NFmiImage.h>
-using ImagineXr_or_NFmiImage = Imagine::NFmiImage;
-#endif
 
 using namespace std;
 using namespace boost;
@@ -121,7 +115,7 @@ bool IsMasked(const NFmiPoint &thePoint, const std::string &theMask)
 
   // Get the mask
 
-  const ImagineXr_or_NFmiImage &mask = globals.getImage(theMask);
+  const Imagine::NFmiImage& mask = globals.getImage(theMask);
 
   // Clip outside pixels
 
@@ -360,55 +354,6 @@ void report_extrema(const string &theParam, float theMin, float theMax)
  */
 // ----------------------------------------------------------------------
 
-#ifdef IMAGINE_WITH_CAIRO
-static void write_image(const ImagineXr &xr)
-{
-  const string filename = xr.Filename();
-  const string format = xr.Format();
-
-  if (globals.verbose)
-    cout << "Writing '" << filename << "'" << endl;
-
-  if ((format == "pdf") || (format == "png" && (!globals.reducecolors)))
-  {
-    // Cairo native writing (faster)
-    //
-    xr.Write();
-  }
-  else
-  {
-    // Convert to 'NFmiImage'
-    //
-    // Both Cairo and NFmiImage use ARGB_32 format, but NFmiImage has A
-    // as opaqueness (0..127, 0=transparent) while Cairo as alpha (0..255,
-    // 255=transparent).
-    //
-    unsigned n = xr.Width() * xr.Height();
-#if 0
-        NFmiColorTools::Color buf[n];   // does not compile with VC++
-        xr.NFmiColorBuf(buf);
-        NFmiImage img( xr.Width(), xr.Height(), buf );
-#else
-    NFmiImage img;
-    {
-      NFmiColorTools::Color *buf = new NFmiColorTools::Color[n];
-      xr.NFmiColorBuf(buf);
-      img = NFmiImage(xr.Width(), xr.Height(), buf);
-      delete[] buf;
-    }
-#endif
-    globals.setImageModes(img);
-
-    if (globals.reducecolors)
-      img.ReduceColors();
-
-    img.Write(filename, format);
-  }
-
-  if (!globals.itsImageCacheOn)
-    globals.itsImageCache.clear();
-}
-#else
 static void write_image(NFmiImage &theImage, const string &theName, const string &theFormat)
 {
   if (globals.verbose)
@@ -422,7 +367,6 @@ static void write_image(NFmiImage &theImage, const string &theName, const string
   if (!globals.itsImageCacheOn)
     globals.itsImageCache.clear();
 }
-#endif
 
 // ----------------------------------------------------------------------
 /*!
@@ -434,12 +378,10 @@ static void write_image(NFmiImage &theImage, const string &theName, const string
  */
 // ----------------------------------------------------------------------
 
-#ifndef IMAGINE_WITH_CAIRO
 Imagine::NFmiFace make_face(const string &theSpec)
 {
   return NFmiFace(theSpec);
 }
-#endif
 
 // ----------------------------------------------------------------------
 /*!
@@ -1395,16 +1337,6 @@ void do_format(istream &theInput)
     throw runtime_error("Image format +'" + globals.format + "' is not supported");
   }
 }
-
-/*
- * Handle "antialias" and other Cairo-specific commands
- */
-#if 0  // def IMAGINE_WITH_CAIRO
-  void do_antialias( istream &in ) {
-    in >> globals.antialias;
-    check_errors(in,"antialias");
-  }
-#endif
 
 // ----------------------------------------------------------------------
 /*!
@@ -2766,13 +2698,9 @@ void do_draw_shapes(istream &theInput)
   int imgwidth = static_cast<int>(std::lround(area->Width()));
   int imgheight = static_cast<int>(std::lround(area->Height()));
 
-// Initialize the background
-#ifdef IMAGINE_WITH_CAIRO
-  ImagineXr image(imgwidth, imgheight, filename + "." + globals.format, globals.format);
-#else
+  // Initialize the background
   NFmiImage image(imgwidth, imgheight);
   globals.setImageModes(image);
-#endif
   image.Erase(ColorTools::checkcolor(globals.erase));
 
   // Draw all the shapes
@@ -2798,16 +2726,12 @@ void do_draw_shapes(istream &theInput)
     {
       NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(iter->markerrule());
 
-      const ImagineXr_or_NFmiImage &marker = globals.getImage(iter->marker());
+      const Imagine::NFmiImage& marker = globals.getImage(iter->marker());
       geo.Mark(image, marker, markerrule, kFmiAlignCenter, iter->markeralpha());
     }
   }
 
-#ifdef IMAGINE_WITH_CAIRO
-  write_image(image);
-#else
   write_image(image, filename + '.' + globals.format, globals.format);
-#endif
 }
 
 // ----------------------------------------------------------------------
@@ -2856,7 +2780,7 @@ void do_draw_imagemap(istream &theInput)
  */
 // ----------------------------------------------------------------------
 
-void draw_graticule(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
+void draw_graticule(Imagine::NFmiImage& img, const NFmiArea& theArea)
 {
   if (globals.graticulecolor.empty())
     return;
@@ -3133,10 +3057,10 @@ void add_label_grid_values(ContourSpec &theSpec,
  */
 // ----------------------------------------------------------------------
 
-void add_label_pixelgrid_values(ContourSpec &theSpec,
-                                const NFmiArea &theArea,
-                                const ImagineXr_or_NFmiImage &img,
-                                const NFmiDataMatrix<float> &theValues)
+void add_label_pixelgrid_values(ContourSpec& theSpec,
+                                const NFmiArea& theArea,
+                                const Imagine::NFmiImage& img,
+                                const NFmiDataMatrix<float>& theValues)
 {
   theSpec.clearPixelLabels();
 
@@ -3213,9 +3137,9 @@ void add_label_point_values(ContourSpec &theSpec,
  */
 // ----------------------------------------------------------------------
 
-void draw_label_markers(ImagineXr_or_NFmiImage &img,
-                        const ContourSpec &theSpec,
-                        const NFmiArea &theArea)
+void draw_label_markers(Imagine::NFmiImage& img,
+                        const ContourSpec& theSpec,
+                        const NFmiArea& theArea)
 {
   if (theSpec.labelMarker().empty())
     return;
@@ -3227,7 +3151,7 @@ void draw_label_markers(ImagineXr_or_NFmiImage &img,
 
   // Establish the marker specs
 
-  const ImagineXr_or_NFmiImage &marker = globals.getImage(theSpec.labelMarker());
+  const Imagine::NFmiImage& marker = globals.getImage(theSpec.labelMarker());
 
   NFmiColorTools::NFmiBlendRule markerrule = ColorTools::checkrule(theSpec.labelMarkerRule());
 
@@ -3305,9 +3229,7 @@ void draw_label_markers(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_label_texts(ImagineXr_or_NFmiImage &img,
-                      const ContourSpec &theSpec,
-                      const NFmiArea &theArea)
+void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const NFmiArea& theArea)
 {
   // Establish that something is to be done
 
@@ -3321,12 +3243,8 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
 
     // Create the face object to be used
 
-#ifdef IMAGINE_WITH_CAIRO
-  img.MakeFace(theSpec.labelFont());
-#else
   Imagine::NFmiFace face = make_face(theSpec.labelFont());
   face.Background(false);
-#endif
 
   // Draw labels at specifing latlon points if requested
 
@@ -3383,28 +3301,6 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
       if (strvalue.empty())
         continue;
 
-#ifdef IMAGINE_WITH_CAIRO
-      /* Cairo text (must be in UTF-8!)
-       */
-      img.DrawFace(static_cast<int>(round(x + theSpec.labelOffsetX())),
-                   static_cast<int>(round(y + theSpec.labelOffsetY())),
-                   strvalue,
-                   theSpec.labelColor(),
-                   AlignmentValue(theSpec.labelAlignment()),
-                   ColorTools::checkrule(theSpec.labelRule()));
-
-      // Then the label caption
-
-      if (!theSpec.labelCaption().empty())
-      {
-        img.DrawFace(static_cast<int>(round(x + theSpec.labelCaptionDX())),
-                     static_cast<int>(round(y + theSpec.labelCaptionDY())),
-                     theSpec.labelCaption(),
-                     theSpec.labelColor(),
-                     AlignmentValue(theSpec.labelCaptionAlignment()),
-                     ColorTools::checkrule(theSpec.labelRule()));
-      }
-#else
       // Set new text properties
 
       face.Draw(img,
@@ -3427,7 +3323,6 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
                   theSpec.labelColor(),
                   ColorTools::checkrule(theSpec.labelRule()));
       }
-#endif
     }
   }
 
@@ -3470,30 +3365,6 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
       if (strvalue.empty())
         continue;
 
-#ifdef IMAGINE_WITH_CAIRO
-      /* Cairo text (must be in UTF-8!)
-       */
-      // Set new text properties
-
-      img.DrawFace(static_cast<int>(round(x + theSpec.labelOffsetX())),
-                   static_cast<int>(round(y + theSpec.labelOffsetY())),
-                   strvalue,
-                   theSpec.labelColor(),
-                   AlignmentValue(theSpec.labelAlignment()),
-                   ColorTools::checkrule(theSpec.labelRule()));
-
-      // Then the label caption
-
-      if (!theSpec.labelCaption().empty())
-      {
-        img.DrawFace(static_cast<int>(round(x + theSpec.labelCaptionDX())),
-                     static_cast<int>(round(y + theSpec.labelCaptionDY())),
-                     theSpec.labelCaption(),
-                     theSpec.labelColor(),
-                     AlignmentValue(theSpec.labelCaptionAlignment()),
-                     ColorTools::checkrule(theSpec.labelRule()));
-      }
-#else
       // Set new text properties
 
       face.Draw(img,
@@ -3516,7 +3387,6 @@ void draw_label_texts(ImagineXr_or_NFmiImage &img,
                   theSpec.labelColor(),
                   ColorTools::checkrule(theSpec.labelRule()));
       }
-#endif
     }
   }
 }
@@ -3745,9 +3615,9 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
-                             const NFmiArea &theArea,
-                             const NFmiPath &theArrow,
+void draw_wind_arrows_points(Imagine::NFmiImage& img,
+                             const NFmiArea& theArea,
+                             const NFmiPath& theArrow,
                              float direction_src,
                              float direction_dst,
                              float speed_src,
@@ -3857,9 +3727,9 @@ void draw_wind_arrows_points(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
-                           const NFmiArea &theArea,
-                           const NFmiPath &theArrow,
+void draw_wind_arrows_grid(Imagine::NFmiImage& img,
+                           const NFmiArea& theArea,
+                           const NFmiPath& theArrow,
                            float direction_src,
                            float direction_dst,
                            float speed_src,
@@ -4036,9 +3906,9 @@ void draw_wind_arrows_grid(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
-                                const NFmiArea &theArea,
-                                const NFmiPath &theArrow,
+void draw_wind_arrows_pixelgrid(Imagine::NFmiImage& img,
+                                const NFmiArea& theArea,
+                                const NFmiPath& theArrow,
                                 float direction_src,
                                 float direction_dst,
                                 float speed_src,
@@ -4157,7 +4027,7 @@ void draw_wind_arrows_pixelgrid(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_wind_arrows(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
+void draw_wind_arrows(Imagine::NFmiImage& img, const NFmiArea& theArea)
 {
   if ((!globals.arrowpoints.empty() || (globals.windarrowdx > 0 && globals.windarrowdy > 0) ||
        (globals.windarrowsxydx > 0 && globals.windarrowsxydy > 0)) &&
@@ -4243,10 +4113,10 @@ void draw_wind_arrows(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_fills(ImagineXr_or_NFmiImage &img,
-                        const NFmiArea &theArea,
-                        const ContourSpec &theSpec,
-                        const NFmiTime &theTime,
+void draw_contour_fills(Imagine::NFmiImage& img,
+                        const NFmiArea& theArea,
+                        const ContourSpec& theSpec,
+                        const NFmiTime& theTime,
                         ContourInterpolation theInterpolation)
 {
   list<ContourRange>::const_iterator it;
@@ -4289,10 +4159,10 @@ void draw_contour_fills(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
-                           const NFmiArea &theArea,
-                           const ContourSpec &theSpec,
-                           const NFmiTime &theTime,
+void draw_contour_patterns(Imagine::NFmiImage& img,
+                           const NFmiArea& theArea,
+                           const ContourSpec& theSpec,
+                           const NFmiTime& theTime,
                            ContourInterpolation theInterpolation)
 {
   list<ContourPattern>::const_iterator it;
@@ -4311,7 +4181,7 @@ void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
       cout << "Using cached " << it->lolimit() << " - " << it->hilimit() << endl;
 
     NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(it->rule());
-    const ImagineXr_or_NFmiImage &pattern = globals.getImage(it->pattern());
+    const Imagine::NFmiImage& pattern = globals.getImage(it->pattern());
 
     // MeridianTools::Relocate(path,theArea);
     path.Project(&theArea);
@@ -4327,10 +4197,10 @@ void draw_contour_patterns(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_strokes(ImagineXr_or_NFmiImage &img,
-                          const NFmiArea &theArea,
-                          const ContourSpec &theSpec,
-                          const NFmiTime &theTime,
+void draw_contour_strokes(Imagine::NFmiImage& img,
+                          const NFmiArea& theArea,
+                          const ContourSpec& theSpec,
+                          const NFmiTime& theTime,
                           ContourInterpolation theInterpolation)
 {
   list<ContourValue>::const_iterator it;
@@ -4366,10 +4236,10 @@ void draw_contour_strokes(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void save_contour_labels(ImagineXr_or_NFmiImage &img,
-                         const NFmiArea &theArea,
-                         const ContourSpec &theSpec,
-                         const NFmiTime &theTime,
+void save_contour_labels(Imagine::NFmiImage& img,
+                         const NFmiArea& theArea,
+                         const ContourSpec& theSpec,
+                         const NFmiTime& theTime,
                          ContourInterpolation theInterpolation)
 {
   // The ID under which the coordinates will be stored
@@ -4411,7 +4281,7 @@ void save_contour_labels(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_labels(ImagineXr_or_NFmiImage &img)
+void draw_contour_labels(Imagine::NFmiImage& img)
 {
   const LabelLocator::ParamCoordinates &coords = globals.labellocator.chooseLabels();
 
@@ -4442,14 +4312,10 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
     const int xmargin = piter->contourLabelBackgroundXMargin();
     const int ymargin = piter->contourLabelBackgroundYMargin();
 
-#ifdef IMAGINE_WITH_CAIRO
-    img.MakeFace(fontspec, backcolor, xmargin, ymargin);
-#else
     Imagine::NFmiFace face = make_face(fontspec);
     face.Background(true);
     face.BackgroundColor(backcolor);
     face.BackgroundMargin(xmargin, ymargin);
-#endif
 
     for (const auto& cit : pit->second)
     {
@@ -4463,15 +4329,8 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
 
       for (auto it = cit.second.begin(); it != cit.second.end(); ++it)
       {
-#ifdef IMAGINE_WITH_CAIRO
-        // 'text' must be in UTF-8!
-        //
-        img.DrawFace(
-            it->second.first, it->second.second, text, fontcolor, Imagine::kFmiAlignCenter);
-#else
         face.Draw(
             img, it->second.first, it->second.second, text, Imagine::kFmiAlignCenter, fontcolor);
-#endif
       }
     }
   }
@@ -4483,11 +4342,11 @@ void draw_contour_labels(ImagineXr_or_NFmiImage &img)
  */
 // ----------------------------------------------------------------------
 
-void save_contour_symbols(ImagineXr_or_NFmiImage &img,
-                          const NFmiArea &theArea,
-                          const ContourSpec &theSpec,
-                          const LazyCoordinates &thePoints,
-                          const NFmiDataMatrix<float> &theValues)
+void save_contour_symbols(Imagine::NFmiImage& img,
+                          const NFmiArea& theArea,
+                          const ContourSpec& theSpec,
+                          const LazyCoordinates& thePoints,
+                          const NFmiDataMatrix<float>& theValues)
 {
   // The ID under which the coordinates will be stored
 
@@ -4541,7 +4400,7 @@ void save_contour_symbols(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
+void draw_contour_symbols(Imagine::NFmiImage& img)
 {
   const LabelLocator::ParamCoordinates &paramcoords = globals.imagelocator.chooseLabels();
 
@@ -4601,7 +4460,7 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
       // Render the symbols
 
       NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(fit->rule());
-      const ImagineXr_or_NFmiImage &symbol = globals.getImage(fit->pattern());
+      const Imagine::NFmiImage& symbol = globals.getImage(fit->pattern());
       const float factor = fit->factor();
 
       for (auto it = coord.second.begin(); it != coord.second.end(); ++it)
@@ -4618,7 +4477,7 @@ void draw_contour_symbols(ImagineXr_or_NFmiImage &img)
  */
 // ----------------------------------------------------------------------
 
-void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
+void draw_contour_fonts(Imagine::NFmiImage& img)
 {
   const LabelLocator::ParamCoordinates &paramcoords = globals.symbollocator.chooseLabels();
 
@@ -4672,23 +4531,12 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
 
       const std::string &fontspec = fit->font();
 
-#ifdef IMAGINE_WITH_CAIRO
-      img.MakeFace(fontspec);
-#else
       Imagine::NFmiFace face = make_face(fontspec);
       face.Background(false);
-#endif
       for (auto it = coord.second.begin(); it != coord.second.end(); ++it)
       {
-#ifdef IMAGINE_WITH_CAIRO
-        // 'text' must be in UTF-8!
-        //
-        img.DrawFace(
-            it->second.first, it->second.second, text, fontcolor, Imagine::kFmiAlignCenter);
-#else
         face.Draw(
             img, it->second.first, it->second.second, text, Imagine::kFmiAlignCenter, fontcolor);
-#endif
       }
     }
   }
@@ -4700,11 +4548,11 @@ void draw_contour_fonts(ImagineXr_or_NFmiImage &img)
  */
 // ----------------------------------------------------------------------
 
-void save_contour_fonts(ImagineXr_or_NFmiImage &img,
-                        const NFmiArea &theArea,
-                        const ContourSpec &theSpec,
-                        const LazyCoordinates &thePoints,
-                        const NFmiDataMatrix<float> &theValues)
+void save_contour_fonts(Imagine::NFmiImage& img,
+                        const NFmiArea& theArea,
+                        const ContourSpec& theSpec,
+                        const LazyCoordinates& thePoints,
+                        const NFmiDataMatrix<float>& theValues)
 {
   // The ID under which the coordinates will be stored
 
@@ -4751,7 +4599,7 @@ void save_contour_fonts(ImagineXr_or_NFmiImage &img,
  */
 // ----------------------------------------------------------------------
 
-void draw_overlay(ImagineXr_or_NFmiImage &img, const ContourSpec &theSpec)
+void draw_overlay(Imagine::NFmiImage& img, const ContourSpec& theSpec)
 {
   if (theSpec.overlay().empty())
     return;
@@ -4846,7 +4694,7 @@ int extrematype(
  */
 // ----------------------------------------------------------------------
 
-void draw_pressure_markers(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
+void draw_pressure_markers(Imagine::NFmiImage& img, const NFmiArea& theArea)
 {
   // Establish which markers are to be drawn
 
@@ -4943,7 +4791,7 @@ void draw_pressure_markers(ImagineXr_or_NFmiImage &img, const NFmiArea &theArea)
  */
 // ----------------------------------------------------------------------
 
-void draw_foreground(ImagineXr_or_NFmiImage &img)
+void draw_foreground(Imagine::NFmiImage& img)
 {
   if (globals.foreground.empty())
     return;
@@ -5184,23 +5032,6 @@ void do_draw_contours(istream &theInput)
 
     NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
 
-#ifdef IMAGINE_WITH_CAIRO
-    ImagineXr *xr = new ImagineXr(imgwidth, imgheight, filename, globals.format);
-
-    if (globals.background.empty())
-    {
-      xr->Erase(erasecolor);
-    }
-    else
-    {
-      const ImagineXr &xr2 = globals.getImage(globals.background);
-
-      if ((xr2.Width() != xr->Width()) || (xr2.Height() != xr->Height()))
-        throw runtime_error("Background image size does not match area size");
-
-      xr->Composite(xr2);
-    }
-#else
     std::shared_ptr<Imagine::NFmiImage> image;
     if (globals.background.empty())
     {
@@ -5219,7 +5050,6 @@ void do_draw_contours(istream &theInput)
 
     globals.setImageModes(*image);
 #define xr image /* HACK */
-#endif
 
     // Initialize label locator bounding box
 
@@ -5399,13 +5229,7 @@ void do_draw_contours(istream &theInput)
 
     // Save
 
-#ifdef IMAGINE_WITH_CAIRO
-    assert(xr->Filename() != "");
-    write_image(*xr);
-    delete xr;
-#else
     write_image(*image, filename, globals.format);
-#endif
 
     // Advance in time
 
@@ -5529,11 +5353,6 @@ static void process_cmd(const string &text)
       do_format(in);
     else if (cmd == "graticule")
       do_graticule(in);
-#if 0  // def IMAGINE_WITH_CAIRO
-    // AKa 22-Aug-2008: Extension conf for Cairo
-    //
-      else if(cmd == "antialias")				do_antialias(in);
-#endif
     else if (cmd == "gamma")
       do_gamma(in);
     else if (cmd == "intent")

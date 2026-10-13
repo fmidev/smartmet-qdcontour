@@ -12,12 +12,8 @@
 
 #include <imagine/NFmiEsriBox.h>
 
-#ifdef IMAGINE_WITH_CAIRO
-#include "ImagineXr.h"
-#else
 #include <imagine/NFmiFace.h>
 #include <imagine/NFmiFreeType.h>
-#endif
 
 #include <imagine/NFmiPath.h>
 
@@ -48,11 +44,7 @@ Globals::Globals()
       savepath("."),
       prefix(),
       suffix(),
-      format("png")  // default format
-#if 0                // def IMAGINE_WITH_CAIRO
-  , antialias(true)
-#endif
-      ,
+      format("png"),  // default format
       gamma(-1),
       intent(),
       alphalimit(-1),
@@ -177,7 +169,7 @@ Globals::~Globals() = default;
  */
 // ----------------------------------------------------------------------
 
-const ImagineXr_or_NFmiImage &Globals::getImage(const string &theFile) const
+const Imagine::NFmiImage& Globals::getImage(const string& theFile) const
 {
   return itsImageCache.getImage(theFile);
 }
@@ -307,27 +299,6 @@ const std::string Globals::getImageStampText(const NFmiTime &theTime) const
  */
 // ----------------------------------------------------------------------
 
-#ifdef IMAGINE_WITH_CAIRO
-void Globals::drawImageStampText(ImagineXr &img, const std::string &text) const
-{
-  if (text.empty()) return;
-
-  int x = timestampimagex;
-  int y = timestampimagey;
-
-  if (x < 0) x += img.Width();
-  if (y < 0) y += img.Height();
-
-  // ImagineXr version (AKa 5-Aug-2008)
-  //
-  img.MakeFace(timestampimagefont, timestampimagebackground);
-
-  img.DrawFace(x,
-               y,
-               text,                  // should be UTF-8
-               timestampimagecolor);  // font color
-}
-#else
 /*** NFmiImage version (original) ***/
 void Globals::drawImageStampText(Imagine::NFmiImage &theImage, const std::string &theText) const
 {
@@ -350,7 +321,6 @@ void Globals::drawImageStampText(Imagine::NFmiImage &theImage, const std::string
 
   face.Draw(theImage, x, y, theText, Imagine::kFmiAlignNorthWest, timestampimagecolor);
 }
-#endif
 
 // ----------------------------------------------------------------------
 /*!
@@ -358,17 +328,6 @@ void Globals::drawImageStampText(Imagine::NFmiImage &theImage, const std::string
  */
 // ----------------------------------------------------------------------
 
-#ifdef IMAGINE_WITH_CAIRO
-void Globals::drawCombine(ImagineXr &xr) const
-{
-  if (combine.empty()) return;
-
-  Imagine::NFmiColorTools::NFmiBlendRule rule = ColorTools::checkrule(combinerule);
-
-  xr.Composite(
-      getImage(combine), rule, Imagine::kFmiAlignNorthWest, combinex, combiney, combinefactor);
-}
-#else
 /*** NFmiImage code (original) ***/
 void Globals::drawCombine(Imagine::NFmiImage &theImage) const
 {
@@ -379,7 +338,6 @@ void Globals::drawCombine(Imagine::NFmiImage &theImage) const
   theImage.Composite(
       getImage(combine), rule, Imagine::kFmiAlignNorthWest, combinex, combiney, combinefactor);
 }
-#endif
 
 // ----------------------------------------------------------------------
 // Get specs for round arrows

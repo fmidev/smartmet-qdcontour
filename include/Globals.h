@@ -19,12 +19,7 @@
 #include "ShapeSpec.h"
 #include "UnitsConverter.h"
 
-#include <imagine/imagine-config.h>
-#ifdef IMAGINE_WITH_CAIRO
-#include "ImagineXr.h"
-#else
 #include <imagine/NFmiColorTools.h>
-#endif
 
 #include <imagine/NFmiImage.h>
 #include <newbase/NFmiArea.h>
@@ -98,10 +93,10 @@ struct Globals
   std::shared_ptr<NFmiArea> createArea() const;
   const std::string getImageStampText(const NFmiTime &theTime) const;
 
-  void drawImageStampText(ImagineXr_or_NFmiImage &d, const std::string &text) const;
-  void drawCombine(ImagineXr_or_NFmiImage &d) const;
+  void drawImageStampText(Imagine::NFmiImage& d, const std::string& text) const;
+  void drawCombine(Imagine::NFmiImage& d) const;
 
-  const ImagineXr_or_NFmiImage &getImage(const std::string &filename) const;
+  const Imagine::NFmiImage& getImage(const std::string& filename) const;
 
   RoundArrowColor getRoundArrowFillColor(float speed) const;
   RoundArrowColor getRoundArrowStrokeColor(float speed) const;
@@ -127,10 +122,6 @@ struct Globals
   std::string prefix;    // filename prefix
   std::string suffix;    // filename suffix
   std::string format;    // image format name
-
-#if 0  // def IMAGINE_WITH_CAIRO
-  bool antialias;                   // on/off
-#endif
 
   float gamma;         // image gamma correction
   std::string intent;  // image rendering intent
