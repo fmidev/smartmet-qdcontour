@@ -91,6 +91,7 @@ rm -rf $RPM_BUILD_ROOT
 - Requires 26.10.13 versions of newbase, imagine due to their ABI changes
 - Round image sizes with std::lround
 - Removed the disabled Cairo (ImagineXr) code paths, imagine no longer has imagine-config.h
+- Fixed mechanical clang-tidy findings (internal linkage, unused parameters, initialization, redundant code), no functional changes
 
 * Sun Oct 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.11-1.fmi
 - Floating point loops use integer counters, so rounding no longer drops or adds iterations

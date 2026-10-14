@@ -43,17 +43,17 @@ class LabelLocator
   LabelLocator(const LabelLocator &theLocator);
   LabelLocator &operator=(const LabelLocator &theLocator);
 
-  bool itHasBBox;
-  int itsBBoxX1;
-  int itsBBoxY1;
-  int itsBBoxX2;
-  int itsBBoxY2;
+  bool itHasBBox = false;
+  int itsBBoxX1 = 0;
+  int itsBBoxY1 = 0;
+  int itsBBoxX2 = 0;
+  int itsBBoxY2 = 0;
 
-  float itsMinDistanceToSameValue;
-  float itsMinDistanceToDifferentValue;
-  float itsMinDistanceToDifferentParameter;
+  float itsMinDistanceToSameValue = 175;
+  float itsMinDistanceToDifferentValue = 30;
+  float itsMinDistanceToDifferentParameter = 30;
 
-  int itsActiveParameter;
+  int itsActiveParameter = 0;
   ParamCoordinates itsPreviousCoordinates;
   ParamCoordinates itsCurrentCoordinates;
 

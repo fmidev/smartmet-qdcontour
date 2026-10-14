@@ -24,9 +24,9 @@
  */
 // ----------------------------------------------------------------------
 
-ContourSpec::ContourSpec(const std::string &theParam,
-                         const std::string &theInterpolation,
-                         const std::string &theSmoother,
+ContourSpec::ContourSpec(const std::string& theParam,
+                         const std::string& theInterpolation,
+                         const std::string& theSmoother,
                          int theLevel,
                          float theSmootherRadius,
                          int theSmootherFactor,
@@ -42,7 +42,6 @@ ContourSpec::ContourSpec(const std::string &theParam,
       itsDataHiLimit(kFloatMissing),
       itHasReplace(false),
       itHasDespeckle(false),
-      itsLabelMarker(""),
       itsLabelMarkerRule("Copy"),
       itsLabelMarkerAlphaFactor(1.0),
       itsLabelFont("misc/6x13B.pcf.gz:6x13"),
@@ -59,7 +58,6 @@ ContourSpec::ContourSpec(const std::string &theParam,
       itsLabelXyY0(0),
       itsLabelXyDX(0),
       itsLabelXyDY(0),
-      itsLabelCaption(""),
       itsLabelCaptionDX(0),
       itsLabelCaptionDY(0),
       itsLabelCaptionAlignment("West"),
@@ -67,9 +65,7 @@ ContourSpec::ContourSpec(const std::string &theParam,
       itsContourLabelColor(Imagine::NFmiColorTools::Black),
       itsContourLabelBackgroundColor(Imagine::NFmiColorTools::MakeColor(180, 180, 180, 32)),
       itsContourLabelBackgroundXMargin(2),
-      itsContourLabelBackgroundYMargin(2),
-      itsContourLabelTexts(),
-      itsOverlay()
+      itsContourLabelBackgroundYMargin(2)
 {
 }
 

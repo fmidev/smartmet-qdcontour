@@ -12,9 +12,6 @@
  */
 // ----------------------------------------------------------------------
 
-LazyCoordinates::LazyCoordinates(const NFmiArea &theArea)
-    : itsArea(theArea), itsInitialized(false), itsData()
-{
-}
+LazyCoordinates::LazyCoordinates(const NFmiArea& theArea) : itsArea(theArea) {}
 
 // ======================================================================

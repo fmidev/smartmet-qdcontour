@@ -68,20 +68,12 @@ struct RoundArrowSize
 {
   float lolimit;
   float hilimit;
-  float circleradius;
-  float triangleradius;
-  float trianglewidth;
-  float triangleangle;
+  float circleradius = 9;
+  float triangleradius = 8;
+  float trianglewidth = 9;
+  float triangleangle = 60;
 
-  RoundArrowSize()
-      : lolimit(kFloatMissing),
-        hilimit(kFloatMissing),
-        circleradius(9),
-        triangleradius(8),
-        trianglewidth(9),
-        triangleangle(60)
-  {
-  }
+  RoundArrowSize() : lolimit(kFloatMissing), hilimit(kFloatMissing) {}
 };
 
 struct Globals
@@ -107,8 +99,8 @@ struct Globals
 
   // Command line options
 
-  bool verbose;                          // -v option
-  bool force;                            // -f option
+  bool verbose = false;                   // -v option
+  bool force = false;                     // -f option
   std::string cmdline_querydata;         // -q option
   std::string cmdline_conf;              // -c option
   std::list<std::string> cmdline_files;  // command line parameters
@@ -123,26 +115,26 @@ struct Globals
   std::string suffix;    // filename suffix
   std::string format;    // image format name
 
-  float gamma;         // image gamma correction
+  float gamma = -1;     // image gamma correction
   std::string intent;  // image rendering intent
-  int alphalimit;      // alpha limit for binary alpha conversion
-  int pngquality;      // png quality, -1 = default
-  int jpegquality;     // jpeg quality, -1 = default
-  bool savealpha;      // save alpha channel?
+  int alphalimit = -1;  // alpha limit for binary alpha conversion
+  int pngquality = -1;  // png quality, -1 = default
+  int jpegquality = -1;   // jpeg quality, -1 = default
+  bool savealpha = true;  // save alpha channel?
 
-  bool reducecolors;  // reduce colors before saving?
+  bool reducecolors = false;  // reduce colors before saving?
 
-  bool wantpalette;   // attempt to save as palette image?
-  bool forcepalette;  // force palette image?
+  bool wantpalette = false;   // attempt to save as palette image?
+  bool forcepalette = false;  // force palette image?
 
   std::string contourinterpolation;  // contouring interpolation method
-  int contourtriangles;              // keep triangles in result or simplify?
+  int contourtriangles = 1;           // keep triangles in result or simplify?
 
   std::string smoother;  // smoothing method
-  float smootherradius;  // smoothing radius
-  int smootherfactor;    // smoothing sharpness factor
+  float smootherradius = 1;  // smoothing radius
+  int smootherfactor = 1;    // smoothing sharpness factor
 
-  bool expanddata;  // whether to expand data or not?
+  bool expanddata = false;  // whether to expand data or not?
 
   std::string projection;  // projection definition
   std::string filter;      // filtering mode
@@ -153,16 +145,16 @@ struct Globals
   std::string mask;            // mask image name
   std::string combine;         // combine image name
 
-  int combinex;
-  int combiney;
+  int combinex = 0;
+  int combiney = 0;
   std::string combinerule;
-  float combinefactor;
+  float combinefactor = 1;
 
   std::string erase;       // background color
   std::string fillrule;    // normal filling rule
   std::string strokerule;  // normal stroking rule
 
-  float contourlinewidth;  // width of contour lines
+  float contourlinewidth = 1;  // width of contour lines
 
   std::string directionparam;  // direction parameter for arrows
   std::string speedparam;      // speed parameter for arrows
@@ -171,7 +163,7 @@ struct Globals
   std::string speedycomponent;  // Y-component for speed
   int uvorientation = 1;        // U/V components are grid oriented?
 
-  float arrowscale;  // scale factor for arrows
+  float arrowscale = 1;  // scale factor for arrows
 
   std::string arrowfillcolor;
   std::string arrowstrokecolor;
@@ -179,17 +171,17 @@ struct Globals
   std::string arrowstrokerule;
   std::string arrowfile;
 
-  float windarrowscaleA;  // a*log10(b*x+1)
-  float windarrowscaleB;  // default:
-  float windarrowscaleC;  // 0*log10(0+1)+1 = 1
+  float windarrowscaleA = 0;  // a*log10(b*x+1)
+  float windarrowscaleB = 0;  // default:
+  float windarrowscaleC = 1;  // 0*log10(0+1)+1 = 1
 
-  float windarrowdx;  // wind arrow grid spacing
-  float windarrowdy;
+  float windarrowdx = 0;  // wind arrow grid spacing
+  float windarrowdy = 0;
 
-  float windarrowsxyx0;  // windarrowsxy [x0] [y0] [dx] [dy]
-  float windarrowsxyy0;  // dx/dy must be positive for rendering to start
-  float windarrowsxydx;
-  float windarrowsxydy;
+  float windarrowsxyx0 = 0;  // windarrowsxy [x0] [y0] [dx] [dy]
+  float windarrowsxyy0 = 0;  // dx/dy must be positive for rendering to start
+  float windarrowsxydx = -1;
+  float windarrowsxydy = -1;
 
   std::list<NFmiPoint> arrowpoints;  // Active wind arrows
 
@@ -197,36 +189,36 @@ struct Globals
   std::vector<std::string> queryfilenames;  // querydata files in use
 
   std::shared_ptr<LazyQueryData> queryinfo;  // active data, does not own pointer
-  int querydatalevel;                        // level value (-1 for first)
-  int timesteps;                             // how many images to draw?
-  int timestep;                              // timestep, 0 = all valid
-  int timeinterval;                          // inclusive time interval
-  int timestepskip;                          // initial time to skip in minutes
-  int timesteprounding;                      // rounding flag
-  int timestampflag;                         // put timestamp into image name?
+  int querydatalevel = -1;                    // level value (-1 for first)
+  int timesteps = 24;                         // how many images to draw?
+  int timestep = 0;                           // timestep, 0 = all valid
+  int timeinterval = 0;                       // inclusive time interval
+  int timestepskip = 0;                       // initial time to skip in minutes
+  int timesteprounding = 1;                   // rounding flag
+  int timestampflag = 1;                      // put timestamp into image name?
   std::string timestampzone;                 // timezone for the timestamp
   std::string timestampimage;                // image timestamping mode
-  int timestampimagex;
-  int timestampimagey;
+  int timestampimagex = 0;
+  int timestampimagey = 0;
   std::string timestampimageformat;  // hour or hourdate
   std::string timestampimagefont;    // font to draw the timestamp with
   Imagine::NFmiColorTools::Color timestampimagecolor;
   Imagine::NFmiColorTools::Color timestampimagebackground;
-  int timestampimagexmargin;
-  int timestampimageymargin;
+  int timestampimagexmargin = 2;
+  int timestampimageymargin = 2;
 
-  int contourlabelimagexmargin;  // minimum distance from borders
-  int contourlabelimageymargin;
+  int contourlabelimagexmargin = 20;  // minimum distance from borders
+  int contourlabelimageymargin = 20;
 
   std::string highpressureimage;  // high pressure image
   std::string highpressurerule;
-  float highpressurefactor;
-  float highpressureminimum;
+  float highpressurefactor = 1;
+  float highpressureminimum = 980;
 
   std::string lowpressureimage;  // low pressure image
   std::string lowpressurerule;
-  float lowpressurefactor;
-  float lowpressuremaximum;
+  float lowpressurefactor = 1;
+  float lowpressuremaximum = 1020;
 
   // Active storage
 
@@ -246,17 +238,17 @@ struct Globals
   UnitsConverter unitsconverter;
 
   ImageCache itsImageCache;
-  bool itsImageCacheOn;
+  bool itsImageCacheOn = true;
 
   ArrowCache itsArrowCache;
 
   std::string graticulecolor;
-  double graticulelon1;
-  double graticulelat1;
-  double graticulelon2;
-  double graticulelat2;
-  double graticuledx;
-  double graticuledy;
+  double graticulelon1{};
+  double graticulelat1{};
+  double graticulelon2{};
+  double graticulelat2{};
+  double graticuledx{};
+  double graticuledy{};
 
   std::list<RoundArrowColor> roundarrowfillcolors;
   std::list<RoundArrowColor> roundarrowstrokecolors;

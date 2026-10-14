@@ -17,8 +17,6 @@
 #include "MetaFunctions.h"
 #include "TimeTools.h"
 #include <boost/lexical_cast.hpp>
-#include <cmath>
-#include <memory>
 #include <gis/CoordinateMatrix.h>
 #include <gis/CoordinateTransformation.h>
 #include <gis/OGR.h>
@@ -36,6 +34,7 @@
 #include <newbase/NFmiSettings.h>  // Configuration
 #include <newbase/NFmiSmoother.h>  // for smoothing data
 #include <newbase/NFmiStringTools.h>
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <list>
@@ -43,6 +42,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>  // environ
 
 #include <imagine/NFmiFace.h>
 #include <imagine/NFmiFreeType.h>
@@ -58,6 +58,8 @@ const float pi = 3.141592658979323f;
 // Convert parameter description to a enum
 // ----------------------------------------------------------------------
 
+namespace
+{
 FmiParameterName toparam(const string &name)
 {
   static NFmiEnumConverter converter;
@@ -178,6 +180,7 @@ void parse_command_line(int argc, const char *argv[])
   for (int i = 1; i <= cmdline.NumberofParameters(); i++)
     globals.cmdline_files.emplace_back(cmdline.Parameter(i));
 }
+}  // namespace
 
 // ----------------------------------------------------------------------
 /*!
@@ -188,10 +191,10 @@ void parse_command_line(int argc, const char *argv[])
  */
 // ----------------------------------------------------------------------
 
+namespace
+{
 const string read_script(const string &theName)
 {
-  extern char **environ;
-
   const bool strip_pound = false;
   NFmiPreProcessor processor(strip_pound);
 
@@ -219,6 +222,7 @@ const string read_script(const string &theName)
 
   return processor.GetString();
 }
+}  // namespace
 
 // ----------------------------------------------------------------------
 /*!
@@ -234,6 +238,8 @@ const string read_script(const string &theName)
  */
 // ----------------------------------------------------------------------
 
+namespace
+{
 const string preprocess_script(const string &theScript)
 {
   string ret;
@@ -354,7 +360,7 @@ void report_extrema(const string &theParam, float theMin, float theMax)
  */
 // ----------------------------------------------------------------------
 
-static void write_image(NFmiImage &theImage, const string &theName, const string &theFormat)
+void write_image(NFmiImage &theImage, const string &theName, const string &theFormat)
 {
   if (globals.verbose)
     cout << "Writing '" << theName << "'" << endl;
@@ -406,7 +412,7 @@ void do_comment(istream &theInput)
 
 void do_cache(istream &theInput)
 {
-  int flag;
+  int flag = 0;
   theInput >> flag;
 
   check_errors(theInput, "cache");
@@ -423,7 +429,7 @@ void do_cache(istream &theInput)
 
 void do_imagecache(istream &theInput)
 {
-  int flag;
+  int flag = 0;
   theInput >> flag;
 
   check_errors(theInput, "imagecache");
@@ -1106,7 +1112,7 @@ void do_roundarrowsize(istream &theInput)
 
 void do_windarrow(istream &theInput)
 {
-  double lon, lat;
+  double lon = NAN, lat = NAN;
   theInput >> lon >> lat;
 
   check_errors(theInput, "windarrow");
@@ -1463,7 +1469,7 @@ void do_alphalimit(istream &theInput)
 
 void do_hilimit(istream &theInput)
 {
-  float limit;
+  float limit = NAN;
   theInput >> limit;
 
   check_errors(theInput, "hilimit");
@@ -1480,7 +1486,7 @@ void do_hilimit(istream &theInput)
 
 void do_datalolimit(istream &theInput)
 {
-  float limit;
+  float limit = NAN;
   theInput >> limit;
 
   check_errors(theInput, "datalolimit");
@@ -1497,7 +1503,7 @@ void do_datalolimit(istream &theInput)
 
 void do_datahilimit(istream &theInput)
 {
-  float limit;
+  float limit = NAN;
   theInput >> limit;
 
   check_errors(theInput, "datahilimit");
@@ -1514,7 +1520,7 @@ void do_datahilimit(istream &theInput)
 
 void do_datareplace(istream &theInput)
 {
-  float src, dst;
+  float src = NAN, dst = NAN;
   theInput >> src >> dst;
 
   check_errors(theInput, "datareplace");
@@ -1534,8 +1540,8 @@ void do_datareplace(istream &theInput)
 void do_despeckle(istream &theInput)
 {
   string slo, shi;
-  int radius, iterations;
-  float weight;
+  int radius = 0, iterations = 0;
+  float weight = NAN;
 
   theInput >> slo >> shi >> radius >> weight >> iterations;
 
@@ -1578,7 +1584,7 @@ void do_expanddata(istream &theInput)
  */
 // ----------------------------------------------------------------------
 
-void do_contourdepth(istream &theInput)
+void do_contourdepth(istream& /*theInput*/)
 {
   cerr << "Warning: contourdepth command is deprecated" << endl;
 }
@@ -1701,7 +1707,7 @@ void do_shape(istream &theInput)
   if (arg1 == "mark")
   {
     string marker, markerrule;
-    float markeralpha;
+    float markeralpha = NAN;
     theInput >> marker >> markerrule >> markeralpha;
 
     ColorTools::checkrule(markerrule);
@@ -1736,7 +1742,7 @@ void do_contourfill(istream &theInput)
 
   check_errors(theInput, "contourfill");
 
-  float lo, hi;
+  float lo = NAN, hi = NAN;
   if (slo == "-")
     lo = kFloatMissing;
   else
@@ -1761,12 +1767,12 @@ void do_contourfill(istream &theInput)
 void do_contourpattern(istream &theInput)
 {
   string slo, shi, spattern, srule;
-  float alpha;
+  float alpha = NAN;
   theInput >> slo >> shi >> spattern >> srule >> alpha;
 
   check_errors(theInput, "contourpattern");
 
-  float lo, hi;
+  float lo = NAN, hi = NAN;
   if (slo == "-")
     lo = kFloatMissing;
   else
@@ -1789,12 +1795,12 @@ void do_contourpattern(istream &theInput)
 void do_contoursymbol(istream &theInput)
 {
   string slo, shi, spattern, srule;
-  float alpha;
+  float alpha = NAN;
   theInput >> slo >> shi >> spattern >> srule >> alpha;
 
   check_errors(theInput, "contoursymbol");
 
-  float lo, hi;
+  float lo = NAN, hi = NAN;
   if (slo == "-")
     lo = kFloatMissing;
   else
@@ -1816,8 +1822,8 @@ void do_contoursymbol(istream &theInput)
 
 void do_contourfont(istream &theInput)
 {
-  float value;
-  int symbol;
+  float value = NAN;
+  int symbol = 0;
   string scolor, font;
   theInput >> value >> symbol >> scolor >> font;
 
@@ -1842,7 +1848,7 @@ void do_contourline(istream &theInput)
 
   check_errors(theInput, "contourline");
 
-  float value;
+  float value = NAN;
   if (svalue == "-")
     value = kFloatMissing;
   else
@@ -1878,7 +1884,7 @@ void do_contourlinewidth(istream &theInput)
 
 void do_contourfills(istream &theInput)
 {
-  float lo, hi, step;
+  float lo = NAN, hi = NAN, step = NAN;
   string scolor1, scolor2;
   theInput >> lo >> hi >> step >> scolor1 >> scolor2;
 
@@ -1909,7 +1915,7 @@ void do_contourfills(istream &theInput)
 
 void do_contourlines(istream &theInput)
 {
-  float lo, hi, step;
+  float lo = NAN, hi = NAN, step = NAN;
   string scolor1, scolor2;
   theInput >> lo >> hi >> step >> scolor1 >> scolor2;
 
@@ -1940,7 +1946,7 @@ void do_contourlines(istream &theInput)
 
 void do_contourlabel(istream &theInput)
 {
-  float value;
+  float value = NAN;
   theInput >> value;
 
   check_errors(theInput, "contourlabel");
@@ -1959,7 +1965,7 @@ void do_contourlabel(istream &theInput)
 
 void do_contourlabels(istream &theInput)
 {
-  float lo, hi, step;
+  float lo = NAN, hi = NAN, step = NAN;
   theInput >> lo >> hi >> step;
 
   check_errors(theInput, "contourlabels");
@@ -2065,7 +2071,7 @@ void do_contourlabelbackground(istream &theInput)
 
 void do_contourlabelmargin(istream &theInput)
 {
-  int dx, dy;
+  int dx = 0, dy = 0;
 
   theInput >> dx >> dy;
 
@@ -2099,7 +2105,7 @@ void do_contourlabelimagemargin(istream &theInput)
 
 void do_contourlabelmindistsamevalue(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
   theInput >> dist;
 
   check_errors(theInput, "contourlabelmindistsamevalue");
@@ -2115,7 +2121,7 @@ void do_contourlabelmindistsamevalue(istream &theInput)
 
 void do_contourlabelmindistdifferentvalue(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
   theInput >> dist;
 
   check_errors(theInput, "contourlabelmindistdifferentvalue");
@@ -2131,7 +2137,7 @@ void do_contourlabelmindistdifferentvalue(istream &theInput)
 
 void do_contourlabelmindistdifferentparam(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
 
   theInput >> dist;
 
@@ -2148,7 +2154,7 @@ void do_contourlabelmindistdifferentparam(istream &theInput)
 
 void do_contourfontmindistsamevalue(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
   theInput >> dist;
 
   check_errors(theInput, "contourfontmindistsamevalue");
@@ -2164,7 +2170,7 @@ void do_contourfontmindistsamevalue(istream &theInput)
 
 void do_contourfontmindistdifferentvalue(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
   theInput >> dist;
 
   check_errors(theInput, "contourfontmindistdifferentvalue");
@@ -2180,7 +2186,7 @@ void do_contourfontmindistdifferentvalue(istream &theInput)
 
 void do_contourfontmindistdifferentparam(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
 
   theInput >> dist;
 
@@ -2197,7 +2203,7 @@ void do_contourfontmindistdifferentparam(istream &theInput)
 
 void do_contoursymbolmindist(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
 
   theInput >> dist;
 
@@ -2268,7 +2274,7 @@ void do_lowpressuremaximum(istream &theInput)
 
 void do_pressuremindistsame(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
   theInput >> dist;
   check_errors(theInput, "mindistsame");
 
@@ -2283,7 +2289,7 @@ void do_pressuremindistsame(istream &theInput)
 
 void do_pressuremindistdifferent(istream &theInput)
 {
-  float dist;
+  float dist = NAN;
   theInput >> dist;
   check_errors(theInput, "mindistdifferent");
 
@@ -2299,7 +2305,7 @@ void do_pressuremindistdifferent(istream &theInput)
 void do_labelmarker(istream &theInput)
 {
   string filename, rule;
-  float alpha;
+  float alpha = NAN;
 
   theInput >> filename >> rule >> alpha;
 
@@ -2430,7 +2436,7 @@ void do_labelmissing(istream &theInput)
 
 void do_labeloffset(istream &theInput)
 {
-  float dx, dy;
+  float dx = NAN, dy = NAN;
   theInput >> dx >> dy;
 
   check_errors(theInput, "labeloffset");
@@ -2451,7 +2457,7 @@ void do_labeloffset(istream &theInput)
 void do_labelcaption(istream &theInput)
 {
   string name, align;
-  float dx, dy;
+  float dx = NAN, dy = NAN;
   theInput >> name >> dx >> dy >> align;
 
   check_errors(theInput, "labelcaption");
@@ -2473,7 +2479,7 @@ void do_labelcaption(istream &theInput)
 
 void do_label(istream &theInput)
 {
-  float lon, lat;
+  float lon = NAN, lat = NAN;
   theInput >> lon >> lat;
 
   check_errors(theInput, "label");
@@ -2490,8 +2496,8 @@ void do_label(istream &theInput)
 
 void do_labelxy(istream &theInput)
 {
-  float lon, lat;
-  int dx, dy;
+  float lon = NAN, lat = NAN;
+  int dx = 0, dy = 0;
   theInput >> lon >> lat >> dx >> dy;
 
   check_errors(theInput, "labelxy");
@@ -2508,7 +2514,7 @@ void do_labelxy(istream &theInput)
 
 void do_labels(istream &theInput)
 {
-  float dx, dy;
+  float dx = NAN, dy = NAN;
   theInput >> dx >> dy;
 
   check_errors(theInput, "labels");
@@ -2531,7 +2537,7 @@ void do_labels(istream &theInput)
 
 void do_labelsxy(istream &theInput)
 {
-  float x0, y0, dx, dy;
+  float x0 = NAN, y0 = NAN, dx = NAN, dy = NAN;
   theInput >> x0 >> y0 >> dx >> dy;
 
   check_errors(theInput, "labelsxy");
@@ -2575,7 +2581,7 @@ void do_labelfile(istream &theInput)
 #endif
     else if (datacommand == "label")
     {
-      float lon, lat;
+      float lon = NAN, lat = NAN;
       datafile >> lon >> lat;
       if (!globals.specs.empty())
         globals.specs.back().add(NFmiPoint(lon, lat));
@@ -2714,7 +2720,7 @@ void do_draw_shapes(istream &theInput)
     NFmiGeoShape geo(iter->filename(), kFmiGeoShapeEsri);
     geo.ProjectXY(*area);
 
-    if (iter->marker() == "")
+    if (iter->marker().empty())
     {
       NFmiColorTools::NFmiBlendRule fillrule = ColorTools::checkrule(iter->fillrule());
       NFmiColorTools::NFmiBlendRule strokerule = ColorTools::checkrule(iter->strokerule());
@@ -2841,7 +2847,7 @@ int paramid(const string &theParam)
 
 unsigned int choose_queryinfo(const string &theName, int theLevel)
 {
-  if (globals.querystreams.size() == 0)
+  if (globals.querystreams.empty())
     throw runtime_error("No querydata has been specified");
 
   if (MetaFunctions::isMeta(theName))
@@ -3102,12 +3108,12 @@ void add_label_pixelgrid_values(ContourSpec& theSpec,
  */
 // ----------------------------------------------------------------------
 
-void add_label_point_values(ContourSpec &theSpec,
-                            const NFmiArea &theArea,
-                            const NFmiDataMatrix<float> &theValues)
+void add_label_point_values(ContourSpec& theSpec,
+                            const NFmiArea& /*theArea*/,
+                            const NFmiDataMatrix<float>& theValues)
 {
   theSpec.clearLabelValues();
-  if ((theSpec.labelFormat() != "") && !theSpec.labelPoints().empty())
+  if ((!theSpec.labelFormat().empty()) && !theSpec.labelPoints().empty())
   {
     list<pair<NFmiPoint, NFmiPoint>>::const_iterator it;
 
@@ -3238,7 +3244,7 @@ void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const
 
   // Quick exit if no labels are desired for this parameter
 
-  if (theSpec.labelFormat() == "")
+  if (theSpec.labelFormat().empty())
     return;
 
     // Create the face object to be used
@@ -3256,7 +3262,7 @@ void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const
     {
       // The point in question
 
-      double x, y;
+      double x = NAN, y = NAN;
       if (iter->second.X() == kFloatMissing)
       {
         // NFmiPoint xy = MeridianTools::Relocate(iter->first,theArea);
@@ -3641,7 +3647,7 @@ void draw_wind_arrows_points(Imagine::NFmiImage& img,
     if (IsMasked(xy0, globals.mask))
       continue;
 
-    float dir, speed;
+    float dir = NAN, speed = NAN;
 
     get_speed_direction(
         transformation, latlon, speed_src, speed_dst, direction_src, direction_dst, speed, dir);
@@ -3939,7 +3945,7 @@ void draw_wind_arrows_pixelgrid(Imagine::NFmiImage& img,
 
       // Calculate the speed & direction values
 
-      float dir, speed;
+      float dir = NAN, speed = NAN;
 
       get_speed_direction(
           transformation, latlon, speed_src, speed_dst, direction_src, direction_dst, speed, dir);
@@ -4031,7 +4037,7 @@ void draw_wind_arrows(Imagine::NFmiImage& img, const NFmiArea& theArea)
 {
   if ((!globals.arrowpoints.empty() || (globals.windarrowdx > 0 && globals.windarrowdy > 0) ||
        (globals.windarrowsxydx > 0 && globals.windarrowsxydy > 0)) &&
-      (globals.arrowfile != ""))
+      (!globals.arrowfile.empty()))
   {
     FmiParameterName param;
     std::string name;
@@ -4236,7 +4242,7 @@ void draw_contour_strokes(Imagine::NFmiImage& img,
  */
 // ----------------------------------------------------------------------
 
-void save_contour_labels(Imagine::NFmiImage& img,
+void save_contour_labels(Imagine::NFmiImage& /*img*/,
                          const NFmiArea& theArea,
                          const ContourSpec& theSpec,
                          const NFmiTime& theTime,
@@ -4342,7 +4348,7 @@ void draw_contour_labels(Imagine::NFmiImage& img)
  */
 // ----------------------------------------------------------------------
 
-void save_contour_symbols(Imagine::NFmiImage& img,
+void save_contour_symbols(Imagine::NFmiImage& /*img*/,
                           const NFmiArea& theArea,
                           const ContourSpec& theSpec,
                           const LazyCoordinates& thePoints,
@@ -4526,7 +4532,7 @@ void draw_contour_fonts(Imagine::NFmiImage& img)
       const int fontcolor = fit->color();
       const int symbol = fit->symbol();
 
-      string text = "";
+      string text;
       text += symbol;
 
       const std::string &fontspec = fit->font();
@@ -4548,7 +4554,7 @@ void draw_contour_fonts(Imagine::NFmiImage& img)
  */
 // ----------------------------------------------------------------------
 
-void save_contour_fonts(Imagine::NFmiImage& img,
+void save_contour_fonts(Imagine::NFmiImage& /*img*/,
                         const NFmiArea& theArea,
                         const ContourSpec& theSpec,
                         const LazyCoordinates& thePoints,
@@ -4807,7 +4813,7 @@ void draw_foreground(Imagine::NFmiImage& img)
  */
 // ----------------------------------------------------------------------
 
-void do_draw_contours(istream &theInput)
+void do_draw_contours(istream& /*theInput*/)
 {
   // 1. Make sure query data has been read
   // 2. Make sure image has been initialized
@@ -4854,7 +4860,7 @@ void do_draw_contours(istream &theInput)
   NFmiDataMatrix<float> vals;
   NFmiDataMatrix<float> maskvalues;
 
-  unsigned int qi;
+  unsigned int qi = 0;
   for (qi = 0; qi < globals.querystreams.size(); qi++)
   {
     // Establish time limits
@@ -4970,14 +4976,14 @@ void do_draw_contours(istream &theInput)
       {
         // OK if is exact, otherwise previous step required
 
-        ok = !(!isexact && !hasprevious);
+        ok = isexact || hasprevious;
       }
       else
       {
         // Time must be exact, and previous steps
         // are required
 
-        ok = !(!isexact || !hasprevious);
+        ok = isexact && hasprevious;
       }
     }
 
@@ -5241,7 +5247,7 @@ void do_draw_contours(istream &theInput)
 }
 
 /****/
-static void process_cmd(const string &text)
+void process_cmd(const string &text)
 {
   istringstream in(text);
   string cmd;
@@ -5553,6 +5559,7 @@ int domain(int argc, const char *argv[])
   }
   return 0;
 }
+}  // namespace
 
 // ----------------------------------------------------------------------
 // Main program.

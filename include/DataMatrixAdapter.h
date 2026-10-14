@@ -29,17 +29,17 @@ class DataMatrixAdapter : public Trax::Grid
     return (value == kFloatMissing ? std::numeric_limits<float>::quiet_NaN() : value);
   }
 
-  void set(long i, long j, float z) override
+  void set(long /*i*/, long /*j*/, float /*z*/) override
   {
     throw std::runtime_error("DataMatrixAdapter does not own the data and cannot modify it");
   }
 
   // Now wrap-around for coordinates, we need both left and right
   // edge coordinates for world data
-  double x(long i, long j) const override { return i; }
-  double y(long i, long j) const override { return j; }
+  double x(long i, long /*j*/) const override { return i; }
+  double y(long /*i*/, long j) const override { return j; }
 
-  bool valid(long i, long j) const override { return true; }
+  bool valid(long /*i*/, long /*j*/) const override { return true; }
   std::size_t width() const override { return itsWidth; }
   std::size_t height() const override { return itsHeight; }
 

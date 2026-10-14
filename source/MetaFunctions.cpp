@@ -6,7 +6,6 @@
 // ======================================================================
 
 #include "MetaFunctions.h"
-#include <memory>
 #include <gis/CoordinateMatrix.h>
 #include <newbase/NFmiArea.h>
 #include <newbase/NFmiGrid.h>
@@ -15,6 +14,8 @@
 #include <newbase/NFmiMetTime.h>
 #include <newbase/NFmiPoint.h>
 #include <iostream>
+#include <cmath>
+#include <memory>
 #include <stdexcept>
 
 using namespace std;
@@ -32,7 +33,7 @@ inline float eights(float theCloudiness)
   if (theCloudiness == kFloatMissing)
     return kFloatMissing;
   else
-    return static_cast<float>(round(theCloudiness / 100 * 8));
+    return round(theCloudiness / 100 * 8);
 }
 
 // ----------------------------------------------------------------------
@@ -300,10 +301,10 @@ NFmiDataMatrix<float> t2m_advection(LazyQueryData &theQI)
   // we overwrite wspd with the results
 
   // grid resolution in meters for difference formulas
-  const auto dx = static_cast<float>((static_cast<float>(theQI.Area()->WorldXYWidth())) /
-                                     (static_cast<float>(theQI.Grid()->XNumber() - 1)));
-  const auto dy = static_cast<float>((static_cast<float>(theQI.Area()->WorldXYHeight())) /
-                                     (static_cast<float>(theQI.Grid()->YNumber() - 1)));
+  const auto dx = ((static_cast<float>(theQI.Area()->WorldXYWidth())) /
+                   (static_cast<float>(theQI.Grid()->XNumber() - 1)));
+  const auto dy = ((static_cast<float>(theQI.Area()->WorldXYHeight())) /
+                   (static_cast<float>(theQI.Grid()->YNumber() - 1)));
 
   const float pirad = 3.14159265358979323f / 360.f;
 
@@ -329,7 +330,7 @@ NFmiDataMatrix<float> t2m_advection(LazyQueryData &theQI)
 
         if (allok)
         {
-          float tx, ty;
+          float tx = NAN, ty = NAN;
           if (i == 0)
             tx = (t2m[i + 1][j] - t2m[i][j]) / dx;  // forward difference
           else if (i == t2m.NX() - 1)

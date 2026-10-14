@@ -45,7 +45,7 @@ class LazyCoordinates
 
  private:
   const NFmiArea &itsArea;
-  mutable bool itsInitialized;
+  mutable bool itsInitialized = false;
   mutable data_type itsData;
 
   void init() const;

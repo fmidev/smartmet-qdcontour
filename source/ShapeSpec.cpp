@@ -14,17 +14,16 @@
  */
 // ----------------------------------------------------------------------
 
-ShapeSpec::ShapeSpec(const std::string &theShapeFile,
+ShapeSpec::ShapeSpec(const std::string& theShapeFile,
                      Imagine::NFmiColorTools::Color theFill,
                      Imagine::NFmiColorTools::Color theStroke,
-                     const std::string &theFillRule,
-                     const std::string &theStrokeRule)
+                     const std::string& theFillRule,
+                     const std::string& theStrokeRule)
     : itsShapeFileName(theShapeFile),
       itsFillRule(theFillRule),
       itsStrokeRule(theStrokeRule),
       itsFillColor(theFill),
       itsStrokeColor(theStroke),
-      itsMarker(""),
       itsMarkerRule("Over"),
       itsMarkerAlpha(1.0)
 {

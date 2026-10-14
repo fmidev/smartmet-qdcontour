@@ -52,7 +52,7 @@ int hex2int(const string &theHex)
 
 Imagine::NFmiColorTools::Color parse_hex_color(const std::string &theColor)
 {
-  int a, r, g, b;
+  int a = 0, r = 0, g = 0, b = 0;
   if (theColor.length() == 6)
   {
     a = 0;

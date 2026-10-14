@@ -45,8 +45,8 @@ class ExtremaLocator
   ExtremaLocator(const ExtremaLocator &theLocator);
   ExtremaLocator &operator=(const ExtremaLocator &theLocator);
 
-  float itsMinDistanceToSame;
-  float itsMinDistanceToDifferent;
+  float itsMinDistanceToSame = 500;
+  float itsMinDistanceToDifferent = 500;
 
   ExtremaCoordinates itsPreviousCoordinates;
   ExtremaCoordinates itsCurrentCoordinates;

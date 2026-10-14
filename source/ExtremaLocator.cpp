@@ -103,13 +103,7 @@ ExtremaLocator::~ExtremaLocator() = default;
  */
 // ----------------------------------------------------------------------
 
-ExtremaLocator::ExtremaLocator()
-    : itsMinDistanceToSame(500),
-      itsMinDistanceToDifferent(500),
-      itsPreviousCoordinates(),
-      itsCurrentCoordinates()
-{
-}
+ExtremaLocator::ExtremaLocator() {}
 
 // ----------------------------------------------------------------------
 /*!
@@ -289,7 +283,7 @@ ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseOne(
 // ----------------------------------------------------------------------
 
 ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToPrevious(
-    const Coordinates &theCandidates, const Coordinates &thePreviousChoises, Extremum theType)
+    const Coordinates& theCandidates, const Coordinates& thePreviousChoises, Extremum /*theType*/)
 {
   double bestdist = -1;
   auto best = theCandidates.end();
@@ -316,7 +310,7 @@ ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToPrevi
 // ----------------------------------------------------------------------
 
 ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToBorder(
-    const Coordinates &theCandidates, Extremum theType)
+    const Coordinates& theCandidates, Extremum /*theType*/)
 {
   if (theCandidates.empty()) return theCandidates.end();
 

@@ -25,6 +25,8 @@
 // Trax provides no separate nearest neighbour and discrete methods, its midpoint
 // method covers both. Trax::to_interpolation_type maps the names the same way.
 
+namespace
+{
 Trax::InterpolationType to_trax_interpolation(ContourInterpolation theInterpolation)
 {
   switch (theInterpolation)
@@ -40,11 +42,14 @@ Trax::InterpolationType to_trax_interpolation(ContourInterpolation theInterpolat
   }
   return Trax::InterpolationType::Linear;
 }
+}  // namespace
 
 using namespace geos::geom;
 
 // Forward declaration needed
 
+namespace
+{
 void add_path(Imagine::NFmiPath& path, const Geometry* geom);
 
 // ----------------------------------------------------------------------
@@ -120,7 +125,7 @@ void add_multilinestring(Imagine::NFmiPath& path, const MultiLineString* geom)
     return;
 
   for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
-    add_linestring(path, dynamic_cast<const LineString*>(geom->getGeometryN(i)));
+    add_linestring(path, geom->getGeometryN(i));
 }
 
 // ----------------------------------------------------------------------
@@ -135,7 +140,7 @@ void add_multipolygon(Imagine::NFmiPath& path, const MultiPolygon* geom)
     return;
 
   for (size_t i = 0, n = geom->getNumGeometries(); i < n; ++i)
-    add_polygon(path, dynamic_cast<const Polygon*>(geom->getGeometryN(i)));
+    add_polygon(path, geom->getGeometryN(i));
 }
 
 // ----------------------------------------------------------------------
@@ -178,6 +183,7 @@ void add_path(Imagine::NFmiPath& path, const Geometry* geom)
 
   // We ignore points, multipoints and unknown types
 }
+}  // namespace
 
 // ----------------------------------------------------------------------
 /*!
