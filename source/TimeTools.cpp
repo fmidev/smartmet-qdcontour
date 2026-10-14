@@ -34,12 +34,11 @@ NFmiTime ConvertZone(const NFmiTime &theTime, const std::string &theZone)
   {
     return theTime;
   }
-  else if (theZone == "local")
+  if (theZone == "local")
   {
     return NFmiMetTime(theTime, 1).CorrectLocalTime();
   }
-  else
-    throw std::runtime_error("ConvertZone: Unrecognized time zone " + theZone);
+  throw std::runtime_error("ConvertZone: Unrecognized time zone " + theZone);
 }
 
 // ----------------------------------------------------------------------

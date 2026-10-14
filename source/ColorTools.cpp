@@ -52,7 +52,10 @@ int hex2int(const string &theHex)
 
 Imagine::NFmiColorTools::Color parse_hex_color(const std::string &theColor)
 {
-  int a = 0, r = 0, g = 0, b = 0;
+  int a = 0;
+  int r = 0;
+  int g = 0;
+  int b = 0;
   if (theColor.length() == 6)
   {
     a = 0;
@@ -113,10 +116,9 @@ Imagine::NFmiColorTools::Color parse_dec_color(const string &theColor)
 
   if (tmp.size() == 3)
     return Imagine::NFmiColorTools::MakeColor(tmp[0], tmp[1], tmp[2], 0);
-  else if (tmp.size() == 4)
+  if (tmp.size() == 4)
     return Imagine::NFmiColorTools::MakeColor(tmp[0], tmp[1], tmp[2], tmp[3]);
-  else
-    return Imagine::NFmiColorTools::MissingColor;
+  return Imagine::NFmiColorTools::MissingColor;
 }
 
 // ----------------------------------------------------------------------

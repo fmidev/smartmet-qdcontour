@@ -6,9 +6,9 @@ ContourInterpolation ContourInterpolationValue(const std::string &theName)
 {
   if (theName == "Nearest")
     return Nearest;
-  else if (theName == "Linear")
+  if (theName == "Linear")
     return Linear;
-  else if (theName == "LogLinear")
+  if (theName == "LogLinear")
     return LogLinear;
   else if (theName == "Discrete")
     return Discrete;

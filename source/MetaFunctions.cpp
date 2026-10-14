@@ -32,8 +32,7 @@ inline float eights(float theCloudiness)
 {
   if (theCloudiness == kFloatMissing)
     return kFloatMissing;
-  else
-    return round(theCloudiness / 100 * 8);
+  return round(theCloudiness / 100 * 8);
 }
 
 // ----------------------------------------------------------------------
@@ -306,7 +305,7 @@ NFmiDataMatrix<float> t2m_advection(LazyQueryData &theQI)
   const auto dy = ((static_cast<float>(theQI.Area()->WorldXYHeight())) /
                    (static_cast<float>(theQI.Grid()->YNumber() - 1)));
 
-  const float pirad = 3.14159265358979323f / 360.f;
+  const float pirad = 3.14159265358979323F / 360.F;
 
   for (unsigned int j = 0; j < t2m.NY(); j++)
     for (unsigned int i = 0; i < t2m.NX(); i++)
@@ -330,7 +329,8 @@ NFmiDataMatrix<float> t2m_advection(LazyQueryData &theQI)
 
         if (allok)
         {
-          float tx = NAN, ty = NAN;
+          float tx = NAN;
+          float ty = NAN;
           if (i == 0)
             tx = (t2m[i + 1][j] - t2m[i][j]) / dx;  // forward difference
           else if (i == t2m.NX() - 1)
@@ -380,13 +380,15 @@ NFmiDataMatrix<float> thermal_front(LazyQueryData &theQI)
   const float dy = (static_cast<float>(theQI.Area()->WorldXYHeight())) /
                    (static_cast<float>((theQI.Grid()->YNumber())));
 
-  NFmiDataMatrix<float> nablatx, nablaty;
+  NFmiDataMatrix<float> nablatx;
+  NFmiDataMatrix<float> nablaty;
   matrix_nabla(t2m, dx, dy, nablatx, nablaty);
 
   NFmiDataMatrix<float> nablat;
   matrix_abs(nablatx, nablaty, nablat);
 
-  NFmiDataMatrix<float> nablanablatx, nablanablaty;
+  NFmiDataMatrix<float> nablanablatx;
+  NFmiDataMatrix<float> nablanablaty;
   matrix_nabla(nablat, dx, dy, nablanablatx, nablanablaty);
 
   for (unsigned int j = 0; j < t2m.NY(); j++)

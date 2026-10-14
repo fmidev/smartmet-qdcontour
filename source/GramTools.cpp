@@ -23,7 +23,7 @@ const float barb_interval = stem_length / 5;
 const float barb_length = 12;
 
 // Barb angle
-const float barb_angle = 45.f / 180.f * 3.14159265358979323846f;
+const float barb_angle = 45.F / 180.F * 3.14159265358979323846F;
 
 // Flag side length
 const float flag_length = 7;
@@ -52,7 +52,7 @@ Imagine::NFmiPath metarrowflags(float theSpeed)
   path.LineTo(spot_size, spot_size);
 
   // The actual speed in knots
-  const int speed = static_cast<int>(round(theSpeed / 0.5144444444f));
+  const int speed = static_cast<int>(round(theSpeed / 0.5144444444F));
 
   // Handle bad cases
   if (speed < 50) return path;
@@ -98,7 +98,7 @@ Imagine::NFmiPath metarrowlines(float theSpeed)
   if (theSpeed == kFloatMissing) return path;
 
   // The actual speed in knots
-  const int speed = static_cast<int>(round(theSpeed / 0.5144444444f));
+  const int speed = static_cast<int>(round(theSpeed / 0.5144444444F));
 
   // Handle bad cases
   if (speed < 5) return path;
