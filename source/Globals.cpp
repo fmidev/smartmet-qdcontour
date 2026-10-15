@@ -129,7 +129,7 @@ std::shared_ptr<NFmiArea> Globals::createArea() const
  */
 // ----------------------------------------------------------------------
 
-const std::string Globals::getImageStampText(const NFmiTime &theTime) const
+std::string Globals::getImageStampText(const NFmiTime& theTime) const
 {
   NFmiTime tobs = TimeTools::ConvertZone(theTime, timestampzone);
 

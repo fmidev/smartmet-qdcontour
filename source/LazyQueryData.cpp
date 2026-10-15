@@ -229,7 +229,7 @@ bool LazyQueryData::IsParamUsable() const
 
 std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::Locations() const
 {
-  if (itsLocations.get() == nullptr)
+  if (itsLocations == nullptr)
   {
     itsLocations = std::make_shared<Fmi::CoordinateMatrix>(itsInfo->CoordinateMatrix());
     Fmi::CoordinateTransformation transformation(itsInfo->SpatialReference(), "WGS84");
@@ -251,7 +251,7 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::LocationsWorldXY(
   ostringstream os;
   os << theArea;
 
-  if (itsLocationsWorldXY.get() == nullptr || os.str() != itsLocationsArea)
+  if (itsLocationsWorldXY == nullptr || os.str() != itsLocationsArea)
   {
     itsLocationsArea = os.str();
     itsLocationsWorldXY =
@@ -271,7 +271,7 @@ std::shared_ptr<Fmi::CoordinateMatrix> LazyQueryData::LocationsXY(const NFmiArea
   ostringstream os;
   os << theArea;
 
-  if (itsLocationsXY.get() == nullptr || os.str() != itsLocationsArea)
+  if (itsLocationsXY == nullptr || os.str() != itsLocationsArea)
   {
     itsLocationsArea = os.str();
     itsLocationsXY = std::make_shared<Fmi::CoordinateMatrix>(itsInfo->LocationsXY(theArea));

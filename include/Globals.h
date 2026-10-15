@@ -83,7 +83,7 @@ struct Globals
 
   void setImageModes(Imagine::NFmiImage& /*theImage*/) const;
   std::shared_ptr<NFmiArea> createArea() const;
-  const std::string getImageStampText(const NFmiTime &theTime) const;
+  std::string getImageStampText(const NFmiTime& theTime) const;
 
   void drawImageStampText(Imagine::NFmiImage& d, const std::string& text) const;
   void drawCombine(Imagine::NFmiImage& d) const;

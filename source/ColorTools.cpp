@@ -134,7 +134,7 @@ Imagine::NFmiColorTools::Color parse_dec_color(const string &theColor)
 
 Imagine::NFmiColorTools::Color parse_named_color(const string &theColor)
 {
-  string::size_type pos = theColor.find(",");
+  string::size_type pos = theColor.find(',');
   if (pos == string::npos) return Imagine::NFmiColorTools::ColorValue(theColor);
 
   int value = -1;

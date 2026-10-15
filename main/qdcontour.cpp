@@ -194,7 +194,7 @@ void parse_command_line(int argc, const char *argv[])
 
 namespace
 {
-const string read_script(const string &theName)
+string read_script(const string &theName)
 {
   const bool strip_pound = false;
   NFmiPreProcessor processor(strip_pound);
@@ -241,7 +241,7 @@ const string read_script(const string &theName)
 
 namespace
 {
-const string preprocess_script(const string &theScript)
+string preprocess_script(const string &theScript)
 {
   string ret;
 
@@ -1728,7 +1728,7 @@ void do_shape(istream &theInput)
   }
   else
   {
-    string fillcolor = arg1;
+    const string& fillcolor = arg1;
     string strokecolor;
     theInput >> strokecolor;
     NFmiColorTools::Color fill = ColorTools::checkcolor(fillcolor);
@@ -5108,7 +5108,7 @@ void do_draw_contours(istream& /*theInput*/)
         throw runtime_error("Background image size does not match area size");
       }
     }
-    if (image.get() == nullptr)
+    if (image == nullptr)
       throw runtime_error("Failed to allocate a new image for rendering");
 
     globals.setImageModes(*image);

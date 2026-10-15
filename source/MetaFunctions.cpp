@@ -55,7 +55,7 @@ NFmiDataMatrix<float> elevation_angle_values(const LazyQueryData& theQI)
     for (unsigned int i = 0; i < pts->width(); i++)
     {
       NFmiLocation loc((*pts)(i, j));
-      NFmiMetTime t(theQI.ValidTime());
+      const NFmiMetTime& t(theQI.ValidTime());
       double angle = loc.ElevationAngle(t);
       values[i][j] = static_cast<float>(angle);
     }

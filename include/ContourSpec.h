@@ -94,7 +94,7 @@ class ContourSpec
   const std::list<std::pair<NFmiPoint, NFmiPoint>>& labelPoints() const;
 
   void add(const NFmiPoint &thePoint,
-           const NFmiPoint theXY = NFmiPoint(kFloatMissing, kFloatMissing));
+           NFmiPoint theXY = NFmiPoint(kFloatMissing, kFloatMissing));
 
   const std::vector<float>& labelValues() const;
 
