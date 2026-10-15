@@ -53,7 +53,7 @@ Provides: qdcontour
 #TestRequires: smartmet-library-newbase-devel
 #TestRequires: smartmet-library-macgyver-devel >= 26.10.15
 #TestRequires: smartmet-library-trax >= 26.10.15
-#TestRequires: smartmet-library-regression >= 26.10.15
+#TestRequires: smartmet-library-regression >= 26.5.22
 #TestRequires: smartmet-fonts
 #TestRequires: smartmet-utils-devel >= 26.5.22
 #TestRequires: ImageMagick
