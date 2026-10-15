@@ -56,8 +56,8 @@ class ContourCalculator
   bool wasCached() const;
 
  private:
-  ContourCalculator(const ContourCalculator &theCalc);
-  ContourCalculator &operator=(const ContourCalculator &theCalc);
+  ContourCalculator(const ContourCalculator& theCalc) = delete;
+  ContourCalculator& operator=(const ContourCalculator& theCalc) = delete;
 
   std::shared_ptr<ContourCalculatorPimple> itsPimple;
 

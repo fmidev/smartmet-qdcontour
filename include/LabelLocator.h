@@ -40,8 +40,8 @@ class LabelLocator
  private:
   // Intentionally disabled:
 
-  LabelLocator(const LabelLocator &theLocator);
-  LabelLocator &operator=(const LabelLocator &theLocator);
+  LabelLocator(const LabelLocator& theLocator) = delete;
+  LabelLocator& operator=(const LabelLocator& theLocator) = delete;
 
   bool itHasBBox = false;
   int itsBBoxX1 = 0;

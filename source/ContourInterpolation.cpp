@@ -10,7 +10,7 @@ ContourInterpolation ContourInterpolationValue(const std::string &theName)
     return Linear;
   if (theName == "LogLinear")
     return LogLinear;
-  else if (theName == "Discrete")
+  if (theName == "Discrete")
     return Discrete;
   else
     return Missing;

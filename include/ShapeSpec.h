@@ -55,7 +55,7 @@ class ShapeSpec
   float markeralpha() const;
 
  private:
-  ShapeSpec();
+  ShapeSpec() = delete;
 
   std::string itsShapeFileName;
   std::string itsFillRule;

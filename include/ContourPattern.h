@@ -38,7 +38,7 @@ class ContourPattern
   float factor() const;
 
  private:
-  ContourPattern();
+  ContourPattern() = delete;
 
   float itsLoLimit;
   float itsHiLimit;

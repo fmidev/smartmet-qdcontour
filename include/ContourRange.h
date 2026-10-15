@@ -36,7 +36,7 @@ class ContourRange
   const std::string& rule() const;
 
  private:
-  ContourRange();
+  ContourRange() = delete;
 
   float itsLoLimit;
   float itsHiLimit;

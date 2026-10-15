@@ -2918,8 +2918,7 @@ unsigned int choose_queryinfo(const string &theName, int theLevel)
   }
   if (theLevel < 0)
     throw runtime_error("Parameter '" + theName + "' is not available in the query files");
-  else
-    throw runtime_error("Parameter '" + theName + "' on level " +
+      throw runtime_error("Parameter '" + theName + "' on level " +
                         NFmiStringTools::Convert(theLevel) +
                         " is not available in the query files");
 }
@@ -4735,7 +4734,7 @@ int extrematype(
 
   if (smaller == (DX * 2 + 1) * (DY * 2 + 1) - 1)
     return 2;
-  else if (bigger == (DX * 2 + 1) * (DY * 2 + 1) - 1)
+  if (bigger == (DX * 2 + 1) * (DY * 2 + 1) - 1)
     return -2;
   else if (smaller > 0)
     return 1;

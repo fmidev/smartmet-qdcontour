@@ -42,8 +42,8 @@ class ExtremaLocator
  private:
   // Intentionally disabled:
 
-  ExtremaLocator(const ExtremaLocator &theLocator);
-  ExtremaLocator &operator=(const ExtremaLocator &theLocator);
+  ExtremaLocator(const ExtremaLocator& theLocator) = delete;
+  ExtremaLocator& operator=(const ExtremaLocator& theLocator) = delete;
 
   float itsMinDistanceToSame = 500;
   float itsMinDistanceToDifferent = 500;

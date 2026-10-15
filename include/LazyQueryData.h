@@ -103,8 +103,8 @@ class LazyQueryData
   NFmiDataMatrix<float> Values(const NFmiMetTime &theTime);
 
  private:
-  LazyQueryData(const LazyQueryData &theQD);
-  LazyQueryData &operator=(const LazyQueryData &theQD);
+  LazyQueryData(const LazyQueryData& theQD) = delete;
+  LazyQueryData& operator=(const LazyQueryData& theQD) = delete;
 
   std::string itsInputName;
   std::string itsDataFile;

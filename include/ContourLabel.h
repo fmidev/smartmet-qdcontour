@@ -29,7 +29,7 @@ class ContourLabel
   float value() const;
 
  private:
-  ContourLabel();
+  ContourLabel() = delete;
   float itsValue;
 };
 
