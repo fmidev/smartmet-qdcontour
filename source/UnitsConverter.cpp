@@ -290,5 +290,7 @@ void UnitsConverter::convert(FmiParameterName theParam, NFmiDataMatrix<float> &t
     case KiloMetersToFlightLevel:
       kilometers_to_flightlevel(theValues);
       break;
+    default:
+      break;
   }
 }

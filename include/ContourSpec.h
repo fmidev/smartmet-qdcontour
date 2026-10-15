@@ -192,15 +192,15 @@ class ContourSpec
   float itsDataHiLimit;
 
   bool itHasReplace;
-  float itsReplaceSourceValue;
-  float itsReplaceTargetValue;
+  float itsReplaceSourceValue = 0.0F;
+  float itsReplaceTargetValue = 0.0F;
 
   bool itHasDespeckle;
-  float itsDespeckleLoLimit;
-  float itsDespeckleHiLimit;
-  int itsDespeckleRadius;
-  float itsDespeckleWeight;
-  int itsDespeckleIterations;
+  float itsDespeckleLoLimit = 0.0F;
+  float itsDespeckleHiLimit = 0.0F;
+  int itsDespeckleRadius = 0;
+  float itsDespeckleWeight = 0.0F;
+  int itsDespeckleIterations = 0;
 
   // LatLon, optional label location pairs in pixels
   std::list<std::pair<NFmiPoint, NFmiPoint>> itsLabelPoints;

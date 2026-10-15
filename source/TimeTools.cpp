@@ -52,7 +52,8 @@ NFmiTime ConvertZone(const NFmiTime &theTime, const std::string &theZone)
 
 NFmiTime ToUTC(::time_t theTime)
 {
-  struct ::tm *t = ::gmtime(&theTime);
+  struct ::tm tBuffer{};  // gmtime_r is thread safe
+  struct ::tm *t = ::gmtime_r(&theTime, &tBuffer);
   return NFmiTime(static_cast<short>(t->tm_year + 1900),
                   static_cast<short>(t->tm_mon + 1),
                   static_cast<short>(t->tm_mday),

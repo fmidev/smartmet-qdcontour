@@ -150,6 +150,7 @@ void parse_command_line(int argc, const char *argv[])
   if (cmdline.isOption('h'))
   {
     Usage();
+    // NOLINTNEXTLINE(concurrency-mt-unsafe): single-threaded command line tool
     exit(0);
   }
 
@@ -2976,14 +2977,17 @@ void filter_values(NFmiDataMatrix<float> &theValues,
   }
   else if (globals.filter == "linear")
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
     NFmiTime tnow = globals.queryinfo->ValidTime();
     bool isexact = theTime.IsEqual(tnow);
 
     if (!isexact)
     {
       NFmiDataMatrix<float> tmpvals;
+      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
       NFmiTime t2 = globals.queryinfo->ValidTime();
       globals.queryinfo->PreviousTime();
+      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
       NFmiTime t1 = globals.queryinfo->ValidTime();
       if (!MetaFunctions::isMeta(theSpec.param()))
       {
@@ -4916,9 +4920,11 @@ void do_draw_contours(istream& /*theInput*/)
     globals.queryinfo = globals.querystreams[qi];
 
     globals.queryinfo->LastTime();
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
     NFmiTime t2 = globals.queryinfo->ValidTime();
 
     globals.queryinfo->FirstTime();
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
     NFmiTime t1 = globals.queryinfo->ValidTime();
 
     if (qi == 0)
@@ -4948,6 +4954,7 @@ void do_draw_contours(istream& /*theInput*/)
   tmptime.ChangeByMinutes(globals.timestepskip);
   if (globals.timesteprounding)
     tmptime.PreviousMetTime();
+  // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
   NFmiTime t = tmptime;
 
   // Loop over all times
@@ -4980,10 +4987,12 @@ void do_draw_contours(istream& /*theInput*/)
       globals.queryinfo->ResetTime();
       while (globals.queryinfo->NextTime())
       {
+        // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
         NFmiTime loc = globals.queryinfo->ValidTime();
         if (!loc.IsLessThan(t))
           break;
       }
+      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
       NFmiTime tnow = globals.queryinfo->ValidTime();
 
       // we wanted

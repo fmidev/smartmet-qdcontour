@@ -146,6 +146,7 @@ const std::string Globals::getImageStampText(const NFmiTime &theTime) const
 
   for (unsigned int qi = 0; qi < querystreams.size(); qi++)
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
     NFmiTime futctime = querystreams[qi]->OriginTime();
     NFmiTime tlocal = TimeTools::ConvertZone(futctime, timestampzone);
     if (qi == 0 || tlocal.IsLessThan(tfor)) tfor = tlocal;
