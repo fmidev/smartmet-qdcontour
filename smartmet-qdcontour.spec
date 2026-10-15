@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.10.13
+Version: 26.10.15
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -32,17 +32,17 @@ BuildRequires: libjpeg-devel
 BuildRequires: libpng-devel
 BuildRequires: geos313-devel
 BuildRequires: gdal312-devel
-BuildRequires: smartmet-library-macgyver-devel >= 26.10.11
-BuildRequires: smartmet-library-imagine-devel >= 26.10.13
-BuildRequires: smartmet-library-newbase-devel >= 26.10.13
-BuildRequires: smartmet-library-gis-devel >= 26.10.11
-BuildRequires: smartmet-library-trax-devel >= 26.6.26
+BuildRequires: smartmet-library-macgyver-devel >= 26.10.15
+BuildRequires: smartmet-library-imagine-devel >= 26.10.15
+BuildRequires: smartmet-library-newbase-devel >= 26.10.15
+BuildRequires: smartmet-library-gis-devel >= 26.10.15
+BuildRequires: smartmet-library-trax-devel >= 26.10.15
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 26.10.13
-Requires: smartmet-library-newbase >= 26.10.13
-Requires: smartmet-library-trax >= 26.6.26
+Requires: smartmet-library-imagine >= 26.10.15
+Requires: smartmet-library-newbase >= 26.10.15
+Requires: smartmet-library-trax >= 26.10.15
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -51,9 +51,9 @@ Requires: xorg-x11-fonts-misc
 Provides: qdcontour
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-newbase-devel
-#TestRequires: smartmet-library-macgyver-devel >= 26.10.11
-#TestRequires: smartmet-library-trax >= 26.6.26
-#TestRequires: smartmet-library-regression >= 26.5.22
+#TestRequires: smartmet-library-macgyver-devel >= 26.10.15
+#TestRequires: smartmet-library-trax >= 26.10.15
+#TestRequires: smartmet-library-regression >= 26.10.15
 #TestRequires: smartmet-fonts
 #TestRequires: smartmet-utils-devel >= 26.5.22
 #TestRequires: ImageMagick
@@ -86,9 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Tue Oct 13 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.13-1.fmi
+* Thu Oct 15 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.15-1.fmi
 - Declare member functions and parameters const where nothing is modified (const correctness), no functional changes
-- Requires 26.10.13 versions of newbase, imagine due to their ABI changes
+- Requires 26.10.15 versions of newbase, imagine due to their ABI changes
 - Round image sizes with std::lround
 - Removed the disabled Cairo (ImagineXr) code paths, imagine no longer has imagine-config.h
 - Fixed mechanical clang-tidy findings (internal linkage, unused parameters, initialization, redundant code), no functional changes
