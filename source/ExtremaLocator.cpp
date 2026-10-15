@@ -52,7 +52,6 @@ using namespace std;
 
 //! Bad parameter value
 
-const int badparameter = 0;
 
 namespace
 {
