@@ -3538,6 +3538,7 @@ void set_grid_speed_direction(const Fmi::CoordinateTransformation &transformatio
   {
     if (!globals.uvorientation)
       direction = fmod(180 + FmiDeg(atan2(dx, dy)), 360.0);
+    else
     {
       auto north = Fmi::OGR::gridNorth(transformation, lon, lat);
       if (north)
