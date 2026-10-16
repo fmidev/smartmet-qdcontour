@@ -346,33 +346,10 @@ NFmiDataMatrix<float> t2m_advection(LazyQueryData &theQI)
 
       if (ff != kFloatMissing && fd != kFloatMissing)
       {
-        bool allok = t2m[i][j] != kFloatMissing;
-        if (i > 0)
-          allok &= t2m[i - 1][j] != kFloatMissing;
-        if (i < t2m.NX() - 1)
-          allok &= t2m[i + 1][j] != kFloatMissing;
-        if (j > 0)
-          allok &= t2m[i][j - 1] != kFloatMissing;
-        if (j < t2m.NY() - 1)
-          allok &= t2m[i][j + 1] != kFloatMissing;
-
-        if (allok)
+        if (neighbourhood_ok(t2m, i, j))
         {
-          float tx = NAN;
-          float ty = NAN;
-          if (i == 0)
-            tx = (t2m[i + 1][j] - t2m[i][j]) / dx;  // forward difference
-          else if (i == t2m.NX() - 1)
-            tx = (t2m[i][j] - t2m[i - 1][j]) / dx;  // backward difference
-          else
-            tx = (t2m[i + 1][j] - t2m[i - 1][j]) / (2 * dx);  // centered difference
-
-          if (j == 0)
-            ty = (t2m[i][j + 1] - t2m[i][j]) / dy;
-          else if (j == t2m.NY() - 1)
-            ty = (t2m[i][j] - t2m[i][j - 1]) / dy;
-          else
-            ty = (t2m[i][j + 1] - t2m[i][j - 1]) / (2 * dy);
+          const float tx = x_derivative(t2m, i, j, dx);
+          const float ty = y_derivative(t2m, i, j, dy);
 
           const float adv =
               -ff * (cos(fd * pirad) * tx + sin(fd * pirad) * ty) * 3600;  // degrees/hour
