@@ -5428,257 +5428,137 @@ void do_draw_contours(istream& /*theInput*/)
 /****/
 void process_cmd(const string &text)
 {
+  using Command = void (*)(istream &);
+  static const std::map<std::string, Command> commands = {
+      {"//", do_comment},
+      {"cache", do_cache},
+      {"imagecache", do_imagecache},
+      {"querydata", do_querydata},
+      {"filter", do_filter},
+      {"timestepskip", do_timestepskip},
+      {"timestep", do_timestep},
+      {"timeinterval", do_timeinterval},
+      {"timesteps", do_timesteps},
+      {"timestamp", do_timestamp},
+      {"timestampzone", do_timestampzone},
+      {"timesteprounding", do_timesteprounding},
+      {"timestampimage", do_timestampimage},
+      {"timestampimagexy", do_timestampimagexy},
+      {"timestampimageformat", do_timestampimageformat},
+      {"timestampimagefont", do_timestampimagefont},
+      {"timestampimagecolor", do_timestampimagecolor},
+      {"timestampimagebackground", do_timestampimagebackground},
+      {"timestampimagemargin", do_timestampimagemargin},
+      {"timestampformat", do_timestampformat},
+      {"projection", do_projection},
+      {"erase", do_erase},
+      {"fillrule", do_fillrule},
+      {"strokerule", do_strokerule},
+      {"directionparam", do_directionparam},
+      {"speedparam", do_speedparam},
+      {"speedcomponents", do_speedcomponents},
+      {"uvorientation", do_uvorientation},
+      {"arrowscale", do_arrowscale},
+      {"windarrowscale", do_windarrowscale},
+      {"arrowfill", do_arrowfill},
+      {"arrowstroke", do_arrowstroke},
+      {"arrowpath", do_arrowpath},
+      {"roundarrowfill", do_roundarrowfill},
+      {"roundarrowstroke", do_roundarrowstroke},
+      {"roundarrowsize", do_roundarrowsize},
+      {"windarrow", do_windarrow},
+      {"windarrows", do_windarrows},
+      {"windarrowsxy", do_windarrowsxy},
+      {"background", do_background},
+      {"foreground", do_foreground},
+      {"mask", do_mask},
+      {"overlay", do_overlay},
+      {"combine", do_combine},
+      {"foregroundrule", do_foregroundrule},
+      {"savepath", do_savepath},
+      {"prefix", do_prefix},
+      {"suffix", do_suffix},
+      {"format", do_format},
+      {"graticule", do_graticule},
+      {"gamma", do_gamma},
+      {"intent", do_intent},
+      {"pngquality", do_pngquality},
+      {"jpegquality", do_jpegquality},
+      {"savealpha", do_savealpha},
+      {"reducecolors", do_reducecolors},
+      {"wantpalette", do_wantpalette},
+      {"forcepalette", do_forcepalette},
+      {"alphalimit", do_alphalimit},
+      {"hilimit", do_hilimit},
+      {"datalolimit", do_datalolimit},
+      {"datahilimit", do_datahilimit},
+      {"datareplace", do_datareplace},
+      {"despeckle", do_despeckle},
+      {"expanddata", do_expanddata},
+      {"contourdepth", do_contourdepth},
+      {"contourinterpolation", do_contourinterpolation},
+      {"contourtriangles", do_contourtriangles},
+      {"smoother", do_smoother},
+      {"smootherradius", do_smootherradius},
+      {"smootherfactor", do_smootherfactor},
+      {"level", do_level},
+      {"param", do_param},
+      {"shape", do_shape},
+      {"contourfill", do_contourfill},
+      {"contourpattern", do_contourpattern},
+      {"contoursymbol", do_contoursymbol},
+      {"contoursymbolmindist", do_contoursymbolmindist},
+      {"contourfont", do_contourfont},
+      {"contourlinewidth", do_contourlinewidth},
+      {"contourline", do_contourline},
+      {"contourfills", do_contourfills},
+      {"contourlines", do_contourlines},
+      {"contourlabel", do_contourlabel},
+      {"contourlabels", do_contourlabels},
+      {"contourlabeltext", do_contourlabeltext},
+      {"contourlabelfont", do_contourlabelfont},
+      {"contourlabelcolor", do_contourlabelcolor},
+      {"contourlabelbackground", do_contourlabelbackground},
+      {"contourlabelmargin", do_contourlabelmargin},
+      {"contourlabelimagemargin", do_contourlabelimagemargin},
+      {"contourlabelmindistsamevalue", do_contourlabelmindistsamevalue},
+      {"contourlabelmindistdifferentvalue", do_contourlabelmindistdifferentvalue},
+      {"contourlabelmindistdifferentparam", do_contourlabelmindistdifferentparam},
+      {"contourfontmindistsamevalue", do_contourfontmindistsamevalue},
+      {"contourfontmindistdifferentvalue", do_contourfontmindistdifferentvalue},
+      {"contourfontmindistdifferentparam", do_contourfontmindistdifferentparam},
+      {"highpressure", do_highpressure},
+      {"lowpressure", do_lowpressure},
+      {"lowpressuremaximum", do_lowpressuremaximum},
+      {"highpressureminimum", do_highpressureminimum},
+      {"pressuremindistsame", do_pressuremindistsame},
+      {"pressuremindistdifferent", do_pressuremindistdifferent},
+      {"labelmarker", do_labelmarker},
+      {"labelfont", do_labelfont},
+      {"labelcolor", do_labelcolor},
+      {"labelrule", do_labelrule},
+      {"labelalign", do_labelalign},
+      {"labelformat", do_labelformat},
+      {"labelmissing", do_labelmissing},
+      {"labeloffset", do_labeloffset},
+      {"labelcaption", do_labelcaption},
+      {"label", do_label},
+      {"labelxy", do_labelxy},
+      {"labels", do_labels},
+      {"labelsxy", do_labelsxy},
+      {"labelfile", do_labelfile},
+      {"units", do_units},
+      {"clear", do_clear},
+  };
+
   istringstream in(text);
   string cmd;
   while (in >> cmd)
   {
     // Handle comments
 
-    if (cmd == "#")
+    if (cmd[0] == '#')
       do_comment(in);
-    else if (cmd[0] == '#')
-      do_comment(in);
-    else if (cmd == "//")
-      do_comment(in);
-    else if (cmd == "cache")
-      do_cache(in);
-    else if (cmd == "imagecache")
-      do_imagecache(in);
-    else if (cmd == "querydata")
-      do_querydata(in);
-    else if (cmd == "filter")
-      do_filter(in);
-    else if (cmd == "timestepskip")
-      do_timestepskip(in);
-    else if (cmd == "timestep")
-      do_timestep(in);
-    else if (cmd == "timeinterval")
-      do_timeinterval(in);
-    else if (cmd == "timesteps")
-      do_timesteps(in);
-    else if (cmd == "timestamp")
-      do_timestamp(in);
-    else if (cmd == "timestampzone")
-      do_timestampzone(in);
-    else if (cmd == "timesteprounding")
-      do_timesteprounding(in);
-    else if (cmd == "timestampimage")
-      do_timestampimage(in);
-    else if (cmd == "timestampimagexy")
-      do_timestampimagexy(in);
-    else if (cmd == "timestampimageformat")
-      do_timestampimageformat(in);
-    else if (cmd == "timestampimagefont")
-      do_timestampimagefont(in);
-    else if (cmd == "timestampimagecolor")
-      do_timestampimagecolor(in);
-    else if (cmd == "timestampimagebackground")
-      do_timestampimagebackground(in);
-    else if (cmd == "timestampimagemargin")
-      do_timestampimagemargin(in);
-    else if (cmd == "timestampformat")
-      do_timestampformat(in);
-    else if (cmd == "projection")
-      do_projection(in);
-    else if (cmd == "erase")
-      do_erase(in);
-    else if (cmd == "fillrule")
-      do_fillrule(in);
-    else if (cmd == "strokerule")
-      do_strokerule(in);
-    else if (cmd == "directionparam")
-      do_directionparam(in);
-    else if (cmd == "speedparam")
-      do_speedparam(in);
-    else if (cmd == "speedcomponents")
-      do_speedcomponents(in);
-    else if (cmd == "uvorientation")
-      do_uvorientation(in);
-    else if (cmd == "arrowscale")
-      do_arrowscale(in);
-    else if (cmd == "windarrowscale")
-      do_windarrowscale(in);
-    else if (cmd == "arrowfill")
-      do_arrowfill(in);
-    else if (cmd == "arrowstroke")
-      do_arrowstroke(in);
-    else if (cmd == "arrowpath")
-      do_arrowpath(in);
-    else if (cmd == "roundarrowfill")
-      do_roundarrowfill(in);
-    else if (cmd == "roundarrowstroke")
-      do_roundarrowstroke(in);
-    else if (cmd == "roundarrowsize")
-      do_roundarrowsize(in);
-    else if (cmd == "windarrow")
-      do_windarrow(in);
-    else if (cmd == "windarrows")
-      do_windarrows(in);
-    else if (cmd == "windarrowsxy")
-      do_windarrowsxy(in);
-    else if (cmd == "background")
-      do_background(in);
-    else if (cmd == "foreground")
-      do_foreground(in);
-    else if (cmd == "mask")
-      do_mask(in);
-    else if (cmd == "overlay")
-      do_overlay(in);
-    else if (cmd == "combine")
-      do_combine(in);
-    else if (cmd == "foregroundrule")
-      do_foregroundrule(in);
-    else if (cmd == "savepath")
-      do_savepath(in);
-    else if (cmd == "prefix")
-      do_prefix(in);
-    else if (cmd == "suffix")
-      do_suffix(in);
-    else if (cmd == "format")
-      do_format(in);
-    else if (cmd == "graticule")
-      do_graticule(in);
-    else if (cmd == "gamma")
-      do_gamma(in);
-    else if (cmd == "intent")
-      do_intent(in);
-    else if (cmd == "pngquality")
-      do_pngquality(in);
-    else if (cmd == "jpegquality")
-      do_jpegquality(in);
-    else if (cmd == "savealpha")
-      do_savealpha(in);
-    else if (cmd == "reducecolors")
-      do_reducecolors(in);
-    else if (cmd == "wantpalette")
-      do_wantpalette(in);
-    else if (cmd == "forcepalette")
-      do_forcepalette(in);
-    else if (cmd == "alphalimit")
-      do_alphalimit(in);
-    else if (cmd == "hilimit")
-      do_hilimit(in);
-    else if (cmd == "datalolimit")
-      do_datalolimit(in);
-    else if (cmd == "datahilimit")
-      do_datahilimit(in);
-    else if (cmd == "datareplace")
-      do_datareplace(in);
-    else if (cmd == "despeckle")
-      do_despeckle(in);
-    else if (cmd == "expanddata")
-      do_expanddata(in);
-    else if (cmd == "contourdepth")
-      do_contourdepth(in);
-    else if (cmd == "contourinterpolation")
-      do_contourinterpolation(in);
-    else if (cmd == "contourtriangles")
-      do_contourtriangles(in);
-    else if (cmd == "smoother")
-      do_smoother(in);
-    else if (cmd == "smootherradius")
-      do_smootherradius(in);
-    else if (cmd == "smootherfactor")
-      do_smootherfactor(in);
-    else if (cmd == "level")
-      do_level(in);
-    else if (cmd == "param")
-      do_param(in);
-    else if (cmd == "shape")
-      do_shape(in);
-    else if (cmd == "contourfill")
-      do_contourfill(in);
-    else if (cmd == "contourpattern")
-      do_contourpattern(in);
-    else if (cmd == "contoursymbol")
-      do_contoursymbol(in);
-    else if (cmd == "contoursymbolmindist")
-      do_contoursymbolmindist(in);
-    else if (cmd == "contourfont")
-      do_contourfont(in);
-    else if (cmd == "contourlinewidth")
-      do_contourlinewidth(in);
-    else if (cmd == "contourline")
-      do_contourline(in);
-    else if (cmd == "contourfills")
-      do_contourfills(in);
-    else if (cmd == "contourlines")
-      do_contourlines(in);
-
-    else if (cmd == "contourlabel")
-      do_contourlabel(in);
-    else if (cmd == "contourlabels")
-      do_contourlabels(in);
-    else if (cmd == "contourlabeltext")
-      do_contourlabeltext(in);
-    else if (cmd == "contourlabelfont")
-      do_contourlabelfont(in);
-    else if (cmd == "contourlabelcolor")
-      do_contourlabelcolor(in);
-    else if (cmd == "contourlabelbackground")
-      do_contourlabelbackground(in);
-    else if (cmd == "contourlabelmargin")
-      do_contourlabelmargin(in);
-    else if (cmd == "contourlabelimagemargin")
-      do_contourlabelimagemargin(in);
-    else if (cmd == "contourlabelmindistsamevalue")
-      do_contourlabelmindistsamevalue(in);
-    else if (cmd == "contourlabelmindistdifferentvalue")
-      do_contourlabelmindistdifferentvalue(in);
-    else if (cmd == "contourlabelmindistdifferentparam")
-      do_contourlabelmindistdifferentparam(in);
-    else if (cmd == "contourfontmindistsamevalue")
-      do_contourfontmindistsamevalue(in);
-    else if (cmd == "contourfontmindistdifferentvalue")
-      do_contourfontmindistdifferentvalue(in);
-    else if (cmd == "contourfontmindistdifferentparam")
-      do_contourfontmindistdifferentparam(in);
-
-    else if (cmd == "highpressure")
-      do_highpressure(in);
-    else if (cmd == "lowpressure")
-      do_lowpressure(in);
-    else if (cmd == "lowpressuremaximum")
-      do_lowpressuremaximum(in);
-    else if (cmd == "highpressureminimum")
-      do_highpressureminimum(in);
-    else if (cmd == "pressuremindistsame")
-      do_pressuremindistsame(in);
-    else if (cmd == "pressuremindistdifferent")
-      do_pressuremindistdifferent(in);
-    else if (cmd == "labelmarker")
-      do_labelmarker(in);
-    else if (cmd == "labelfont")
-      do_labelfont(in);
-    else if (cmd == "labelcolor")
-      do_labelcolor(in);
-    else if (cmd == "labelrule")
-      do_labelrule(in);
-    else if (cmd == "labelalign")
-      do_labelalign(in);
-    else if (cmd == "labelformat")
-      do_labelformat(in);
-    else if (cmd == "labelmissing")
-      do_labelmissing(in);
-    else if (cmd == "labeloffset")
-      do_labeloffset(in);
-    else if (cmd == "labelcaption")
-      do_labelcaption(in);
-    else if (cmd == "label")
-      do_label(in);
-    else if (cmd == "labelxy")
-      do_labelxy(in);
-    else if (cmd == "labels")
-      do_labels(in);
-    else if (cmd == "labelsxy")
-      do_labelsxy(in);
-    else if (cmd == "labelfile")
-      do_labelfile(in);
-    else if (cmd == "units")
-      do_units(in);
-    else if (cmd == "clear")
-      do_clear(in);
-
     else if (cmd == "draw")
     {
       in >> cmd;
@@ -5693,7 +5573,12 @@ void process_cmd(const string &text)
         throw runtime_error("draw " + cmd + " not implemented");
     }
     else
-      throw runtime_error("Unknown command " + cmd);
+    {
+      auto it = commands.find(cmd);
+      if (it == commands.end())
+        throw runtime_error("Unknown command " + cmd);
+      it->second(in);
+    }
   }
 }
 
