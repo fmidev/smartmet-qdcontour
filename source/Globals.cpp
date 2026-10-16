@@ -123,6 +123,68 @@ std::shared_ptr<NFmiArea> Globals::createArea() const
   return NFmiAreaFactory::Create(projection);
 }
 
+namespace
+{
+// ----------------------------------------------------------------------
+/*!
+ * \brief Format the observation or forecast time stamp
+ */
+// ----------------------------------------------------------------------
+
+std::string format_stamp_time(const std::string& theFormat, const NFmiTime& theTime)
+{
+  const int yy = theTime.GetYear();
+  const int mm = theTime.GetMonth();
+  const int dd = theTime.GetDay();
+  const int hh = theTime.GetHour();
+  const int mi = theTime.GetMin();
+
+  char buffer[100];
+
+  if (theFormat == "hour")  // hh:mi
+    sprintf(buffer, "%02d:%02d", hh, mi);
+
+  else if (theFormat == "hourdate")  // hh:mi dd.mm.
+    sprintf(buffer, "%02d:%02d %02d.%02d.", hh, mi, dd, mm);
+
+  else if (theFormat == "datehour")  // d.m h:mi.
+    sprintf(buffer, "%d.%d. %d:%02d", dd, mm, hh, mi);
+
+  else  // hh:mi dd.mm.yyyy
+    sprintf(buffer, "%02d:%02d %02d.%02d.%04d", hh, mi, dd, mm, yy);
+
+  return buffer;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Format the forecast time of a forecast+observation time stamp
+ */
+// ----------------------------------------------------------------------
+
+std::string format_forobs_stamp_time(const std::string& theFormat, const NFmiTime& theTime)
+{
+  const int yy = theTime.GetYear();
+  const int mm = theTime.GetMonth();
+  const int dd = theTime.GetDay();
+  const int hh = theTime.GetHour();
+  const int mi = theTime.GetMin();
+
+  char buffer[100];
+
+  if (theFormat == "hour")  // hh:mi +hh
+    sprintf(buffer, "%02d:%02d", hh, mi);
+  else if (theFormat == "hourdate")  // dd.mm. hh:mi + hh
+    sprintf(buffer, "%02d.%02d. %02d:%02d", dd, mm, hh, mi);
+  else if (theFormat == "datehour")  // d.m. h:mi + hh
+    sprintf(buffer, "%d.%d. %d:%02d", dd, mm, hh, mi);
+  else  // dd.mm.yy hh:mi +hh
+    sprintf(buffer, "%02d.%02d.%04d %02d:%02d", dd, mm, yy, hh, mi);
+
+  return buffer;
+}
+}  // namespace
+
 // ----------------------------------------------------------------------
 /*!
  * \brief Return the time stamp string to be rendered in the image
@@ -132,12 +194,6 @@ std::shared_ptr<NFmiArea> Globals::createArea() const
 std::string Globals::getImageStampText(const NFmiTime& theTime) const
 {
   NFmiTime tobs = TimeTools::ConvertZone(theTime, timestampzone);
-
-  const int obsyy = tobs.GetYear();
-  const int obsmm = tobs.GetMonth();
-  const int obsdd = tobs.GetDay();
-  const int obshh = tobs.GetHour();
-  const int obsmi = tobs.GetMin();
 
   // Interpretation: The age of the forecast is the age
   // of the oldest forecast
@@ -152,54 +208,20 @@ std::string Globals::getImageStampText(const NFmiTime& theTime) const
     if (qi == 0 || tlocal.IsLessThan(tfor)) tfor = tlocal;
   }
 
-  const int foryy = tfor.GetYear();
-  const int formm = tfor.GetMonth();
-  const int fordd = tfor.GetDay();
-  const int forhh = tfor.GetHour();
-  const int formi = tfor.GetMin();
-
   char buffer[100];
 
   string stamp;
   if (timestampimage == "obs")
   {
-    if (timestampimageformat == "hour")  // hh:mi
-      sprintf(buffer, "%02d:%02d", obshh, obsmi);
-
-    else if (timestampimageformat == "hourdate")  // hh:mi dd.mm.
-      sprintf(buffer, "%02d:%02d %02d.%02d.", obshh, obsmi, obsdd, obsmm);
-
-    else if (timestampimageformat == "datehour")  // d.m h:mi.
-      sprintf(buffer, "%d.%d. %d:%02d", obsdd, obsmm, obshh, obsmi);
-
-    else  // hh:mi dd.mm.yyyy
-      sprintf(buffer, "%02d:%02d %02d.%02d.%04d", obshh, obsmi, obsdd, obsmm, obsyy);
-    stamp = buffer;
+    stamp = format_stamp_time(timestampimageformat, tobs);
   }
   else if (timestampimage == "for")
   {
-    if (timestampimageformat == "hour")  // hh:mi
-      sprintf(buffer, "%02d:%02d", forhh, formi);
-    else if (timestampimageformat == "hourdate")  // hh:mi dd.mm.
-      sprintf(buffer, "%02d:%02d %02d.%02d.", forhh, formi, fordd, formm);
-    else if (timestampimageformat == "datehour")  // d.m h:mi
-      sprintf(buffer, "%d.%d. %d:%02d", fordd, formm, forhh, formi);
-    else  // hh:mi dd.mm.yyyy
-      sprintf(buffer, "%02d:%02d %02d.%02d.%04d", forhh, formi, fordd, formm, foryy);
-    stamp = buffer;
+    stamp = format_stamp_time(timestampimageformat, tfor);
   }
   else if (timestampimage == "forobs")
   {
-    if (timestampimageformat == "hour")  // hh:mi +hh
-      sprintf(buffer, "%02d:%02d", forhh, formi);
-    else if (timestampimageformat == "hourdate")  // dd.mm. hh:mi + hh
-      sprintf(buffer, "%02d.%02d. %02d:%02d", fordd, formm, forhh, formi);
-    else if (timestampimageformat == "datehour")  // d.m. h:mi + hh
-      sprintf(buffer, "%d.%d. %d:%02d", fordd, formm, forhh, formi);
-    else  // dd.mm.yy hh:mi +hh
-      sprintf(buffer, "%02d.%02d.%04d %02d:%02d", fordd, formm, foryy, forhh, formi);
-
-    stamp = buffer;
+    stamp = format_forobs_stamp_time(timestampimageformat, tfor);
 
     const long diff = tobs.DifferenceInMinutes(tfor);
     if (diff % 60 == 0 && timestep % 60 == 0)
