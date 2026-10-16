@@ -4896,6 +4896,369 @@ void draw_foreground(Imagine::NFmiImage& img)
  */
 // ----------------------------------------------------------------------
 
+// ----------------------------------------------------------------------
+/*!
+ * \brief Establish the common time limits of the querydata
+ */
+// ----------------------------------------------------------------------
+
+void establish_time_limits(NFmiTime& time1, NFmiTime& time2)
+{
+  unsigned int qi = 0;
+  for (qi = 0; qi < globals.querystreams.size(); qi++)
+  {
+    // Establish time limits
+
+    globals.queryinfo = globals.querystreams[qi];
+
+    globals.queryinfo->LastTime();
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+    NFmiTime t2 = globals.queryinfo->ValidTime();
+
+    globals.queryinfo->FirstTime();
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+    NFmiTime t1 = globals.queryinfo->ValidTime();
+
+    if (qi == 0)
+    {
+      time1 = t1;
+      time2 = t2;
+    }
+    else
+    {
+      if (time1.IsLessThan(t1))
+        time1 = t1;
+      if (!time2.IsLessThan(t2))
+        time2 = t2;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Search the first time >= the desired time in all querydata
+ *
+ * Returns false if the image cannot be rendered for the time.
+ */
+// ----------------------------------------------------------------------
+
+bool find_render_time(NFmiTime& t, const NFmiTime& time1)
+{
+  unsigned int qi = 0;
+  bool ok = true;
+  for (qi = 0; ok && qi < globals.querystreams.size(); qi++)
+  {
+    globals.queryinfo = globals.querystreams[qi];
+    globals.queryinfo->ResetTime();
+    while (globals.queryinfo->NextTime())
+    {
+      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+      NFmiTime loc = globals.queryinfo->ValidTime();
+      if (!loc.IsLessThan(t))
+        break;
+    }
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+    NFmiTime tnow = globals.queryinfo->ValidTime();
+
+    // we wanted
+
+    if (globals.timestep == 0)
+      t = tnow;
+
+    // If time is before time1, ignore it
+
+    if (t.IsLessThan(time1))
+    {
+      ok = false;
+      break;
+    }
+
+    // Is the time exact?
+
+    bool isexact = t.IsEqual(tnow);
+
+    // The previous acceptable time step in calculations
+    // Use NFmiTime, not NFmiMetTime to avoid rounding up!
+
+    NFmiTime tprev = t;
+    tprev.ChangeByMinutes(-globals.timeinterval);
+
+    bool hasprevious = !tprev.IsLessThan(time1);
+
+    // Skip this image if we are unable to render it
+
+    if (globals.filter == "none")
+    {
+      // Cannot draw time with filter none
+      // if time is not exact.
+
+      ok = isexact;
+    }
+    else if (globals.filter == "linear")
+    {
+      // OK if is exact, otherwise previous step required
+
+      ok = isexact || hasprevious;
+    }
+    else
+    {
+      // Time must be exact, and previous steps
+      // are required
+
+      ok = isexact && hasprevious;
+    }
+  }
+  return ok;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief The name of the image file for the given time stamp
+ */
+// ----------------------------------------------------------------------
+
+string image_filename(const NFmiString& datatimestr)
+{
+  unsigned int qi = 0;
+  string filename = globals.savepath + "/" + globals.prefix + datatimestr.CharPtr();
+
+  if (globals.timestampflag)
+  {
+    for (qi = 0; qi < globals.queryfilenames.size(); qi++)
+    {
+      time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
+      NFmiTime tstamp = TimeTools::ToUTC(secs);
+      filename += "_" + tstamp.ToStr(globals.timestampformat);
+    }
+  }
+
+  filename += globals.suffix + "." + globals.format;
+  return filename;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Create the image to draw on, possibly from the background image
+ */
+// ----------------------------------------------------------------------
+
+std::shared_ptr<Imagine::NFmiImage> create_image(const NFmiArea& theArea)
+{
+  int imgwidth = static_cast<int>(std::lround(theArea.Width()));
+  int imgheight = static_cast<int>(std::lround(theArea.Height()));
+
+  NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
+
+  std::shared_ptr<Imagine::NFmiImage> image;
+  if (globals.background.empty())
+  {
+    image = std::make_shared<Imagine::NFmiImage>(imgwidth, imgheight, erasecolor);
+  }
+  else
+  {
+    image = std::make_shared<Imagine::NFmiImage>(globals.getImage(globals.background));
+    if (imgwidth != image->Width() || imgheight != image->Height())
+    {
+      throw runtime_error("Background image size does not match area size");
+    }
+  }
+  if (image == nullptr)
+    throw runtime_error("Failed to allocate a new image for rendering");
+  return image;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Contour a parameter and collect its label information
+ *
+ * The contour label information is collected, but not rendered yet.
+ */
+// ----------------------------------------------------------------------
+
+void draw_parameter(Imagine::NFmiImage& img,
+                    const NFmiArea& theArea,
+                    ContourSpec& spec,
+                    const NFmiTime& t,
+                    bool labeldxdydone,
+                    NFmiDataMatrix<float>& vals)
+{
+  // Establish the parameter
+
+  string name = spec.param();
+  int level = spec.level();
+
+  unsigned int qi = choose_queryinfo(name, level);
+
+  if (globals.verbose)
+    report_queryinfo(name, qi);
+
+  // Establish the contour method
+
+  string interpname = spec.contourInterpolation();
+  ContourInterpolation interp = ContourInterpolationValue(interpname);
+  if (interp == Missing)
+    throw runtime_error("Unknown contour interpolation method " + interpname);
+
+  // Get the values.
+
+  if (!MetaFunctions::isMeta(name))
+  {
+    vals = globals.queryinfo->Values();
+    globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()), vals);
+  }
+  else
+    vals = MetaFunctions::values(spec.param(), *globals.queryinfo);
+
+  // Replace values if so requested
+
+  if (spec.replace())
+    vals.Replace(spec.replaceSourceValue(), spec.replaceTargetValue());
+
+  // Filter the values if so requested
+
+  filter_values(vals, t, spec);
+
+  // Expand the data if so requested
+
+  if (globals.expanddata)
+    expand_data(vals);
+
+  // Call smoother only if necessary to avoid LazyCoordinates dereferencing
+
+  LazyCoordinates worldpts(theArea);
+
+  if (spec.smoother() != "None")
+  {
+    NFmiSmoother smoother(spec.smoother(), spec.smootherFactor(), spec.smootherRadius());
+
+    vals = smoother.Smoothen(*worldpts, vals);
+  }
+
+  // Setup the contourer with the values
+
+  globals.calculator.data(vals);
+
+  // Save the data values at desired points for later
+  // use, this lets us avoid using InterpolatedValue()
+  // which does not use smoothened values.
+
+  // First, however, if this is the first image, we add
+  // the grid points to the set of points, if so requested
+
+  if (!labeldxdydone)
+    add_label_grid_values(spec, theArea, worldpts);
+
+  // For pixelgrids we must repeat the process for all new
+  // background images, since the pixel spacing changes
+  // every time. Note! We assume the following calling order!
+
+  add_label_point_values(spec, theArea, vals);
+  add_label_pixelgrid_values(spec, theArea, img, vals);
+
+  // Fill the contours
+
+  draw_contour_fills(img, theArea, spec, t, interp);
+
+  // Pattern fill the contours
+
+  draw_contour_patterns(img, theArea, spec, t, interp);
+
+  // Stroke the contours
+
+  draw_contour_strokes(img, theArea, spec, t, interp);
+
+  // Save contour symbol coordinates
+
+  save_contour_symbols(img, theArea, spec, worldpts, vals);
+
+  // Save symbol fill coordinates
+
+  save_contour_fonts(img, theArea, spec, worldpts, vals);
+
+  // Save contour label coordinates
+
+  save_contour_labels(img, theArea, spec, t, interp);
+
+  // Draw optional overlay
+
+  draw_overlay(img, spec);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Draw everything on top of the contours: graticule, foreground, arrows, symbols,
+ *        labels, pressure markers, the combine image and the time stamp
+ */
+// ----------------------------------------------------------------------
+
+void draw_decorations(Imagine::NFmiImage& img, const NFmiArea& theArea, const NFmiTime& t)
+{
+  // Draw graticule
+
+  draw_graticule(img, theArea);
+
+  // Bang the foreground
+
+  draw_foreground(img);
+
+  // Draw wind arrows if so requested
+
+  draw_wind_arrows(img, theArea);
+
+  // Draw contour symbols
+
+  draw_contour_symbols(img);
+
+  // Draw contour fonts
+
+  draw_contour_fonts(img);
+
+  // Label the contours
+
+  draw_contour_labels(img);
+
+  // Draw labels
+
+  for (auto& spec : globals.specs)
+  {
+    draw_label_markers(img, spec, theArea);
+    draw_label_texts(img, spec, theArea);
+  }
+
+  // Draw high/low pressure markers
+
+  draw_pressure_markers(img, theArea);
+
+  // Bang the combine image (legend, logo, whatever)
+
+  globals.drawCombine(img);
+
+  // Finally, draw a time stamp on the image if so
+  // requested
+
+  const string stamp = globals.getImageStampText(t);
+  globals.drawImageStampText(img, stamp);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief The time preceding the first time to be drawn
+ */
+// ----------------------------------------------------------------------
+
+NFmiTime first_time(const NFmiTime& time1)
+{
+  NFmiMetTime tmptime(time1,
+                      (globals.timesteprounding && globals.timestep > 0) ? globals.timestep : 1);
+
+  tmptime.ChangeByMinutes(globals.timestepskip);
+  if (globals.timesteprounding)
+    tmptime.PreviousMetTime();
+  // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+  NFmiTime t = tmptime;
+  return t;
+}
+
 void do_draw_contours(istream& /*theInput*/)
 {
   // 1. Make sure query data has been read
@@ -4940,38 +5303,10 @@ void do_draw_contours(istream& /*theInput*/)
 
   NFmiTime time1;
   NFmiTime time2;
+  establish_time_limits(time1, time2);
 
   NFmiDataMatrix<float> vals;
   NFmiDataMatrix<float> maskvalues;
-
-  unsigned int qi = 0;
-  for (qi = 0; qi < globals.querystreams.size(); qi++)
-  {
-    // Establish time limits
-
-    globals.queryinfo = globals.querystreams[qi];
-
-    globals.queryinfo->LastTime();
-    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-    NFmiTime t2 = globals.queryinfo->ValidTime();
-
-    globals.queryinfo->FirstTime();
-    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-    NFmiTime t1 = globals.queryinfo->ValidTime();
-
-    if (qi == 0)
-    {
-      time1 = t1;
-      time2 = t2;
-    }
-    else
-    {
-      if (time1.IsLessThan(t1))
-        time1 = t1;
-      if (!time2.IsLessThan(t2))
-        time2 = t2;
-    }
-  }
 
   if (globals.verbose)
   {
@@ -4980,14 +5315,7 @@ void do_draw_contours(istream& /*theInput*/)
 
   // Skip to first time
 
-  NFmiMetTime tmptime(time1,
-                      (globals.timesteprounding && globals.timestep > 0) ? globals.timestep : 1);
-
-  tmptime.ChangeByMinutes(globals.timestepskip);
-  if (globals.timesteprounding)
-    tmptime.PreviousMetTime();
-  // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-  NFmiTime t = tmptime;
+  NFmiTime t = first_time(time1);
 
   // Loop over all times
 
@@ -5012,69 +5340,7 @@ void do_draw_contours(istream& /*theInput*/)
     // already tested against time2, the last available
     // time.
 
-    bool ok = true;
-    for (qi = 0; ok && qi < globals.querystreams.size(); qi++)
-    {
-      globals.queryinfo = globals.querystreams[qi];
-      globals.queryinfo->ResetTime();
-      while (globals.queryinfo->NextTime())
-      {
-        // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-        NFmiTime loc = globals.queryinfo->ValidTime();
-        if (!loc.IsLessThan(t))
-          break;
-      }
-      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-      NFmiTime tnow = globals.queryinfo->ValidTime();
-
-      // we wanted
-
-      if (globals.timestep == 0)
-        t = tnow;
-
-      // If time is before time1, ignore it
-
-      if (t.IsLessThan(time1))
-      {
-        ok = false;
-        break;
-      }
-
-      // Is the time exact?
-
-      bool isexact = t.IsEqual(tnow);
-
-      // The previous acceptable time step in calculations
-      // Use NFmiTime, not NFmiMetTime to avoid rounding up!
-
-      NFmiTime tprev = t;
-      tprev.ChangeByMinutes(-globals.timeinterval);
-
-      bool hasprevious = !tprev.IsLessThan(time1);
-
-      // Skip this image if we are unable to render it
-
-      if (globals.filter == "none")
-      {
-        // Cannot draw time with filter none
-        // if time is not exact.
-
-        ok = isexact;
-      }
-      else if (globals.filter == "linear")
-      {
-        // OK if is exact, otherwise previous step required
-
-        ok = isexact || hasprevious;
-      }
-      else
-      {
-        // Time must be exact, and previous steps
-        // are required
-
-        ok = isexact && hasprevious;
-      }
-    }
+    bool ok = find_render_time(t, time1);
 
     if (!ok)
       continue;
@@ -5094,19 +5360,7 @@ void do_draw_contours(istream& /*theInput*/)
     if (globals.verbose)
       cout << "Time is " << datatimestr.CharPtr() << endl;
 
-    string filename = globals.savepath + "/" + globals.prefix + datatimestr.CharPtr();
-
-    if (globals.timestampflag)
-    {
-      for (qi = 0; qi < globals.queryfilenames.size(); qi++)
-      {
-        time_t secs = NFmiFileSystem::FileModificationTime(globals.queryfilenames[qi]);
-        NFmiTime tstamp = TimeTools::ToUTC(secs);
-        filename += "_" + tstamp.ToStr(globals.timestampformat);
-      }
-    }
-
-    filename += globals.suffix + "." + globals.format;
+    string filename = image_filename(datatimestr);
 
     // In force-mode we always write, but otherwise
     // we first check if the output image already
@@ -5122,26 +5376,7 @@ void do_draw_contours(istream& /*theInput*/)
 
     // Initialize the background
 
-    int imgwidth = static_cast<int>(std::lround(area->Width()));
-    int imgheight = static_cast<int>(std::lround(area->Height()));
-
-    NFmiColorTools::Color erasecolor = ColorTools::checkcolor(globals.erase);
-
-    std::shared_ptr<Imagine::NFmiImage> image;
-    if (globals.background.empty())
-    {
-      image = std::make_shared<Imagine::NFmiImage>(imgwidth, imgheight, erasecolor);
-    }
-    else
-    {
-      image = std::make_shared<Imagine::NFmiImage>(globals.getImage(globals.background));
-      if (imgwidth != image->Width() || imgheight != image->Height())
-      {
-        throw runtime_error("Background image size does not match area size");
-      }
-    }
-    if (image == nullptr)
-      throw runtime_error("Failed to allocate a new image for rendering");
+    std::shared_ptr<Imagine::NFmiImage> image = create_image(*area);
 
     globals.setImageModes(*image);
 #define xr image /* HACK */
@@ -5168,154 +5403,9 @@ void do_draw_contours(istream& /*theInput*/)
     auto pend = globals.specs.end();
 
     for (piter = pbegin; piter != pend; ++piter)
-    {
-      // Establish the parameter
+      draw_parameter(*xr, *area, *piter, t, labeldxdydone, vals);
 
-      string name = piter->param();
-      int level = piter->level();
-
-      qi = choose_queryinfo(name, level);
-
-      if (globals.verbose)
-        report_queryinfo(name, qi);
-
-      // Establish the contour method
-
-      string interpname = piter->contourInterpolation();
-      ContourInterpolation interp = ContourInterpolationValue(interpname);
-      if (interp == Missing)
-        throw runtime_error("Unknown contour interpolation method " + interpname);
-
-      // Get the values.
-
-      if (!MetaFunctions::isMeta(name))
-      {
-        vals = globals.queryinfo->Values();
-        globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()), vals);
-      }
-      else
-        vals = MetaFunctions::values(piter->param(), *globals.queryinfo);
-
-      // Replace values if so requested
-
-      if (piter->replace())
-        vals.Replace(piter->replaceSourceValue(), piter->replaceTargetValue());
-
-      // Filter the values if so requested
-
-      filter_values(vals, t, *piter);
-
-      // Expand the data if so requested
-
-      if (globals.expanddata)
-        expand_data(vals);
-
-      // Call smoother only if necessary to avoid LazyCoordinates dereferencing
-
-      LazyCoordinates worldpts(*area);
-
-      if (piter->smoother() != "None")
-      {
-        NFmiSmoother smoother(piter->smoother(), piter->smootherFactor(), piter->smootherRadius());
-
-        vals = smoother.Smoothen(*worldpts, vals);
-      }
-
-      // Setup the contourer with the values
-
-      globals.calculator.data(vals);
-
-      // Save the data values at desired points for later
-      // use, this lets us avoid using InterpolatedValue()
-      // which does not use smoothened values.
-
-      // First, however, if this is the first image, we add
-      // the grid points to the set of points, if so requested
-
-      if (!labeldxdydone)
-        add_label_grid_values(*piter, *area, worldpts);
-
-      // For pixelgrids we must repeat the process for all new
-      // background images, since the pixel spacing changes
-      // every time. Note! We assume the following calling order!
-
-      add_label_point_values(*piter, *area, vals);
-      add_label_pixelgrid_values(*piter, *area, *xr, vals);
-
-      // Fill the contours
-
-      draw_contour_fills(*xr, *area, *piter, t, interp);
-
-      // Pattern fill the contours
-
-      draw_contour_patterns(*xr, *area, *piter, t, interp);
-
-      // Stroke the contours
-
-      draw_contour_strokes(*xr, *area, *piter, t, interp);
-
-      // Save contour symbol coordinates
-
-      save_contour_symbols(*xr, *area, *piter, worldpts, vals);
-
-      // Save symbol fill coordinates
-
-      save_contour_fonts(*xr, *area, *piter, worldpts, vals);
-
-      // Save contour label coordinates
-
-      save_contour_labels(*xr, *area, *piter, t, interp);
-
-      // Draw optional overlay
-
-      draw_overlay(*xr, *piter);
-    }
-
-    // Draw graticule
-
-    draw_graticule(*xr, *area);
-
-    // Bang the foreground
-
-    draw_foreground(*xr);
-
-    // Draw wind arrows if so requested
-
-    draw_wind_arrows(*xr, *area);
-
-    // Draw contour symbols
-
-    draw_contour_symbols(*xr);
-
-    // Draw contour fonts
-
-    draw_contour_fonts(*xr);
-
-    // Label the contours
-
-    draw_contour_labels(*xr);
-
-    // Draw labels
-
-    for (piter = pbegin; piter != pend; ++piter)
-    {
-      draw_label_markers(*xr, *piter, *area);
-      draw_label_texts(*xr, *piter, *area);
-    }
-
-    // Draw high/low pressure markers
-
-    draw_pressure_markers(*xr, *area);
-
-    // Bang the combine image (legend, logo, whatever)
-
-    globals.drawCombine(*xr);
-
-    // Finally, draw a time stamp on the image if so
-    // requested
-
-    const string stamp = globals.getImageStampText(t);
-    globals.drawImageStampText(*xr, stamp);
+    draw_decorations(*xr, *area, t);
 
     // dx and dy labels have now been extracted into a list,
     // disable adding them again and again and again..
