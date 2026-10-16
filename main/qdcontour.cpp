@@ -2961,6 +2961,97 @@ void expand_data(NFmiDataMatrix<float> &theValues)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Interpolate the data values linearly in time
+ */
+// ----------------------------------------------------------------------
+
+void filter_values_linear(NFmiDataMatrix<float> &theValues,
+                          const NFmiTime &theTime,
+                          const ContourSpec &theSpec)
+{
+  // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+  NFmiTime tnow = globals.queryinfo->ValidTime();
+  bool isexact = theTime.IsEqual(tnow);
+
+  if (!isexact)
+  {
+    NFmiDataMatrix<float> tmpvals;
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+    NFmiTime t2 = globals.queryinfo->ValidTime();
+    globals.queryinfo->PreviousTime();
+    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
+    NFmiTime t1 = globals.queryinfo->ValidTime();
+    if (!MetaFunctions::isMeta(theSpec.param()))
+    {
+      tmpvals = globals.queryinfo->Values();
+      globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
+                                     tmpvals);
+    }
+    else
+      tmpvals = MetaFunctions::values(theSpec.param(), *globals.queryinfo);
+    if (theSpec.replace())
+      tmpvals.Replace(theSpec.replaceSourceValue(), theSpec.replaceTargetValue());
+
+    // Data from t1,t2, we want t
+
+    long offset = theTime.DifferenceInMinutes(t1);
+    long range = t2.DifferenceInMinutes(t1);
+
+    float weight = (static_cast<float>(offset)) / range;
+
+    theValues.LinearCombination(tmpvals, weight, 1 - weight);
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Aggregate the data values over the time interval (min, max, mean or sum)
+ */
+// ----------------------------------------------------------------------
+
+void filter_values_aggregate(NFmiDataMatrix<float> &theValues,
+                             const NFmiTime &theTime,
+                             const ContourSpec &theSpec)
+{
+  NFmiTime tprev = theTime;
+  tprev.ChangeByMinutes(-globals.timeinterval);
+
+  if (MetaFunctions::isMeta(theSpec.param()))
+    throw runtime_error("Unable to filter metafunctions - use newbase parameters only");
+
+  NFmiMetTime tnow(theTime, 60);
+  NFmiDataMatrix<float> tmpvals;
+  int steps = 1;
+  for (;;)
+  {
+    tmpvals = globals.queryinfo->Values(tnow);
+    globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()), tmpvals);
+
+    if (theSpec.replace())
+      tmpvals.Replace(theSpec.replaceSourceValue(), theSpec.replaceTargetValue());
+
+    if (globals.filter == "min")
+      theValues.Min(tmpvals);
+    else if (globals.filter == "max")
+      theValues.Max(tmpvals);
+    else if (globals.filter == "mean")
+      theValues += tmpvals;
+    else if (globals.filter == "sum")
+      theValues += tmpvals;
+
+    ++steps;
+    --tnow;
+
+    if (tnow.IsLessThan(tprev))
+      break;
+  }
+
+  if (globals.filter == "mean")
+    theValues /= static_cast<float>(steps);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Filter the data values
  */
 // ----------------------------------------------------------------------
@@ -2975,76 +3066,11 @@ void filter_values(NFmiDataMatrix<float> &theValues,
   }
   else if (globals.filter == "linear")
   {
-    // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-    NFmiTime tnow = globals.queryinfo->ValidTime();
-    bool isexact = theTime.IsEqual(tnow);
-
-    if (!isexact)
-    {
-      NFmiDataMatrix<float> tmpvals;
-      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-      NFmiTime t2 = globals.queryinfo->ValidTime();
-      globals.queryinfo->PreviousTime();
-      // NOLINTNEXTLINE(cppcoreguidelines-slicing): only the time is wanted, not the time step
-      NFmiTime t1 = globals.queryinfo->ValidTime();
-      if (!MetaFunctions::isMeta(theSpec.param()))
-      {
-        tmpvals = globals.queryinfo->Values();
-        globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
-                                       tmpvals);
-      }
-      else
-        tmpvals = MetaFunctions::values(theSpec.param(), *globals.queryinfo);
-      if (theSpec.replace())
-        tmpvals.Replace(theSpec.replaceSourceValue(), theSpec.replaceTargetValue());
-
-      // Data from t1,t2, we want t
-
-      long offset = theTime.DifferenceInMinutes(t1);
-      long range = t2.DifferenceInMinutes(t1);
-
-      float weight = (static_cast<float>(offset)) / range;
-
-      theValues.LinearCombination(tmpvals, weight, 1 - weight);
-    }
+    filter_values_linear(theValues, theTime, theSpec);
   }
   else
   {
-    NFmiTime tprev = theTime;
-    tprev.ChangeByMinutes(-globals.timeinterval);
-
-    if (MetaFunctions::isMeta(theSpec.param()))
-      throw runtime_error("Unable to filter metafunctions - use newbase parameters only");
-
-    NFmiMetTime tnow(theTime, 60);
-    NFmiDataMatrix<float> tmpvals;
-    int steps = 1;
-    for (;;)
-    {
-      tmpvals = globals.queryinfo->Values(tnow);
-      globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()), tmpvals);
-
-      if (theSpec.replace())
-        tmpvals.Replace(theSpec.replaceSourceValue(), theSpec.replaceTargetValue());
-
-      if (globals.filter == "min")
-        theValues.Min(tmpvals);
-      else if (globals.filter == "max")
-        theValues.Max(tmpvals);
-      else if (globals.filter == "mean")
-        theValues += tmpvals;
-      else if (globals.filter == "sum")
-        theValues += tmpvals;
-
-      ++steps;
-      --tnow;
-
-      if (tnow.IsLessThan(tprev))
-        break;
-    }
-
-    if (globals.filter == "mean")
-      theValues /= static_cast<float>(steps);
+    filter_values_aggregate(theValues, theTime, theSpec);
   }
 
   // Noise reduction
@@ -3276,6 +3302,69 @@ void draw_label_markers(Imagine::NFmiImage& img,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Draw a single label and its caption unless the point is outside the image or masked
+ */
+// ----------------------------------------------------------------------
+
+void draw_label(Imagine::NFmiImage& img,
+                Imagine::NFmiFace& face,
+                const ContourSpec& theSpec,
+                double x,
+                double y,
+                float value)
+{
+  // Skip rendering if the point is much too far from the image
+
+  const int safetymargin = 50;
+  if (x < -safetymargin || y < -safetymargin || x > img.Width() + safetymargin ||
+      y > img.Height() + safetymargin)
+    return;
+
+  // Skip rendering if the start point is masked
+
+  if (IsMasked(NFmiPoint(x, y), globals.mask))
+    return;
+
+  // Convert value to string
+  string strvalue = theSpec.labelMissing();
+
+  if (value != kFloatMissing)
+  {
+    char tmp[20];
+    sprintf(tmp, theSpec.labelFormat().c_str(), value);
+    strvalue = tmp;
+  }
+
+  // Don't bother drawing empty strings
+  if (strvalue.empty())
+    return;
+
+  // Set new text properties
+
+  face.Draw(img,
+            static_cast<int>(round(x + theSpec.labelOffsetX())),
+            static_cast<int>(round(y + theSpec.labelOffsetY())),
+            strvalue,
+            AlignmentValue(theSpec.labelAlignment()),
+            theSpec.labelColor(),
+            ColorTools::checkrule(theSpec.labelRule()));
+
+  // Then the label caption
+
+  if (!theSpec.labelCaption().empty())
+  {
+    face.Draw(img,
+              static_cast<int>(round(x + theSpec.labelCaptionDX())),
+              static_cast<int>(round(y + theSpec.labelCaptionDY())),
+              theSpec.labelCaption(),
+              AlignmentValue(theSpec.labelCaptionAlignment()),
+              theSpec.labelColor(),
+              ColorTools::checkrule(theSpec.labelRule()));
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw label texts
  */
 // ----------------------------------------------------------------------
@@ -3327,54 +3416,7 @@ void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const
 
       float value = theSpec.labelValues()[pointnumber++];
 
-      // Skip rendering if the point is much too far from the image
-
-      const int safetymargin = 50;
-      if (x < -safetymargin || y < -safetymargin || x > img.Width() + safetymargin ||
-          y > img.Height() + safetymargin)
-        continue;
-
-      // Skip rendering if the start point is masked
-
-      if (IsMasked(NFmiPoint(x, y), globals.mask))
-        continue;
-
-      // Convert value to string
-      string strvalue = theSpec.labelMissing();
-
-      if (value != kFloatMissing)
-      {
-        char tmp[20];
-        sprintf(tmp, theSpec.labelFormat().c_str(), value);
-        strvalue = tmp;
-      }
-
-      // Don't bother drawing empty strings
-      if (strvalue.empty())
-        continue;
-
-      // Set new text properties
-
-      face.Draw(img,
-                static_cast<int>(round(x + theSpec.labelOffsetX())),
-                static_cast<int>(round(y + theSpec.labelOffsetY())),
-                strvalue,
-                AlignmentValue(theSpec.labelAlignment()),
-                theSpec.labelColor(),
-                ColorTools::checkrule(theSpec.labelRule()));
-
-      // Then the label caption
-
-      if (!theSpec.labelCaption().empty())
-      {
-        face.Draw(img,
-                  static_cast<int>(round(x + theSpec.labelCaptionDX())),
-                  static_cast<int>(round(y + theSpec.labelCaptionDY())),
-                  theSpec.labelCaption(),
-                  AlignmentValue(theSpec.labelCaptionAlignment()),
-                  theSpec.labelColor(),
-                  ColorTools::checkrule(theSpec.labelRule()));
-      }
+      draw_label(img, face, theSpec, x, y, value);
     }
   }
 
@@ -3391,54 +3433,7 @@ void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const
       double y = iter->first.Y();
       float value = iter->second;
 
-      // Skip rendering if the point is much too far from the image
-
-      const int safetymargin = 50;
-      if (x < -safetymargin || y < -safetymargin || x > img.Width() + safetymargin ||
-          y > img.Height() + safetymargin)
-        continue;
-
-      // Skip rendering if the start point is masked
-
-      if (IsMasked(NFmiPoint(x, y), globals.mask))
-        continue;
-
-      // Convert value to string
-      string strvalue = theSpec.labelMissing();
-
-      if (value != kFloatMissing)
-      {
-        char tmp[20];
-        sprintf(tmp, theSpec.labelFormat().c_str(), value);
-        strvalue = tmp;
-      }
-
-      // Don't bother drawing empty strings
-      if (strvalue.empty())
-        continue;
-
-      // Set new text properties
-
-      face.Draw(img,
-                static_cast<int>(round(x + theSpec.labelOffsetX())),
-                static_cast<int>(round(y + theSpec.labelOffsetY())),
-                strvalue,
-                AlignmentValue(theSpec.labelAlignment()),
-                theSpec.labelColor(),
-                ColorTools::checkrule(theSpec.labelRule()));
-
-      // Then the label caption
-
-      if (!theSpec.labelCaption().empty())
-      {
-        face.Draw(img,
-                  static_cast<int>(round(x + theSpec.labelCaptionDX())),
-                  static_cast<int>(round(y + theSpec.labelCaptionDY())),
-                  theSpec.labelCaption(),
-                  AlignmentValue(theSpec.labelCaptionAlignment()),
-                  theSpec.labelColor(),
-                  ColorTools::checkrule(theSpec.labelRule()));
-      }
+      draw_label(img, face, theSpec, x, y, value);
     }
   }
 }
