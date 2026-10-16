@@ -193,6 +193,56 @@ NFmiDataMatrix<float> nn_cloudiness(LazyQueryData &theQI)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Test whether the value and its direct neighbours are not missing
+ */
+// ----------------------------------------------------------------------
+
+bool neighbourhood_ok(const NFmiDataMatrix<float> &theF, unsigned int i, unsigned int j)
+{
+  bool allok = theF[i][j] != kFloatMissing;
+  if (i > 0)
+    allok &= theF[i - 1][j] != kFloatMissing;
+  if (i < theF.NX() - 1)
+    allok &= theF[i + 1][j] != kFloatMissing;
+  if (j > 0)
+    allok &= theF[i][j - 1] != kFloatMissing;
+  if (j < theF.NY() - 1)
+    allok &= theF[i][j + 1] != kFloatMissing;
+  return allok;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief The x-derivative using forward, backward or centered difference
+ */
+// ----------------------------------------------------------------------
+
+float x_derivative(const NFmiDataMatrix<float> &theF, unsigned int i, unsigned int j, float theDX)
+{
+  if (i == 0)
+    return (theF[i + 1][j] - theF[i][j]) / theDX;  // forward difference
+  if (i == theF.NX() - 1)
+    return (theF[i][j] - theF[i - 1][j]) / theDX;  // backward difference
+  return (theF[i + 1][j] - theF[i - 1][j]) / (2 * theDX);  // centered difference
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief The y-derivative using forward, backward or centered difference
+ */
+// ----------------------------------------------------------------------
+
+float y_derivative(const NFmiDataMatrix<float> &theF, unsigned int i, unsigned int j, float theDY)
+{
+  if (j == 0)
+    return (theF[i][j + 1] - theF[i][j]) / theDY;
+  if (j == theF.NY() - 1)
+    return (theF[i][j] - theF[i][j - 1]) / theDY;
+  return (theF[i][j + 1] - theF[i][j - 1]) / (2 * theDY);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Calculate nabla of the given parameter
  *
  * \param theF The data to nabla
@@ -215,31 +265,10 @@ void matrix_nabla(const NFmiDataMatrix<float> &theF,
   for (unsigned int j = 0; j < theF.NY(); j++)
     for (unsigned int i = 0; i < theF.NX(); i++)
     {
-      bool allok = theF[i][j] != kFloatMissing;
-      if (i > 0)
-        allok &= theF[i - 1][j] != kFloatMissing;
-      if (i < theF.NX() - 1)
-        allok &= theF[i + 1][j] != kFloatMissing;
-      if (j > 0)
-        allok &= theF[i][j - 1] != kFloatMissing;
-      if (j < theF.NY() - 1)
-        allok &= theF[i][j + 1] != kFloatMissing;
-
-      if (allok)
+      if (neighbourhood_ok(theF, i, j))
       {
-        if (i == 0)
-          theNablaX[i][j] = (theF[i + 1][j] - theF[i][j]) / theDX;  // forward difference
-        else if (i == theF.NX() - 1)
-          theNablaX[i][j] = (theF[i][j] - theF[i - 1][j]) / theDX;  // backward difference
-        else
-          theNablaX[i][j] = (theF[i + 1][j] - theF[i - 1][j]) / (2 * theDX);  // centered difference
-
-        if (j == 0)
-          theNablaY[i][j] = (theF[i][j + 1] - theF[i][j]) / theDY;
-        else if (j == theF.NY() - 1)
-          theNablaY[i][j] = (theF[i][j] - theF[i][j - 1]) / theDY;
-        else
-          theNablaY[i][j] = (theF[i][j + 1] - theF[i][j - 1]) / (2 * theDY);
+        theNablaX[i][j] = x_derivative(theF, i, j, theDX);
+        theNablaY[i][j] = y_derivative(theF, i, j, theDY);
       }
       else
       {
