@@ -3663,6 +3663,98 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief The direction of north at the wind arrow location
+ *
+ * Returns nothing if the direction cannot be calculated.
+ */
+// ----------------------------------------------------------------------
+
+std::optional<double> arrow_north(const Fmi::CoordinateTransformation& transformation,
+                                   const NFmiPoint& latlon)
+{
+  std::optional<double> north;
+  if (globals.uvorientation)
+    north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
+  else
+    north = 0.0;
+  return north;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Render a single wind arrow
+ *
+ * The value type is a template parameter so that the calculations are done
+ * in the same precision as the caller's speed and direction values.
+ */
+// ----------------------------------------------------------------------
+
+template <typename Value>
+void render_wind_arrow(Imagine::NFmiImage& img,
+                       const NFmiPath& theArrow,
+                       const NFmiPoint& xy0,
+                       const NFmiPoint& latlon,
+                       Value speed,
+                       Value dir,
+                       double north)
+{
+  if (globals.arrowfile == "roundarrow")
+  {
+    draw_roundarrow(img, xy0, speed, -dir + north + 180);
+    return;
+  }
+
+  if (globals.arrowfile == "meteorological")
+  {
+    NFmiPath strokes;
+    NFmiPath flags;
+
+    strokes.Add(GramTools::metarrowlines(speed, latlon));
+    flags.Add(GramTools::metarrowflags(speed, latlon));
+
+    if (speed > 0 && speed != kFloatMissing)
+    {
+      strokes.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
+                    globals.windarrowscaleC);
+      flags.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
+                  globals.windarrowscaleC);
+    }
+
+    strokes.Scale(globals.arrowscale);
+    strokes.Rotate(-dir + north + 180);
+    strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+
+    flags.Scale(globals.arrowscale);
+    flags.Rotate(-dir + north + 180);
+    flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+
+    ArrowStyle style = globals.getArrowStroke(speed);
+    strokes.Stroke(img, style.color, style.rule);
+    flags.Fill(img, style.color, style.rule);
+    return;
+  }
+
+  NFmiPath arrowpath;
+  arrowpath.Add(theArrow);
+
+  if (speed > 0 && speed != kFloatMissing)
+    arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
+                    globals.windarrowscaleC);
+  arrowpath.Scale(globals.arrowscale);
+  arrowpath.Rotate(-dir + north + 180);
+  arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
+
+  // And render it
+
+  ArrowStyle fillstyle = globals.getArrowFill(speed);
+  arrowpath.Fill(img, fillstyle.color, fillstyle.rule);
+
+  ArrowStyle strokestyle = globals.getArrowStroke(speed);
+  arrowpath.Stroke(img, strokestyle.color, strokestyle.rule);
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw the listed wind arrow points
  */
 // ----------------------------------------------------------------------
@@ -3705,71 +3797,96 @@ void draw_wind_arrows_points(Imagine::NFmiImage& img,
 
     // Direction calculations
 
-    std::optional<double> north;
-    if (globals.uvorientation)
-      north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
-    else
-      north = 0.0;
-
+    std::optional<double> north = arrow_north(transformation, latlon);
     if (!north)
       continue;
 
     // Render the arrow
 
-    if (globals.arrowfile == "roundarrow")
+    render_wind_arrow(img, theArrow, xy0, latlon, speed, dir, *north);
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Test whether the point is way outside the image
+ */
+// ----------------------------------------------------------------------
+
+bool is_far_outside_image(const Imagine::NFmiImage& img, const NFmiPoint& xy0)
+{
+  const int safetymargin = 50;
+  return (xy0.X() < -safetymargin || xy0.Y() < -safetymargin ||
+          xy0.X() > img.Width() + safetymargin || xy0.Y() > img.Height() + safetymargin);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Select the first querydata in which the wind direction (or the
+ *        speed x-component) parameter is usable
+ */
+// ----------------------------------------------------------------------
+
+void select_wind_queryinfo()
+{
+  FmiParameterName param;
+  std::string name;
+  if (!globals.directionparam.empty())
+  {
+    param = toparam(globals.directionparam);
+    name = globals.directionparam;
+  }
+  else
+  {
+    param = toparam(globals.speedxcomponent);
+    name = globals.speedxcomponent;
+  }
+
+  if (param == kFmiBadParameter)
+    throw runtime_error("Unknown parameter " + name);
+
+  // Find the proper queryinfo to be used
+
+  bool ok = false;
+  for (unsigned int qi = 0; qi < globals.querystreams.size(); qi++)
+  {
+    globals.queryinfo = globals.querystreams[qi];
+    globals.queryinfo->Param(param);
+    ok = globals.queryinfo->IsParamUsable();
+    if (ok)
+      break;
+  }
+
+  if (!ok)
+    throw runtime_error("Parameter is not usable: " + name);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Establish the data replacement values for wind direction and speed
+ */
+// ----------------------------------------------------------------------
+
+void get_wind_replacements(float& direction_src,
+                           float& direction_dst,
+                           float& speed_src,
+                           float& speed_dst)
+{
+  list<ContourSpec>::iterator piter;
+  auto pbegin = globals.specs.begin();
+  auto pend = globals.specs.end();
+
+  for (piter = pbegin; piter != pend; ++piter)
+  {
+    if (piter->param() == globals.directionparam && piter->replace())
     {
-      draw_roundarrow(img, xy0, speed, -dir + *north + 180);
+      direction_src = piter->replaceSourceValue();
+      direction_dst = piter->replaceTargetValue();
     }
-    else
+    else if (piter->param() == globals.speedparam && piter->replace())
     {
-      if (globals.arrowfile == "meteorological")
-      {
-        NFmiPath strokes;
-        NFmiPath flags;
-
-        strokes.Add(GramTools::metarrowlines(speed, latlon));
-        flags.Add(GramTools::metarrowflags(speed, latlon));
-
-        if (speed > 0 && speed != kFloatMissing)
-        {
-          strokes.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                        globals.windarrowscaleC);
-          flags.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                      globals.windarrowscaleC);
-        }
-
-        strokes.Scale(globals.arrowscale);
-        strokes.Rotate(-dir + *north + 180);
-        strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-        flags.Scale(globals.arrowscale);
-        flags.Rotate(-dir + *north + 180);
-        flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-        ArrowStyle style = globals.getArrowStroke(speed);
-        strokes.Stroke(img, style.color, style.rule);
-        flags.Fill(img, style.color, style.rule);
-      }
-      else
-      {
-        NFmiPath arrowpath;
-        arrowpath.Add(theArrow);
-
-        if (speed > 0 && speed != kFloatMissing)
-          arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                          globals.windarrowscaleC);
-        arrowpath.Scale(globals.arrowscale);
-        arrowpath.Rotate(-dir + *north + 180);
-        arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-        // And render it
-
-        ArrowStyle fillstyle = globals.getArrowFill(speed);
-        arrowpath.Fill(img, fillstyle.color, fillstyle.rule);
-
-        ArrowStyle strokestyle = globals.getArrowStroke(speed);
-        arrowpath.Stroke(img, strokestyle.color, strokestyle.rule);
-      }
+      speed_src = piter->replaceSourceValue();
+      speed_dst = piter->replaceTargetValue();
     }
   }
 }
@@ -3862,9 +3979,7 @@ void draw_wind_arrows_grid(Imagine::NFmiImage& img,
 
       // Skip rendering if the start point is way outside the image
 
-      const int safetymargin = 50;
-      if (xy0.X() < -safetymargin || xy0.Y() < -safetymargin ||
-          xy0.X() > img.Width() + safetymargin || xy0.Y() > img.Height() + safetymargin)
+      if (is_far_outside_image(img, xy0))
         continue;
 
       if (dir == kFloatMissing)  // ignore missing
@@ -3884,72 +3999,13 @@ void draw_wind_arrows_grid(Imagine::NFmiImage& img,
 
       const auto latlon = grid->GridToLatLon(x, y);
 
-      std::optional<double> north;
-      if (globals.uvorientation)
-        north = Fmi::OGR::gridNorth(wgs84transformation, latlon.X(), latlon.Y());
-      else
-        north = 0.0;
-
+      std::optional<double> north = arrow_north(wgs84transformation, latlon);
       if (!north)
         continue;
 
       // Render the arrow
 
-      if (globals.arrowfile == "roundarrow")
-      {
-        draw_roundarrow(img, xy0, speed, -dir + *north + 180);
-      }
-      else
-      {
-        if (globals.arrowfile == "meteorological")
-        {
-          NFmiPath strokes;
-          NFmiPath flags;
-
-          strokes.Add(GramTools::metarrowlines(speed, latlon));
-          flags.Add(GramTools::metarrowflags(speed, latlon));
-
-          if (speed > 0 && speed != kFloatMissing)
-          {
-            strokes.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                          globals.windarrowscaleC);
-            flags.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                        globals.windarrowscaleC);
-          }
-
-          strokes.Scale(globals.arrowscale);
-          strokes.Rotate(-dir + *north + 180);
-          strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-          flags.Scale(globals.arrowscale);
-          flags.Rotate(-dir + *north + 180);
-          flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-          ArrowStyle style = globals.getArrowStroke(speed);
-          strokes.Stroke(img, style.color, style.rule);
-          flags.Fill(img, style.color, style.rule);
-        }
-        else
-        {
-          NFmiPath arrowpath;
-          arrowpath.Add(theArrow);
-
-          if (speed > 0 && speed != kFloatMissing)
-            arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                            globals.windarrowscaleC);
-          arrowpath.Scale(globals.arrowscale);
-          arrowpath.Rotate(-dir + *north + 180);
-          arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-          // And render it
-
-          ArrowStyle fillstyle = globals.getArrowFill(speed);
-          arrowpath.Fill(img, fillstyle.color, fillstyle.rule);
-
-          ArrowStyle strokestyle = globals.getArrowStroke(speed);
-          arrowpath.Stroke(img, strokestyle.color, strokestyle.rule);
-        }
-      }
+      render_wind_arrow(img, theArrow, xy0, latlon, speed, dir, *north);
     }
   }
 }
@@ -4006,72 +4062,13 @@ void draw_wind_arrows_pixelgrid(Imagine::NFmiImage& img,
 
       // Direction calculations
 
-      std::optional<double> north;
-      if (globals.uvorientation)
-        north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
-      else
-        north = 0.0;
-
+      std::optional<double> north = arrow_north(transformation, latlon);
       if (!north)
         continue;
 
       // Render the arrow
 
-      if (globals.arrowfile == "roundarrow")
-      {
-        draw_roundarrow(img, xy0, speed, -dir + *north + 180);
-      }
-      else
-      {
-        if (globals.arrowfile == "meteorological")
-        {
-          NFmiPath strokes;
-          NFmiPath flags;
-
-          strokes.Add(GramTools::metarrowlines(speed, latlon));
-          flags.Add(GramTools::metarrowflags(speed, latlon));
-
-          if (speed > 0 && speed != kFloatMissing)
-          {
-            strokes.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                          globals.windarrowscaleC);
-            flags.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                        globals.windarrowscaleC);
-          }
-
-          strokes.Scale(globals.arrowscale);
-          strokes.Rotate(-dir + *north + 180);
-          strokes.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-          flags.Scale(globals.arrowscale);
-          flags.Rotate(-dir + *north + 180);
-          flags.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-          ArrowStyle style = globals.getArrowStroke(speed);
-          strokes.Stroke(img, style.color, style.rule);
-          flags.Fill(img, style.color, style.rule);
-        }
-        else
-        {
-          NFmiPath arrowpath;
-          arrowpath.Add(theArrow);
-
-          if (speed > 0 && speed != kFloatMissing)
-            arrowpath.Scale(globals.windarrowscaleA * log10(globals.windarrowscaleB * speed + 1) +
-                            globals.windarrowscaleC);
-          arrowpath.Scale(globals.arrowscale);
-          arrowpath.Rotate(-dir + *north + 180);
-          arrowpath.Translate(static_cast<float>(xy0.X()), static_cast<float>(xy0.Y()));
-
-          // And render it
-
-          ArrowStyle fillstyle = globals.getArrowFill(speed);
-          arrowpath.Fill(img, fillstyle.color, fillstyle.rule);
-
-          ArrowStyle strokestyle = globals.getArrowStroke(speed);
-          arrowpath.Stroke(img, strokestyle.color, strokestyle.rule);
-        }
-      }
+      render_wind_arrow(img, theArrow, xy0, latlon, speed, dir, *north);
     }
   }
 }
@@ -4088,36 +4085,7 @@ void draw_wind_arrows(Imagine::NFmiImage& img, const NFmiArea& theArea)
        (globals.windarrowsxydx > 0 && globals.windarrowsxydy > 0)) &&
       (!globals.arrowfile.empty()))
   {
-    FmiParameterName param;
-    std::string name;
-    if (!globals.directionparam.empty())
-    {
-      param = toparam(globals.directionparam);
-      name = globals.directionparam;
-    }
-    else
-    {
-      param = toparam(globals.speedxcomponent);
-      name = globals.speedxcomponent;
-    }
-
-    if (param == kFmiBadParameter)
-      throw runtime_error("Unknown parameter " + name);
-
-    // Find the proper queryinfo to be used
-
-    bool ok = false;
-    for (unsigned int qi = 0; qi < globals.querystreams.size(); qi++)
-    {
-      globals.queryinfo = globals.querystreams[qi];
-      globals.queryinfo->Param(param);
-      ok = globals.queryinfo->IsParamUsable();
-      if (ok)
-        break;
-    }
-
-    if (!ok)
-      throw runtime_error("Parameter is not usable: " + name);
+    select_wind_queryinfo();
 
     // Read the arrow definition
 
@@ -4130,28 +4098,12 @@ void draw_wind_arrows(Imagine::NFmiImage& img, const NFmiArea& theArea)
 
     // Establish data replacement values
 
-    list<ContourSpec>::iterator piter;
-    auto pbegin = globals.specs.begin();
-    auto pend = globals.specs.end();
-
     float direction_src = kFloatMissing;
     float direction_dst = kFloatMissing;
     float speed_src = kFloatMissing;
     float speed_dst = kFloatMissing;
 
-    for (piter = pbegin; piter != pend; ++piter)
-    {
-      if (piter->param() == globals.directionparam && piter->replace())
-      {
-        direction_src = piter->replaceSourceValue();
-        direction_dst = piter->replaceTargetValue();
-      }
-      else if (piter->param() == globals.speedparam && piter->replace())
-      {
-        speed_src = piter->replaceSourceValue();
-        speed_dst = piter->replaceTargetValue();
-      }
-    }
+    get_wind_replacements(direction_src, direction_dst, speed_src, speed_dst);
 
     draw_wind_arrows_points(
         img, theArea, arrowpath, direction_src, direction_dst, speed_src, speed_dst);
