@@ -4398,6 +4398,27 @@ void save_contour_symbols(Imagine::NFmiImage& /*img*/,
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Test whether the value is within the range [lo,hi) of a contour symbol
+ *
+ * A missing value matches only a range with both limits missing.
+ */
+// ----------------------------------------------------------------------
+
+bool is_inside_symbol_range(float z, float lo, float hi)
+{
+  if (z == kFloatMissing)
+    return (lo == kFloatMissing && hi == kFloatMissing);
+  if (lo != kFloatMissing && z < lo)
+    return false;
+  if (hi != kFloatMissing && z >= hi)
+    return false;
+  if (lo == kFloatMissing && hi == kFloatMissing)
+    return false;
+  return true;
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Draw contour symbols
  */
 // ----------------------------------------------------------------------
@@ -4438,20 +4459,7 @@ void draw_contour_symbols(Imagine::NFmiImage& img)
       list<ContourSymbol>::const_iterator fit;
       for (fit = piter->contourSymbols().begin(); fit != piter->contourSymbols().end(); ++fit)
       {
-        const float lo = fit->lolimit();
-        const float hi = fit->hilimit();
-        bool inside = false;
-        if (z == kFloatMissing)
-          inside = (lo == kFloatMissing && hi == kFloatMissing);
-        else if (lo != kFloatMissing && z < lo)
-          inside = false;
-        else if (hi != kFloatMissing && z >= hi)
-          inside = false;
-        else if (lo == kFloatMissing && hi == kFloatMissing)
-          inside = false;
-        else
-          inside = true;
-        if (inside)
+        if (is_inside_symbol_range(z, fit->lolimit(), fit->hilimit()))
           break;
       }
 
