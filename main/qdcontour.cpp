@@ -3517,6 +3517,60 @@ void draw_roundarrow(NFmiImage &img, const NFmiPoint &xy, float speed, float ang
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Set the speed and direction of a grid point from the U and V components
+ *
+ * Note: the direction computed for globals.uvorientation == false is always
+ * overwritten by the grid north corrected one, the else seems to be missing.
+ * The behaviour is retained as is.
+ */
+// ----------------------------------------------------------------------
+
+void set_grid_speed_direction(const Fmi::CoordinateTransformation &transformation,
+                              double lon,
+                              double lat,
+                              float dx,
+                              float dy,
+                              float &speed,
+                              float &direction)
+{
+  speed = sqrt(dx * dx + dy * dy);
+  if (dx != 0 || dy != 0)
+  {
+    if (!globals.uvorientation)
+      direction = fmod(180 + FmiDeg(atan2(dx, dy)), 360.0);
+    {
+      auto north = Fmi::OGR::gridNorth(transformation, lon, lat);
+      if (north)
+        direction = fmod(180 + *north + FmiDeg(atan2(dx, dy)), 360.0);
+      else
+        direction = kFloatMissing;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Read the grid values of the parameter, replacing src by dst and converting units
+ *
+ * The values are left untouched if the parameter is not available.
+ */
+// ----------------------------------------------------------------------
+
+void get_parameter_values(const std::string &theParam,
+                          float src,
+                          float dst,
+                          NFmiDataMatrix<float> &values)
+{
+  if (globals.queryinfo->Param(toparam(theParam)))
+  {
+    values = globals.queryinfo->Values();
+    values.Replace(src, dst);
+    globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()), values);
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Establish speed and direction in a grid
  */
 // ----------------------------------------------------------------------
@@ -3531,20 +3585,8 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
 {
   if (!globals.directionparam.empty())
   {
-    if (globals.queryinfo->Param(toparam(globals.speedparam)))
-    {
-      speed = globals.queryinfo->Values();
-      speed.Replace(speed_src, speed_dst);
-      globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()), speed);
-    }
-
-    if (globals.queryinfo->Param(toparam(globals.directionparam)))
-    {
-      direction = globals.queryinfo->Values();
-      direction.Replace(direction_src, direction_dst);
-      globals.unitsconverter.convert(FmiParameterName(globals.queryinfo->GetParamIdent()),
-                                     direction);
-    }
+    get_parameter_values(globals.speedparam, speed_src, speed_dst, speed);
+    get_parameter_values(globals.directionparam, direction_src, direction_dst, direction);
   }
   else
   {
@@ -3566,22 +3608,39 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
         for (size_t i = 0; i < dx.NX(); i++)
         {
           if (dx[i][j] != kFloatMissing && dy[i][j] != kFloatMissing)
-          {
-            speed[i][j] = sqrt(dx[i][j] * dx[i][j] + dy[i][j] * dy[i][j]);
-            if (dx[i][j] != 0 || dy[i][j] != 0)
-            {
-              if (!globals.uvorientation)
-                direction[i][j] = fmod(180 + FmiDeg(atan2(dx[i][j], dy[i][j])), 360.0);
-              {
-                auto north = Fmi::OGR::gridNorth(transformation, latlon->x(i, j), latlon->y(i, j));
-                if (north)
-                  direction[i][j] = fmod(180 + *north + FmiDeg(atan2(dx[i][j], dy[i][j])), 360.0);
-                else
-                  direction[i][j] = kFloatMissing;
-              }
-            }
-          }
+            set_grid_speed_direction(
+                transformation, latlon->x(i, j), latlon->y(i, j), dx[i][j], dy[i][j],
+                speed[i][j], direction[i][j]);
         }
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Set the speed and direction at a point from the U and V components
+ */
+// ----------------------------------------------------------------------
+
+void set_point_speed_direction(const Fmi::CoordinateTransformation &transformation,
+                               const NFmiPoint &latlon,
+                               float dx,
+                               float dy,
+                               float &speed,
+                               float &direction)
+{
+  speed = sqrt(dx * dx + dy * dy);
+  if (dx != 0 || dy != 0)
+  {
+    if (!globals.uvorientation)
+      direction = fmod(180 + FmiDeg(atan2f(dx, dy)), 360.0);
+    else
+    {
+      auto north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
+      if (north)
+        direction = fmod(180 + *north + FmiDeg(atan2f(dx, dy)), 360.0);
+      else
+        direction = kFloatMissing;
     }
   }
 }
@@ -3637,22 +3696,7 @@ void get_speed_direction(const Fmi::CoordinateTransformation &transformation,
       dy = globals.queryinfo->InterpolatedValue(latlon);
 
     if (dx != kFloatMissing && dy != kFloatMissing)
-    {
-      speed = sqrt(dx * dx + dy * dy);
-      if (dx != 0 || dy != 0)
-      {
-        if (!globals.uvorientation)
-          direction = fmod(180 + FmiDeg(atan2f(dx, dy)), 360.0);
-        else
-        {
-          auto north = Fmi::OGR::gridNorth(transformation, latlon.X(), latlon.Y());
-          if (north)
-            direction = fmod(180 + *north + FmiDeg(atan2f(dx, dy)), 360.0);
-          else
-            direction = kFloatMissing;
-        }
-      }
-    }
+      set_point_speed_direction(transformation, latlon, dx, dy, speed, direction);
   }
 }
 
