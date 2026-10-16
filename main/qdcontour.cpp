@@ -4621,6 +4621,39 @@ void draw_overlay(Imagine::NFmiImage& img, const ContourSpec& theSpec)
 
 // ----------------------------------------------------------------------
 /*!
+ * \brief Test whether the offset is on the frame of the search region
+ */
+// ----------------------------------------------------------------------
+
+bool is_on_frame(int dx, int dy, int DX, int DY)
+{
+  return (dx == -DX || dx == DX || dy == -DY || dy == DY);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Classify an extremum based on the counts of smaller and bigger values
+ *
+ * \return -2/2 for absolute minima/maxima, -1/1 for minima/maxima, 0 for none
+ */
+// ----------------------------------------------------------------------
+
+int classify_extremum(int smaller, int bigger, int DX, int DY)
+{
+  if (smaller == (DX * 2 + 1) * (DY * 2 + 1) - 1)
+    return 2;
+  if (bigger == (DX * 2 + 1) * (DY * 2 + 1) - 1)
+    return -2;
+  else if (smaller > 0)
+    return 1;
+  else if (bigger > 0)
+    return -1;
+  else
+    return 0;  // should never happen due to quick exit in the loop
+}
+
+// ----------------------------------------------------------------------
+/*!
  * \brief Establish the type of extremum at the given point
  *
  * \param theValues The matrix of values
@@ -4664,7 +4697,7 @@ int extrematype(
 
       // update extrema values
 
-      if (dx == -DX || dx == DX || dy == -DY || dy == DY)
+      if (is_on_frame(dx, dy, DX, DY))
       {
         minimum = min(minimum, theValues[i + dx][j + dy]);
         maximum = max(maximum, theValues[i + dx][j + dy]);
@@ -4683,16 +4716,27 @@ int extrematype(
   if (change < mingradient)
     return 0;
 
-  if (smaller == (DX * 2 + 1) * (DY * 2 + 1) - 1)
-    return 2;
-  if (bigger == (DX * 2 + 1) * (DY * 2 + 1) - 1)
-    return -2;
-  else if (smaller > 0)
-    return 1;
-  else if (bigger > 0)
-    return -1;
+  return classify_extremum(smaller, bigger, DX, DY);
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Add a pressure minimum or maximum candidate if such markers are drawn
+ */
+// ----------------------------------------------------------------------
+
+void add_pressure_extremum(int extrem, const NFmiPoint& point, bool dohigh, bool dolow)
+{
+  if (extrem < 0)
+  {
+    if (dolow)
+      globals.pressurelocator.add(ExtremaLocator::Minimum, point.X(), point.Y());
+  }
   else
-    return 0;  // should never happen due to quick exit in the loop
+  {
+    if (dohigh)
+      globals.pressurelocator.add(ExtremaLocator::Maximum, point.X(), point.Y());
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -4739,17 +4783,7 @@ void draw_pressure_markers(Imagine::NFmiImage& img, const NFmiArea& theArea)
       {
         // the point in kilometer units
         NFmiPoint point(worldpts->x(i, j) / 1000, worldpts->y(i, j) / 1000);
-
-        if (extrem < 0)
-        {
-          if (dolow)
-            globals.pressurelocator.add(ExtremaLocator::Minimum, point.X(), point.Y());
-        }
-        else
-        {
-          if (dohigh)
-            globals.pressurelocator.add(ExtremaLocator::Maximum, point.X(), point.Y());
-        }
+        add_pressure_extremum(extrem, point, dohigh, dolow);
       }
     }
 
