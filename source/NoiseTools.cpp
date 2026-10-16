@@ -10,6 +10,46 @@
 
 namespace NoiseTools
 {
+namespace
+{
+// ----------------------------------------------------------------------
+/*!
+ * \brief Test whether the value is to be filtered: not missing and within the limits
+ */
+// ----------------------------------------------------------------------
+
+bool is_filtered(float value, float theLoLimit, float theHiLimit)
+{
+  if (value == kFloatMissing) return false;
+  if (theLoLimit != kFloatMissing && value < theLoLimit) return false;
+  if (theHiLimit != kFloatMissing && value > theHiLimit) return false;
+  return true;
+}
+
+// ----------------------------------------------------------------------
+/*!
+ * \brief Append the non-missing values within the radius of (i,j) to the list
+ */
+// ----------------------------------------------------------------------
+
+void collect_neighbours(const NFmiDataMatrix<float> &theValues,
+                        size_t i,
+                        size_t j,
+                        size_t theRadius,
+                        std::vector<float> &theList)
+{
+  for (size_t jj = j - std::min(j, theRadius); jj < std::min(theValues.NY(), j + theRadius + 1);
+       ++jj)
+    for (size_t ii = i - std::min(i, theRadius); ii < std::min(theValues.NX(), i + theRadius + 1);
+         ++ii)
+    {
+      const float value = theValues[ii][jj];
+      if (value != kFloatMissing) theList.push_back(value);
+    }
+}
+
+}  // namespace
+
 // ----------------------------------------------------------------------
 /*!
  * \brief Weighted median filter
@@ -42,21 +82,11 @@ void despeckle(NFmiDataMatrix<float> &theValues,
       // or the value is not in the desired range
 
       const float oldvalue = oldvalues[i][j];
-      if (oldvalue == kFloatMissing) continue;
-      if (theLoLimit != kFloatMissing && oldvalue < theLoLimit) continue;
-      if (theHiLimit != kFloatMissing && oldvalue > theHiLimit) continue;
+      if (!is_filtered(oldvalue, theLoLimit, theHiLimit)) continue;
 
       // Do median filtering
 
-      for (size_t jj = j - std::min(j, theRadius); jj < std::min(theValues.NY(), j + theRadius + 1);
-           ++jj)
-        for (size_t ii = i - std::min(i, theRadius);
-             ii < std::min(theValues.NX(), i + theRadius + 1);
-             ++ii)
-        {
-          const float value = oldvalues[ii][jj];
-          if (value != kFloatMissing) medianlist.push_back(value);
-        }
+      collect_neighbours(oldvalues, i, j, theRadius, medianlist);
 
       if (!medianlist.empty())
       {
