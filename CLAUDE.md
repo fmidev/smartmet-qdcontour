@@ -30,7 +30,7 @@ Each test runs `qdcontour -f conf/<TEST>.conf`, then compares the output PNG aga
 
 ## Architecture
 
-The entire program is a single binary built from `main/qdcontour.cpp` (~5700 lines) plus ~24 support source files.
+The entire program is a single binary built from `main/qdcontour.cpp` (~5600 lines) plus ~24 support source files.
 
 **Rendering pipeline**: Control file parsing (`process_cmd()`) → data loading via `LazyQueryData` → contour computation via `ContourCalculator` → image composition → output (PNG/JPEG/PDF).
 
@@ -45,7 +45,7 @@ The entire program is a single binary built from `main/qdcontour.cpp` (~5700 lin
 - `do_draw_contours()` — full pipeline: time loop × parameter loop → fills → patterns → lines → overlays → arrows → labels → timestamps → save
 - `do_draw_shapes()` — shapefile-only rendering (no time loop)
 
-**Control file** is a line-oriented command language with 60+ directives (projection, querydata, param, contourfill, contourline, windarrow, shape, etc.). Parsed by `process_cmd()` which is a large if/else-if chain.
+**Control file** is a line-oriented command language with over 100 directives (projection, querydata, param, contourfill, contourline, windarrow, shape, etc.). Parsed by `process_cmd()`, which looks up a `do_<command>` handler from a command table; comments and the `draw` subcommands are handled before the table lookup.
 
 ## CI
 
