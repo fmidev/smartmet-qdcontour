@@ -2,7 +2,7 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.10.16
+Version: 26.10.17
 Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
@@ -40,9 +40,9 @@ BuildRequires: smartmet-library-trax-devel >= 26.10.16
 BuildRequires: zlib-devel
 BuildRequires: ImageMagick
 BuildRequires: bc
-Requires: smartmet-library-imagine >= 26.10.16
-Requires: smartmet-library-newbase >= 26.10.16
-Requires: smartmet-library-trax >= 26.10.16
+Requires: smartmet-library-imagine >= 26.10.17
+Requires: smartmet-library-newbase >= 26.10.17
+Requires: smartmet-library-trax >= 26.10.17
 Requires: freetype
 Requires: libjpeg
 Requires: libpng
@@ -52,8 +52,8 @@ Provides: qdcontour
 #TestRequires: gcc-c++
 #TestRequires: smartmet-library-newbase-devel
 #TestRequires: smartmet-library-macgyver-devel >= 26.10.16
-#TestRequires: smartmet-library-trax >= 26.10.16
-#TestRequires: smartmet-library-regression >= 26.10.16
+#TestRequires: smartmet-library-trax >= 26.10.17
+#TestRequires: smartmet-library-regression >= 26.10.17
 #TestRequires: smartmet-fonts
 #TestRequires: smartmet-utils-devel >= 26.5.22
 #TestRequires: ImageMagick
@@ -86,6 +86,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Oct 17 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.17-1.fmi
+- set_grid_speed_direction: apply the grid north correction only with U/V orientation
+- Split functions with a cognitive complexity above 25 into smaller helpers, no functional changes
+
 * Fri Oct 16 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.16-1.fmi
 - Fixed compiler warnings and clang-tidy findings (unused code, unreachable code, empty statements, member initialization, parameter passing, noexcept), no functional changes
 
