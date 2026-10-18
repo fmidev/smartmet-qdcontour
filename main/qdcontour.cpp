@@ -3519,9 +3519,8 @@ void draw_roundarrow(NFmiImage &img, const NFmiPoint &xy, float speed, float ang
 /*!
  * \brief Set the speed and direction of a grid point from the U and V components
  *
- * Note: the direction computed for globals.uvorientation == false is always
- * overwritten by the grid north corrected one, the else seems to be missing.
- * The behaviour is retained as is.
+ * The direction is corrected by the grid north only when globals.uvorientation
+ * is set, as in the point version.
  */
 // ----------------------------------------------------------------------
 
