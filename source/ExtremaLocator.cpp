@@ -276,20 +276,20 @@ ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseOne(
  * \brief Choose a label location from given candidates closest to earlier ones
  *
  * \param theCandidates The list of candidates
- * \param thePreviousChoises The list of choices from previous timestep
+ * \param thePreviousChoices The list of choices from previous timestep
  * \param theType The extremum type
  */
 // ----------------------------------------------------------------------
 
 ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseClosestToPrevious(
-    const Coordinates& theCandidates, const Coordinates& thePreviousChoises, Extremum /*theType*/)
+    const Coordinates& theCandidates, const Coordinates& thePreviousChoices, Extremum /*theType*/)
 {
   double bestdist = -1;
   auto best = theCandidates.end();
 
   for (auto it = theCandidates.begin(); it != theCandidates.end(); ++it)
   {
-    double mindist = mindistance(it->first, it->second, thePreviousChoises);
+    double mindist = mindistance(it->first, it->second, thePreviousChoices);
     if (bestdist < 0 || mindist < bestdist)
     {
       bestdist = mindist;
