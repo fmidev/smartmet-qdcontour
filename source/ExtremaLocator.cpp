@@ -276,7 +276,7 @@ ExtremaLocator::Coordinates::const_iterator ExtremaLocator::chooseOne(
  * \brief Choose a label location from given candidates closest to earlier ones
  *
  * \param theCandidates The list of candidates
- * \param thePreviousChoises The list of choises from previous timestep
+ * \param thePreviousChoises The list of choices from previous timestep
  * \param theType The extremum type
  */
 // ----------------------------------------------------------------------

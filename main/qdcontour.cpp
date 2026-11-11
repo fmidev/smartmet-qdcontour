@@ -176,7 +176,7 @@ void parse_command_line(int argc, const char *argv[])
   // Read command filenames
 
   if (cmdline.NumberofParameters() == 0)
-    throw runtime_error("Atleast one command line parameter is required");
+    throw runtime_error("At least one command line parameter is required");
 
   for (int i = 1; i <= cmdline.NumberofParameters(); i++)
     globals.cmdline_files.emplace_back(cmdline.Parameter(i));
@@ -3386,7 +3386,7 @@ void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const
   Imagine::NFmiFace face = make_face(theSpec.labelFont());
   face.Background(false);
 
-  // Draw labels at specifing latlon points if requested
+  // Draw labels at specifying latlon points if requested
 
   {
     list<pair<NFmiPoint, NFmiPoint>>::const_iterator iter;
@@ -3420,7 +3420,7 @@ void draw_label_texts(Imagine::NFmiImage& img, const ContourSpec& theSpec, const
     }
   }
 
-  // Draw labels at specifing pixel coordinates if requested
+  // Draw labels at specifying pixel coordinates if requested
 
   {
     list<pair<NFmiPoint, float>>::const_iterator iter;

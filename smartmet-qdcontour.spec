@@ -2,8 +2,8 @@
 %define RPMNAME smartmet-%{BINNAME}
 Summary: qdcontour
 Name: %{RPMNAME}
-Version: 26.10.17
-Release: 2%{?dist}.fmi
+Version: 26.11.11
+Release: 1%{?dist}.fmi
 License: MIT
 Group: Development/Tools
 URL: http://www.weatherproof.fi
@@ -86,6 +86,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Nov 11 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.11.11-1.fmi
+- Fixed typos in messages and comments
+
 * Mon Oct 19 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.17-2.fmi
 - Repackaged: simultaneous CI runs corrupted the 26.10.17-1 RPMs
 * Sat Oct 17 2026 Mika Heiskanen <mika.heiskanen@fmi.fi> - 26.10.17-1.fmi

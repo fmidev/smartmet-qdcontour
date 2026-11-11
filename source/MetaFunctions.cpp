@@ -425,7 +425,7 @@ NFmiDataMatrix<float> thermal_front(LazyQueryData &theQI)
  * \brief Probability of snow according to the Gospel of Elina Saltikoff
  *
  * \param theQI The queryinfo
- * \return The valeus in a matrix
+ * \return The values in a matrix
  */
 // ----------------------------------------------------------------------
 

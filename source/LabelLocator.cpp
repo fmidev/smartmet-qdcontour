@@ -144,7 +144,7 @@ void LabelLocator::clear()
  * \brief Set the bounding box to which all label coordinates are clipped
  *
  * Note that normally the bounding box does not correspond directly to
- * the image dimensions, but one substracts some margin width first
+ * the image dimensions, but one subtracts some margin width first
  * to prevent labels from being place too close to the borders where
  * the label text might be rendered outside the image.
  *
