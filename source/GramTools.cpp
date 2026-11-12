@@ -7,6 +7,8 @@
 
 #include "GramTools.h"
 #include "UnitsConverter.h"
+#include <newbase/NFmiGlobals.h>
+#include <cmath>
 
 namespace GramTools
 {

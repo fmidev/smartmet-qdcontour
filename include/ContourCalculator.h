@@ -19,7 +19,6 @@
 
 #include "ContourInterpolation.h"
 #include <memory>
-#include <memory>
 
 template <typename T>
 class NFmiDataMatrix;

@@ -5,6 +5,8 @@
 // ======================================================================
 
 #include "ImageCache.h"
+#include <stdexcept>
+#include <utility>
 
 //#include <iostream>
 

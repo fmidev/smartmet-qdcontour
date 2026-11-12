@@ -15,6 +15,7 @@
 #define GRAMTOOLS_H
 
 #include <imagine/NFmiPath.h>
+#include <newbase/NFmiPoint.h>
 
 namespace GramTools
 {

@@ -11,13 +11,17 @@
 #include "LazyQueryData.h"
 #include <boost/numeric/conversion/cast.hpp>
 #include <geos/geom/GeometryFactory.h>
+#include <imagine/NFmiPath.h>
 #include <newbase/NFmiDataMatrix.h>
+#include <newbase/NFmiGlobals.h>
 #include <newbase/NFmiGrid.h>
 #include <newbase/NFmiMetTime.h>
 #include <trax/Contour.h>
 #include <trax/Geos.h>
+#include <trax/InterpolationType.h>
 #include <trax/IsobandLimits.h>
 #include <trax/IsolineValues.h>
+#include <cstddef>
 #include <limits>
 #include <memory>
 #include <stdexcept>
